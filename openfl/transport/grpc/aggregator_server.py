@@ -1,20 +1,22 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """AggregatorGRPCServer module."""
-
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 from random import random
 from time import sleep
 
-from grpc import StatusCode, server, ssl_server_credentials
+from grpc import server
+from grpc import ssl_server_credentials
+from grpc import StatusCode
 
-from openfl.protocols import aggregator_pb2, aggregator_pb2_grpc, utils
+from openfl.protocols import aggregator_pb2
+from openfl.protocols import aggregator_pb2_grpc
+from openfl.protocols import utils
 from openfl.transport.grpc.grpc_channel_options import channel_options
-from openfl.utilities import check_equal, check_is_in
+from openfl.utilities import check_equal
+from openfl.utilities import check_is_in
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +100,9 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                 not authorized.
         """
         if self.tls:
-            common_name = context.auth_context()["x509_common_name"][0].decode("utf-8")
+            common_name = context.auth_context()["x509_common_name"][0].decode(
+                "utf-8"
+            )
             collaborator_common_name = request.header.sender
             if not self.aggregator.valid_collaborator_cn_and_id(
                 common_name, collaborator_common_name
@@ -145,7 +149,9 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             ValueError: If the request is not valid.
         """
         # TODO improve this check. the sender name could be spoofed
-        check_is_in(request.header.sender, self.aggregator.authorized_cols, self.logger)
+        check_is_in(
+            request.header.sender, self.aggregator.authorized_cols, self.logger
+        )
 
         # check that the message is for me
         check_equal(request.header.receiver, self.aggregator.uuid, self.logger)
@@ -180,9 +186,12 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.validate_collaborator(request, context)
         self.check_request(request)
         collaborator_name = request.header.sender
-        tasks, round_number, sleep_time, time_to_quit = self.aggregator.get_tasks(
-            request.header.sender
-        )
+        (
+            tasks,
+            round_number,
+            sleep_time,
+            time_to_quit,
+        ) = self.aggregator.get_tasks(request.header.sender)
         if tasks:
             if isinstance(tasks[0], str):
                 # backward compatibility
@@ -285,7 +294,11 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         data_size = proto.data_size
         named_tensors = proto.tensors
         self.aggregator.send_local_task_results(
-            collaborator_name, round_number, task_name, data_size, named_tensors
+            collaborator_name,
+            round_number,
+            task_name,
+            data_size,
+            named_tensors,
         )
         # turn data stream into local model update
         return aggregator_pb2.SendLocalTaskResultsResponse(
@@ -302,18 +315,21 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         Returns:
             grpc.Server: The gRPC server.
         """
-        self.server = server(ThreadPoolExecutor(max_workers=cpu_count()), options=channel_options)
+        self.server = server(
+            ThreadPoolExecutor(max_workers=cpu_count()),
+            options=channel_options,
+        )
 
         aggregator_pb2_grpc.add_AggregatorServicer_to_server(self, self.server)
 
         if not self.tls:
-
-            self.logger.warn("gRPC is running on insecure channel with TLS disabled.")
+            self.logger.warn(
+                "gRPC is running on insecure channel with TLS disabled."
+            )
             port = self.server.add_insecure_port(self.uri)
             self.logger.info("Insecure port: %s", port)
 
         else:
-
             with open(self.private_key, "rb") as f:
                 private_key_b = f.read()
             with open(self.certificate, "rb") as f:

@@ -1,10 +1,8 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Shard descriptor."""
-
-from typing import Iterable, List
+from typing import Iterable
+from typing import List
 
 import numpy as np
 
@@ -66,7 +64,9 @@ class ShardDescriptor:
 class DummyShardDataset(ShardDataset):
     """Dummy shard dataset class."""
 
-    def __init__(self, *, size: int, sample_shape: List[int], target_shape: List[int]):
+    def __init__(
+        self, *, size: int, sample_shape: List[int], target_shape: List[int]
+    ):
         """
         Initialize DummyShardDataset.
 
@@ -76,8 +76,12 @@ class DummyShardDataset(ShardDataset):
             target_shape (List[int]): The shape of the targets.
         """
         self.size = size
-        self.samples = np.random.randint(0, 255, (self.size, *sample_shape), np.uint8)
-        self.targets = np.random.randint(0, 255, (self.size, *target_shape), np.uint8)
+        self.samples = np.random.randint(
+            0, 255, (self.size, *sample_shape), np.uint8
+        )
+        self.targets = np.random.randint(
+            0, 255, (self.size, *target_shape), np.uint8
+        )
 
     def __len__(self) -> int:
         """Return the len of the dataset.

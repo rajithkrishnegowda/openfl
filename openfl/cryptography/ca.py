@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Cryptography CA utilities."""
-
 import datetime
 import uuid
 from typing import Tuple
@@ -13,10 +10,12 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
-from cryptography.x509.base import Certificate, CertificateSigningRequest
+from cryptography.x509.base import Certificate
+from cryptography.x509.base import CertificateSigningRequest
 from cryptography.x509.extensions import ExtensionNotFound
 from cryptography.x509.name import Name
-from cryptography.x509.oid import ExtensionOID, NameOID
+from cryptography.x509.oid import ExtensionOID
+from cryptography.x509.oid import NameOID
 
 
 def generate_root_cert(
@@ -48,7 +47,9 @@ def generate_root_cert(
             x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "simple"),
             x509.NameAttribute(NameOID.COMMON_NAME, "Simple Root CA"),
             x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Simple Inc"),
-            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, "Simple Root CA"),
+            x509.NameAttribute(
+                NameOID.ORGANIZATIONAL_UNIT_NAME, "Simple Root CA"
+            ),
         ]
     )
     issuer = subject
@@ -94,7 +95,9 @@ def generate_signing_csr() -> Tuple[RSAPrivateKey, CertificateSigningRequest]:
             x509.NameAttribute(NameOID.DOMAIN_COMPONENT, "simple"),
             x509.NameAttribute(NameOID.COMMON_NAME, "Simple Signing CA"),
             x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Simple Inc"),
-            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, "Simple Signing CA"),
+            x509.NameAttribute(
+                NameOID.ORGANIZATIONAL_UNIT_NAME, "Simple Signing CA"
+            ),
         ]
     )
     builder = builder.subject_name(subject)
@@ -153,7 +156,9 @@ def sign_certificate(
     )
     try:
         builder = builder.add_extension(
-            csr.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME).value,
+            csr.extensions.get_extension_for_oid(
+                ExtensionOID.SUBJECT_ALTERNATIVE_NAME
+            ).value,
             critical=False,
         )
     except ExtensionNotFound:

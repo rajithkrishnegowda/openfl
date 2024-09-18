@@ -1,7 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 # -*- coding: utf-8 -*-
 # File    batchnorm.py
 # Author  Jiayuan Mao
@@ -11,13 +9,11 @@
 # This file is part of Synchronized-BatchNorm-PyTorch.
 # https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
 # Distributed under MIT License.
-
 import collections
 import contextlib
 
 import torch
 import torch.nn.functional as F
-
 from torch.nn.modules.batchnorm import _BatchNorm
 
 try:
@@ -27,14 +23,19 @@ except ImportError:
 
 try:
     from jactorch.parallel.comm import SyncMaster
-    from jactorch.parallel.data_parallel import JacDataParallel as DataParallelWithCallback
+    from jactorch.parallel.data_parallel import (
+        JacDataParallel as DataParallelWithCallback,
+    )
 except ImportError:
     from .comm import SyncMaster
     from .replicate import DataParallelWithCallback
 
 __all__ = [
-    'SynchronizedBatchNorm1d', 'SynchronizedBatchNorm2d', 'SynchronizedBatchNorm3d',
-    'patch_sync_batchnorm', 'convert_model'
+    "SynchronizedBatchNorm1d",
+    "SynchronizedBatchNorm2d",
+    "SynchronizedBatchNorm3d",
+    "patch_sync_batchnorm",
+    "convert_model",
 ]
 
 
@@ -48,21 +49,20 @@ def _unsqueeze_ft(tensor):
     return tensor.unsqueeze(0).unsqueeze(-1)
 
 
-_ChildMessage = collections.namedtuple('_ChildMessage', ['sum', 'ssum', 'sum_size'])
-_MasterMessage = collections.namedtuple('_MasterMessage', ['sum', 'inv_std'])
+_ChildMessage = collections.namedtuple(
+    "_ChildMessage", ["sum", "ssum", "sum_size"]
+)
+_MasterMessage = collections.namedtuple("_MasterMessage", ["sum", "inv_std"])
 
 
 class _SynchronizedBatchNorm(_BatchNorm):
     def __init__(self, num_features, eps=1e-5, momentum=0.1, affine=True):
         # TODO: remove assert
-        error_text = 'Can not use Synchronized Batch Normalization without CUDA support.'
+        error_text = "Can not use Synchronized Batch Normalization without CUDA support."
         assert ReduceAddCoalesced is not None, error_text
 
         super(_SynchronizedBatchNorm, self).__init__(
-            num_features,
-            eps=eps,
-            momentum=momentum,
-            affine=affine
+            num_features, eps=eps, momentum=momentum, affine=affine
         )
 
         self._sync_master = SyncMaster(self._data_parallel_master)
@@ -75,8 +75,15 @@ class _SynchronizedBatchNorm(_BatchNorm):
         # If it is not parallel computation or is in evaluation mode, use PyTorch's implementation.
         if not (self._is_parallel and self.training):
             return F.batch_norm(
-                input, self.running_mean, self.running_var, self.weight, self.bias,
-                self.training, self.momentum, self.eps)
+                input,
+                self.running_mean,
+                self.running_var,
+                self.weight,
+                self.bias,
+                self.training,
+                self.momentum,
+                self.eps,
+            )
 
         # Resize the input to (B, C, -1).
         input_shape = input.size()
@@ -85,7 +92,7 @@ class _SynchronizedBatchNorm(_BatchNorm):
         # Compute the sum and square-sum.
         sum_size = input.size(0) * input.size(2)
         input_sum = _sum_ft(input)
-        input_ssum = _sum_ft(input ** 2)
+        input_ssum = _sum_ft(input**2)
         child_message = _ChildMessage(input_sum, input_ssum, sum_size)
 
         # Reduce-and-broadcast the statistics.
@@ -121,7 +128,9 @@ class _SynchronizedBatchNorm(_BatchNorm):
 
         # Always using same "device order" makes the ReduceAdd operation faster.
         # Thanks to:: Tete Xiao (http://tetexiao.com/)
-        intermediates = sorted(intermediates, key=lambda i: i[1].sum.get_device())
+        intermediates = sorted(
+            intermediates, key=lambda i: i[1].sum.get_device()
+        )
 
         to_reduce = [i[1][:2] for i in intermediates]
         to_reduce = [j for i in to_reduce for j in i]  # flatten
@@ -135,20 +144,24 @@ class _SynchronizedBatchNorm(_BatchNorm):
 
         outputs = []
         for i, rec in enumerate(intermediates):
-            outputs.append((rec[0], _MasterMessage(*broadcasted[i * 2:i * 2 + 2])))
+            outputs.append(
+                (rec[0], _MasterMessage(*broadcasted[i * 2 : i * 2 + 2]))
+            )
 
         return outputs
 
     def _compute_mean_std(self, sum_, ssum, size):
         """Compute the mean and standard-deviation with sum and square-sum. This method
         also maintains the moving average on the master device."""
-        assert size > 1, 'BatchNorm computes unbiased standard-deviation, which requires size > 1.'
+        assert (
+            size > 1
+        ), "BatchNorm computes unbiased standard-deviation, which requires size > 1."
         mean = sum_ / size
         sumvar = ssum - sum_ * mean
         unbias_var = sumvar / (size - 1)
         bias_var = sumvar / size
 
-        if hasattr(torch, 'no_grad'):
+        if hasattr(torch, "no_grad"):
             with torch.no_grad():
                 self.running_mean = (1 - self.momentum) * self.running_mean
                 self.running_mean += self.momentum * mean.data
@@ -221,8 +234,9 @@ class SynchronizedBatchNorm1d(_SynchronizedBatchNorm):
 
     def _check_input_dim(self, input):
         if input.dim() != 2 and input.dim() != 3:
-            raise ValueError('expected 2D or 3D input (got {}D input)'
-                             .format(input.dim()))
+            raise ValueError(
+                "expected 2D or 3D input (got {}D input)".format(input.dim())
+            )
         super(SynchronizedBatchNorm1d, self)._check_input_dim(input)
 
 
@@ -284,8 +298,9 @@ class SynchronizedBatchNorm2d(_SynchronizedBatchNorm):
 
     def _check_input_dim(self, input):
         if input.dim() != 4:
-            raise ValueError('expected 4D input (got {}D input)'
-                             .format(input.dim()))
+            raise ValueError(
+                "expected 4D input (got {}D input)".format(input.dim())
+            )
         super(SynchronizedBatchNorm2d, self)._check_input_dim(input)
 
 
@@ -348,8 +363,9 @@ class SynchronizedBatchNorm3d(_SynchronizedBatchNorm):
 
     def _check_input_dim(self, input):
         if input.dim() != 5:
-            raise ValueError('expected 5D input (got {}D input)'
-                             .format(input.dim()))
+            raise ValueError(
+                "expected 5D input (got {}D input)".format(input.dim())
+            )
         super(SynchronizedBatchNorm3d, self)._check_input_dim(input)
 
 
@@ -392,14 +408,22 @@ def convert_model(module):
         return mod
 
     mod = module
-    for pth_module, sync_module in zip([torch.nn.modules.batchnorm.BatchNorm1d,
-                                        torch.nn.modules.batchnorm.BatchNorm2d,
-                                        torch.nn.modules.batchnorm.BatchNorm3d],
-                                       [SynchronizedBatchNorm1d,
-                                        SynchronizedBatchNorm2d,
-                                        SynchronizedBatchNorm3d]):
+    for pth_module, sync_module in zip(
+        [
+            torch.nn.modules.batchnorm.BatchNorm1d,
+            torch.nn.modules.batchnorm.BatchNorm2d,
+            torch.nn.modules.batchnorm.BatchNorm3d,
+        ],
+        [
+            SynchronizedBatchNorm1d,
+            SynchronizedBatchNorm2d,
+            SynchronizedBatchNorm3d,
+        ],
+    ):
         if isinstance(module, pth_module):
-            mod = sync_module(module.num_features, module.eps, module.momentum, module.affine)
+            mod = sync_module(
+                module.num_features, module.eps, module.momentum, module.affine
+            )
             mod.running_mean = module.running_mean
             mod.running_var = module.running_var
             if module.affine:

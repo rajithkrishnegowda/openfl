@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """OpenFL Native functions module.
 
 This file defines openfl entrypoints to be used directly through python (not
@@ -12,7 +10,8 @@ import json
 import logging
 import os
 from copy import copy
-from logging import basicConfig, getLogger
+from logging import basicConfig
+from logging import getLogger
 from pathlib import Path
 from sys import path
 
@@ -76,7 +75,11 @@ def flatten(config, return_complete=False):
     """
     flattened_config = flatten_json.flatten(config, ".")
     if not return_complete:
-        keys_to_remove = [k for k, v in flattened_config.items() if ("defaults" in k or v is None)]
+        keys_to_remove = [
+            k
+            for k, v in flattened_config.items()
+            if ("defaults" in k or v is None)
+        ]
     else:
         keys_to_remove = [k for k, v in flattened_config.items() if v is None]
     for k in keys_to_remove:
@@ -185,7 +188,9 @@ def setup_logging(level="INFO", log_file=None):
 
     console = Console(width=160)
     handlers.append(RichHandler(console=console))
-    basicConfig(level=level, format="%(message)s", datefmt="[%X]", handlers=handlers)
+    basicConfig(
+        level=level, format="%(message)s", datefmt="[%X]", handlers=handlers
+    )
 
 
 def init(
@@ -240,7 +245,9 @@ def init(
     data_path = 1
     for col_name in col_names:
         collaborator.create(col_name, str(data_path), silent=True)
-        collaborator.generate_cert_request(col_name, silent=True, skip_package=True)
+        collaborator.generate_cert_request(
+            col_name, silent=True, skip_package=True
+        )
         collaborator.certify(col_name, silent=True)
         data_path += 1
 
@@ -344,7 +351,9 @@ def run_experiment(collaborator_dict: dict, override_config: dict = None):
             collaborator.run_simulation()
 
     # Set the weights for the final model
-    model.rebuild_model(rounds_to_train - 1, aggregator.last_tensor_dict, validation=True)
+    model.rebuild_model(
+        rounds_to_train - 1, aggregator.last_tensor_dict, validation=True
+    )
     return model
 
 

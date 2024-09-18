@@ -1,13 +1,26 @@
 from openfl.interface.interactive_api.experiment import TaskInterface
-from tests.github.interactive_api.experiments.tensorflow_mnist.settings import loss_fn, \
-    train_acc_metric, val_acc_metric
+from tests.github.interactive_api.experiments.tensorflow_mnist.settings import (
+    loss_fn,
+)
+from tests.github.interactive_api.experiments.tensorflow_mnist.settings import (
+    train_acc_metric,
+)
+from tests.github.interactive_api.experiments.tensorflow_mnist.settings import (
+    val_acc_metric,
+)
 
 task_interface = TaskInterface()
 
 
-@task_interface.register_fl_task(model='model', data_loader='train_dataset',
-                                 device='device', optimizer='optimizer')
-def train(model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False):
+@task_interface.register_fl_task(
+    model="model",
+    data_loader="train_dataset",
+    device="device",
+    optimizer="optimizer",
+)
+def train(
+    model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False
+):
     import tensorflow as tf
 
     # Iterate over the batches of the dataset.
@@ -38,10 +51,12 @@ def train(model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False
     # Reset training metrics at the end of each epoch
     train_acc_metric.reset_states()
 
-    return {'train_acc': train_acc}
+    return {"train_acc": train_acc}
 
 
-@task_interface.register_fl_task(model='model', data_loader='val_dataset', device='device')
+@task_interface.register_fl_task(
+    model="model", data_loader="val_dataset", device="device"
+)
 def validate(model, val_dataset, device):
     # Run a validation loop at the end of each epoch.
     for x_batch_val, y_batch_val in val_dataset:
@@ -52,4 +67,4 @@ def validate(model, val_dataset, device):
     val_acc_metric.reset_states()
     print("Validation acc: %.4f" % (float(val_acc),))
 
-    return {'validation_accuracy': val_acc}
+    return {"validation_accuracy": val_acc}

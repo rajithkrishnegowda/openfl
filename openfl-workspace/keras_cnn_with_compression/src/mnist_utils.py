@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 from logging import getLogger
 
 import numpy as np
@@ -38,18 +36,22 @@ def _load_raw_datashards(shard_num, collaborator_count):
     Returns:
         2 tuples: (image, label) of the training, validation dataset
     """
-    origin_folder = 'https://storage.googleapis.com/tensorflow/tf-keras-datasets/'
-    path = get_file('mnist.npz',
-                    origin=origin_folder + 'mnist.npz',
-                    file_hash='731c5ac602752760c8e48fbffcf8c3b850d9dc2a2aedcf2cc48468fc17b673d1')
+    origin_folder = (
+        "https://storage.googleapis.com/tensorflow/tf-keras-datasets/"
+    )
+    path = get_file(
+        "mnist.npz",
+        origin=origin_folder + "mnist.npz",
+        file_hash="731c5ac602752760c8e48fbffcf8c3b850d9dc2a2aedcf2cc48468fc17b673d1",
+    )
 
     with np.load(path) as f:
         # get all of mnist
-        X_train_tot = f['x_train']
-        y_train_tot = f['y_train']
+        X_train_tot = f["x_train"]
+        y_train_tot = f["y_train"]
 
-        X_valid_tot = f['x_test']
-        y_valid_tot = f['y_test']
+        X_valid_tot = f["x_test"]
+        y_valid_tot = f["y_test"]
 
     # create the shards
     shard_num = int(shard_num)
@@ -62,8 +64,13 @@ def _load_raw_datashards(shard_num, collaborator_count):
     return (X_train, y_train), (X_valid, y_valid)
 
 
-def load_mnist_shard(shard_num, collaborator_count, categorical=True,
-                     channels_last=True, **kwargs):
+def load_mnist_shard(
+    shard_num,
+    collaborator_count,
+    categorical=True,
+    channels_last=True,
+    **kwargs,
+):
     """
     Load the MNIST dataset.
 
@@ -100,15 +107,15 @@ def load_mnist_shard(shard_num, collaborator_count, categorical=True,
         X_valid = X_valid.reshape(X_valid.shape[0], 1, img_rows, img_cols)
         input_shape = (1, img_rows, img_cols)
 
-    X_train = X_train.astype('float32')
-    X_valid = X_valid.astype('float32')
+    X_train = X_train.astype("float32")
+    X_valid = X_valid.astype("float32")
     X_train /= 255
     X_valid /= 255
 
-    logger.info(f'MNIST > X_train Shape : {X_train.shape}')
-    logger.info(f'MNIST > y_train Shape : {y_train.shape}')
-    logger.info(f'MNIST > Train Samples : {X_train.shape[0]}')
-    logger.info(f'MNIST > Valid Samples : {X_valid.shape[0]}')
+    logger.info(f"MNIST > X_train Shape : {X_train.shape}")
+    logger.info(f"MNIST > y_train Shape : {y_train.shape}")
+    logger.info(f"MNIST > Train Samples : {X_train.shape[0]}")
+    logger.info(f"MNIST > Valid Samples : {X_valid.shape[0]}")
 
     if categorical:
         # convert class vectors to binary class matrices

@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.experimental.utilities.stream_redirect module."""
-
 import io
 import sys
 from copy import deepcopy
@@ -96,8 +93,12 @@ class RedirectStdStreamContext:
         """
         self.__old_stdout = sys.stdout
         self.__old_stderr = sys.stderr
-        sys.stdout = RedirectStdStream(self.stdstreambuffer._stdoutbuff, sys.stdout)
-        sys.stderr = RedirectStdStream(self.stdstreambuffer._stderrbuff, sys.stderr)
+        sys.stdout = RedirectStdStream(
+            self.stdstreambuffer._stdoutbuff, sys.stdout
+        )
+        sys.stderr = RedirectStdStream(
+            self.stdstreambuffer._stderrbuff, sys.stderr
+        )
 
         return self.stdstreambuffer
 

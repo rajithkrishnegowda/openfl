@@ -1,36 +1,41 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import collections
+import warnings
 from itertools import repeat
-from typing import Callable, List, Optional, Union, Tuple, Sequence, Any
 from types import FunctionType
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Union
 
 import numpy as np
-import tqdm
-import warnings
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import tqdm
 from torch import Tensor
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def _log_api_usage_once(obj: Any) -> None:
     module = obj.__module__
-    if not module.startswith('torchvision'):
-        module = f'torchvision.internal.{module}'
+    if not module.startswith("torchvision"):
+        module = f"torchvision.internal.{module}"
     name = obj.__class__.__name__
     if isinstance(obj, FunctionType):
         name = obj.__name__
-    torch._C._log_api_usage_once(f'{module}.{name}')
+    torch._C._log_api_usage_once(f"{module}.{name}")
 
 
 def _make_ntuple(x: Any, n: int) -> Tuple[Any, ...]:
@@ -48,24 +53,32 @@ class ConvNormActivation(torch.nn.Sequential):
         stride: Union[int, Tuple[int, ...]] = 1,
         padding: Optional[Union[int, Tuple[int, ...], str]] = None,
         groups: int = 1,
-        norm_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.BatchNorm2d,
-        activation_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.ReLU,
+        norm_layer: Optional[
+            Callable[..., torch.nn.Module]
+        ] = torch.nn.BatchNorm2d,
+        activation_layer: Optional[
+            Callable[..., torch.nn.Module]
+        ] = torch.nn.ReLU,
         dilation: Union[int, Tuple[int, ...]] = 1,
         inplace: Optional[bool] = True,
         bias: Optional[bool] = None,
         conv_layer: Callable[..., torch.nn.Module] = torch.nn.Conv2d,
     ) -> None:
-
         if padding is None:
             if isinstance(kernel_size, int) and isinstance(dilation, int):
                 padding = (kernel_size - 1) // 2 * dilation
             else:
-                _conv_dim = (len(kernel_size)
-                             if isinstance(kernel_size, Sequence)
-                             else len(dilation))
+                _conv_dim = (
+                    len(kernel_size)
+                    if isinstance(kernel_size, Sequence)
+                    else len(dilation)
+                )
                 kernel_size = _make_ntuple(kernel_size, _conv_dim)
                 dilation = _make_ntuple(dilation, _conv_dim)
-                padding = tuple((kernel_size[i] - 1) // 2 * dilation[i] for i in range(_conv_dim))
+                padding = tuple(
+                    (kernel_size[i] - 1) // 2 * dilation[i]
+                    for i in range(_conv_dim)
+                )
         if bias is None:
             bias = norm_layer is None
 
@@ -108,13 +121,16 @@ class Conv2dNormActivation(ConvNormActivation):
         stride: Union[int, Tuple[int, int]] = 1,
         padding: Optional[Union[int, Tuple[int, int], str]] = None,
         groups: int = 1,
-        norm_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.BatchNorm2d,
-        activation_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.ReLU,
+        norm_layer: Optional[
+            Callable[..., torch.nn.Module]
+        ] = torch.nn.BatchNorm2d,
+        activation_layer: Optional[
+            Callable[..., torch.nn.Module]
+        ] = torch.nn.ReLU,
         dilation: Union[int, Tuple[int, int]] = 1,
         inplace: Optional[bool] = True,
         bias: Optional[bool] = None,
     ) -> None:
-
         super().__init__(
             in_channels,
             out_channels,
@@ -131,7 +147,9 @@ class Conv2dNormActivation(ConvNormActivation):
         )
 
 
-def _make_divisible(v: float, divisor: int, min_value: Optional[int] = None) -> int:
+def _make_divisible(
+    v: float, divisor: int, min_value: Optional[int] = None
+) -> int:
     if min_value is None:
         min_value = divisor
     new_v = max(min_value, int(v + divisor / 2) // divisor * divisor)
@@ -144,8 +162,12 @@ def _make_divisible(v: float, divisor: int, min_value: Optional[int] = None) -> 
 # necessary for backwards compatibility
 class InvertedResidual(nn.Module):
     def __init__(
-        self, inp: int, oup: int, stride: int, expand_ratio: int,
-        norm_layer: Optional[Callable[..., nn.Module]] = None
+        self,
+        inp: int,
+        oup: int,
+        stride: int,
+        expand_ratio: int,
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
     ) -> None:
         super().__init__()
         self.stride = stride
@@ -162,10 +184,13 @@ class InvertedResidual(nn.Module):
         if expand_ratio != 1:
             # pw
             layers.append(
-                Conv2dNormActivation(inp, hidden_dim, kernel_size=1,
-                                     norm_layer=norm_layer,
-                                     activation_layer=nn.ReLU6
-                                     )
+                Conv2dNormActivation(
+                    inp,
+                    hidden_dim,
+                    kernel_size=1,
+                    norm_layer=norm_layer,
+                    activation_layer=nn.ReLU6,
+                )
             )
         layers.extend(
             [
@@ -204,7 +229,7 @@ class MobileNetV2(nn.Module):
         block: Optional[Callable[..., nn.Module]] = None,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
         dropout: float = 0.2,
-        classifier_block: Optional = None
+        classifier_block: Optional = None,
     ) -> None:
         super().__init__()
 
@@ -218,7 +243,10 @@ class MobileNetV2(nn.Module):
         last_channel = 1280
 
         # only check the first element, assuming user knows t,c,n,s are required
-        if len(inverted_residual_setting) == 0 or len(inverted_residual_setting[0]) != 4:
+        if (
+            len(inverted_residual_setting) == 0
+            or len(inverted_residual_setting[0]) != 4
+        ):
             raise ValueError(
                 "inverted_residual_setting should be non-empty "
                 + f"or a 4-element list, got {inverted_residual_setting}"
@@ -233,8 +261,11 @@ class MobileNetV2(nn.Module):
         )
         features: List[nn.Module] = [
             Conv2dNormActivation(
-                3, input_channel, stride=2, norm_layer=norm_layer,
-                activation_layer=nn.ReLU6
+                3,
+                input_channel,
+                stride=2,
+                norm_layer=norm_layer,
+                activation_layer=nn.ReLU6,
             )
         ]
         # building inverted residual blocks
@@ -244,16 +275,22 @@ class MobileNetV2(nn.Module):
                 stride = s if i == 0 else 1
                 features.append(
                     block(
-                        input_channel, output_channel, stride,
-                        expand_ratio=t, norm_layer=norm_layer
+                        input_channel,
+                        output_channel,
+                        stride,
+                        expand_ratio=t,
+                        norm_layer=norm_layer,
                     )
                 )
                 input_channel = output_channel
         # building last several layers
         features.append(
             Conv2dNormActivation(
-                input_channel, self.last_channel, kernel_size=1,
-                norm_layer=norm_layer, activation_layer=nn.ReLU6
+                input_channel,
+                self.last_channel,
+                kernel_size=1,
+                norm_layer=norm_layer,
+                activation_layer=nn.ReLU6,
             )
         )
         # make it nn.Sequential
@@ -265,7 +302,7 @@ class MobileNetV2(nn.Module):
         # weight initialization
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out')
+                nn.init.kaiming_normal_(m.weight, mode="fan_out")
                 if m.bias is not None:
                     nn.init.zeros_(m.bias)
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
@@ -333,13 +370,14 @@ def inference(network, test_loader):
             samples = target.shape[0]
             total_samples += samples
             data, target = torch.tensor(data).to(device), torch.tensor(
-                target).to(device, dtype=torch.int64)
+                target
+            ).to(device, dtype=torch.int64)
             output = network(data)
             pred = output.argmax(dim=1, keepdim=True)
             val_score += pred.eq(target).sum().cpu().numpy()
 
-    accuracy = (val_score / total_samples)
-    print(f'Validation Accuracy: {100*accuracy:.2f}%')
+    accuracy = val_score / total_samples
+    print(f"Validation Accuracy: {100*accuracy:.2f}%")
     return accuracy
 
 
@@ -349,7 +387,8 @@ def fedavg(models):
     state_dict = new_model.state_dict()
     for key in models[1].state_dict():
         state_dict[key] = np.sum(
-            np.array([state[key] for state in state_dicts], dtype=object), axis=0
+            np.array([state[key] for state in state_dicts], dtype=object),
+            axis=0,
         ) / len(models)
     new_model.load_state_dict(state_dict)
     return new_model
@@ -363,13 +402,11 @@ class TinyImageNetFlow(FLSpec):
 
     @aggregator
     def start(self):
-        print('Performing initialization for model')
+        print("Performing initialization for model")
         self.collaborators = self.runtime.collaborators
         self.private = 10
         self.current_round = 0
-        self.model.base_model.load_state_dict(
-            self.pretrained_state_dict
-        )
+        self.model.base_model.load_state_dict(self.pretrained_state_dict)
         self.next(
             self.aggregated_model_validation,
             foreach="collaborators",
@@ -378,7 +415,9 @@ class TinyImageNetFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(f"Performing aggregated model validation for collaborator {self.input}")
+        print(
+            f"Performing aggregated model validation for collaborator {self.input}"
+        )
         self.agg_validation_score = inference(self.model, self.test_loader)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.next(self.train)
@@ -390,12 +429,12 @@ class TinyImageNetFlow(FLSpec):
 
         losses = []
         self.optimizer = optim.Adam(
-            [x for x in self.model.parameters() if x.requires_grad],
-            lr=1e-4
+            [x for x in self.model.parameters() if x.requires_grad], lr=1e-4
         )
         for data, target in data_loader:
             data, target = torch.tensor(data).to(device), torch.tensor(
-                target).to(device)
+                target
+            ).to(device)
             self.optimizer.zero_grad()
             output = self.model(data)
             loss = F.cross_entropy(output, target)
@@ -404,7 +443,7 @@ class TinyImageNetFlow(FLSpec):
             losses.append(loss.detach().cpu().numpy())
             self.loss = loss.item()
 
-        print(f'train_loss: {np.mean(losses)}')
+        print(f"train_loss: {np.mean(losses)}")
         self.training_completed = True
         self.next(self.local_model_validation)
 
@@ -431,7 +470,9 @@ class TinyImageNetFlow(FLSpec):
             + f"validation values = {self.aggregated_model_accuracy}"
         )
         print(f"Average training loss = {self.average_loss}")
-        print(f"Average local model validation values = {self.local_model_accuracy}")
+        print(
+            f"Average local model validation values = {self.local_model_accuracy}"
+        )
         self.model = fedavg([input.model.to("cpu") for input in inputs])
         self.next(self.internal_loop)
 
@@ -440,7 +481,10 @@ class TinyImageNetFlow(FLSpec):
         self.current_round += 1
         if self.current_round < self.rounds:
             self.next(
-                self.aggregated_model_validation, foreach="collaborators", exclude=["private"])
+                self.aggregated_model_validation,
+                foreach="collaborators",
+                exclude=["private"],
+            )
         else:
             self.next(self.end)
 

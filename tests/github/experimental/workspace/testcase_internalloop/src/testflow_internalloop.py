@@ -1,9 +1,10 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import numpy as np
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.placement.placement import aggregator, collaborator
-import numpy as np
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 
 
 class bcolors:  # NOQA: N801
@@ -45,7 +46,9 @@ class TestFlowInternalLoop(FLSpec):
         Calculating the mean of the model created in start.
         """
         self.agg_mean_value = np.mean(self.model)
-        print(f"<Collab>: {self.input} Mean of Agg model: {self.agg_mean_value} ")
+        print(
+            f"<Collab>: {self.input} Mean of Agg model: {self.agg_mean_value} "
+        )
         self.next(self.collab_model_update)
 
     @collaborator
@@ -71,7 +74,9 @@ class TestFlowInternalLoop(FLSpec):
         """
         Joining inputs from collaborators
         """
-        self.agg_mean = sum(input.local_mean_value for input in inputs) / len(inputs)
+        self.agg_mean = sum(input.local_mean_value for input in inputs) / len(
+            inputs
+        )
         print(f"Aggregated mean : {self.agg_mean}")
         self.next(self.internal_loop)
 
@@ -156,7 +161,8 @@ def validate_flow(flow_obj, expected_flow_steps):
 
         # Each collaborator step is executed for (training rounds)*(number of collaborator) times
         if (func.collaborator_step is True) and (
-            task_count != len(flow_obj.collaborators) * flow_obj.training_rounds
+            task_count
+            != len(flow_obj.collaborators) * flow_obj.training_rounds
         ):
             validate_flow_error.append(
                 f"{bcolors.FAIL}... Error : Incorrect number of execution detected for "

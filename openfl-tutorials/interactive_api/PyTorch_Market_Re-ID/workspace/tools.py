@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Tools for metric computation and Dataloader."""
-
 import copy
 import random
 from collections import defaultdict
@@ -56,7 +54,7 @@ def compute_ap_cmc(index, good_index, junk_index):
     rows_good = np.argwhere(mask)
     rows_good = rows_good.flatten()
 
-    cmc[rows_good[0]:] = 1.0
+    cmc[rows_good[0] :] = 1.0
     for i in range(ngood):
         d_recall = 1.0 / ngood
         precision = (i + 1) * 1.0 / (rows_good[i] + 1)
@@ -79,7 +77,9 @@ def evaluate(distmat, q_pids, g_pids, q_camids, g_camids):
         # groundtruth index
         query_index = np.argwhere(g_pids == q_pids[i])
         camera_index = np.argwhere(g_camids == q_camids[i])
-        good_index = np.setdiff1d(query_index, camera_index, assume_unique=True)
+        good_index = np.setdiff1d(
+            query_index, camera_index, assume_unique=True
+        )
         if good_index.size == 0:
             num_no_gt += 1
             continue
@@ -93,7 +93,7 @@ def evaluate(distmat, q_pids, g_pids, q_camids, g_camids):
         ap += ap_tmp
 
     if num_no_gt > 0:
-        logger.error(f'{num_no_gt} query imgs do not have groundtruth.')
+        logger.error(f"{num_no_gt} query imgs do not have groundtruth.")
 
     cmc = cmc / (num_q - num_no_gt)
     mean_ap = ap / (num_q - num_no_gt)
@@ -168,7 +168,9 @@ class RandomIdentitySampler(Sampler):
         for pid in self.pids:
             idxs = copy.deepcopy(self.index_dic[pid])
             if len(idxs) < self.num_instances:
-                idxs = np.random.choice(idxs, size=self.num_instances, replace=True)
+                idxs = np.random.choice(
+                    idxs, size=self.num_instances, replace=True
+                )
             random.shuffle(idxs)
             batch_idxs = []
             for idx in idxs:

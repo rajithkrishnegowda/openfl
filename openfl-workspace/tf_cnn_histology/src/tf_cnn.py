@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import tensorflow as tf
 
 from openfl.federated import KerasTaskRunner
@@ -26,18 +24,18 @@ class TensorFlowCNN(KerasTaskRunner):
         super().__init__(**kwargs)
 
         self.model = self.create_model(
-            self.feature_shape,
-            self.data_loader.num_classes,
-            **kwargs
+            self.feature_shape, self.data_loader.num_classes, **kwargs
         )
         self.initialize_tensorkeys_for_functions()
 
-    def create_model(self,
-                     input_shape,
-                     num_classes,
-                     training_smoothing=32.0,
-                     validation_smoothing=1.0,
-                     **kwargs):
+    def create_model(
+        self,
+        input_shape,
+        num_classes,
+        training_smoothing=32.0,
+        validation_smoothing=1.0,
+        **kwargs,
+    ):
         """Create the TensorFlow CNN Histology model.
 
         Args:
@@ -54,29 +52,37 @@ class TensorFlowCNN(KerasTaskRunner):
 
         inputs = tf.keras.layers.Input(shape=input_shape)
         conv = tf.keras.layers.Conv2D(
-            filters=16, kernel_size=(3, 3), padding='same', activation='relu')(inputs)
+            filters=16, kernel_size=(3, 3), padding="same", activation="relu"
+        )(inputs)
         conv = tf.keras.layers.Conv2D(
-            filters=32, kernel_size=(3, 3), padding='same', activation='relu')(conv)
+            filters=32, kernel_size=(3, 3), padding="same", activation="relu"
+        )(conv)
         maxpool = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(conv)
 
         conv = tf.keras.layers.Conv2D(
-            filters=64, kernel_size=(3, 3), padding='same', activation='relu')(maxpool)
+            filters=64, kernel_size=(3, 3), padding="same", activation="relu"
+        )(maxpool)
         conv = tf.keras.layers.Conv2D(
-            filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv)
+            filters=128, kernel_size=(3, 3), padding="same", activation="relu"
+        )(conv)
         concat = tf.keras.layers.concatenate([maxpool, conv])
         maxpool = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(concat)
 
         conv = tf.keras.layers.Conv2D(
-            filters=256, kernel_size=(3, 3), padding='same', activation='relu')(maxpool)
+            filters=256, kernel_size=(3, 3), padding="same", activation="relu"
+        )(maxpool)
         conv = tf.keras.layers.Conv2D(
-            filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv)
+            filters=512, kernel_size=(3, 3), padding="same", activation="relu"
+        )(conv)
         concat = tf.keras.layers.concatenate([maxpool, conv])
         maxpool = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(concat)
 
         conv = tf.keras.layers.Conv2D(
-            filters=256, kernel_size=(3, 3), padding='same', activation='relu')(maxpool)
+            filters=256, kernel_size=(3, 3), padding="same", activation="relu"
+        )(maxpool)
         conv = tf.keras.layers.Conv2D(
-            filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv)
+            filters=512, kernel_size=(3, 3), padding="same", activation="relu"
+        )(conv)
         concat = tf.keras.layers.concatenate([maxpool, conv])
         maxpool = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(concat)
 
@@ -91,16 +97,18 @@ class TensorFlowCNN(KerasTaskRunner):
         self.optimizer = tf.keras.optimizers.Adam()
 
         model.compile(
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(
+                from_logits=True
+            ),
             optimizer=self.optimizer,
             metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
         )
 
         self.tvars = model.layers
-        print(f'layer names: {[var.name for var in self.tvars]}')
+        print(f"layer names: {[var.name for var in self.tvars]}")
 
         self.opt_vars = self.optimizer.variables()
-        print(f'optimizer vars: {self.opt_vars}')
+        print(f"optimizer vars: {self.opt_vars}")
 
         # Two opt_vars for one tvar: gradient and square sum for RMSprop.
         self.fl_vars = self.tvars + self.opt_vars

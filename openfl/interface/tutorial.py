@@ -1,14 +1,16 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Tutorial module."""
 from logging import getLogger
-from os import environ, sep
+from os import environ
+from os import sep
 from subprocess import check_call  # nosec
 from sys import executable
 
-from click import IntRange, group, option, pass_context
+from click import group
+from click import IntRange
+from click import option
+from click import pass_context
 
 from openfl.interface.cli_helper import TUTORIALS
 from openfl.utilities import click_types

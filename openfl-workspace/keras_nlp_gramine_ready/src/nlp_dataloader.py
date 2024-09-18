@@ -17,8 +17,15 @@ logger = getLogger(__name__)
 class NLPDataLoader(KerasDataLoader):
     """NLP Dataloader template."""
 
-    def __init__(self, collaborator_count, split_ratio,
-                 num_samples, data_path, batch_size, **kwargs):
+    def __init__(
+        self,
+        collaborator_count,
+        split_ratio,
+        num_samples,
+        data_path,
+        batch_size,
+        **kwargs
+    ):
         """Instantiate the data object.
 
         Args:
@@ -34,14 +41,19 @@ class NLPDataLoader(KerasDataLoader):
 
         self.batch_size = batch_size
 
-        train, valid, details = dlu.load_shard(collaborator_count, self.shard_num,
-                                               self.data_path, num_samples, split_ratio)
+        train, valid, details = dlu.load_shard(
+            collaborator_count,
+            self.shard_num,
+            self.data_path,
+            num_samples,
+            split_ratio,
+        )
 
-        self.num_samples = details['num_samples']
-        self.num_encoder_tokens = details['num_encoder_tokens']
-        self.num_decoder_tokens = details['num_decoder_tokens']
-        self.max_encoder_seq_length = details['max_encoder_seq_length']
-        self.max_decoder_seq_length = details['max_decoder_seq_length']
+        self.num_samples = details["num_samples"]
+        self.num_encoder_tokens = details["num_encoder_tokens"]
+        self.num_decoder_tokens = details["num_decoder_tokens"]
+        self.max_encoder_seq_length = details["max_encoder_seq_length"]
+        self.max_decoder_seq_length = details["max_decoder_seq_length"]
 
         self.X_train = [train[0], train[1]]
         self.y_train = train[2]
@@ -60,8 +72,12 @@ class NLPDataLoader(KerasDataLoader):
         -------
         loader object
         """
-        return self._get_batch_generator(X1=self.X_train[0], X2=self.X_train[1],
-                                         y=self.y_train, batch_size=batch_size)
+        return self._get_batch_generator(
+            X1=self.X_train[0],
+            X2=self.X_train[1],
+            y=self.y_train,
+            batch_size=batch_size,
+        )
 
     def get_valid_loader(self, batch_size=None):
         """
@@ -70,8 +86,12 @@ class NLPDataLoader(KerasDataLoader):
         Returns:
             loader object
         """
-        return self._get_batch_generator(X1=self.X_valid[0], X2=self.X_valid[1],
-                                         y=self.y_valid, batch_size=batch_size)
+        return self._get_batch_generator(
+            X1=self.X_valid[0],
+            X2=self.X_valid[1],
+            y=self.y_valid,
+            batch_size=batch_size,
+        )
 
     def get_train_data_size(self):
         """

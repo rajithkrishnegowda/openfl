@@ -1,16 +1,21 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-from openfl.federated import TensorFlowDataLoader
 from .brats_utils import load_from_nifti
+from openfl.federated import TensorFlowDataLoader
 
 
 class TensorFlowBratsInMemory(TensorFlowDataLoader):
     """TensorFlow Data Loader for the BraTS dataset."""
 
-    def __init__(self, data_path, batch_size, percent_train=0.8, pre_split_shuffle=True, **kwargs):
+    def __init__(
+        self,
+        data_path,
+        batch_size,
+        percent_train=0.8,
+        pre_split_shuffle=True,
+        **kwargs
+    ):
         """Initialize.
 
         Args:
@@ -26,10 +31,12 @@ class TensorFlowBratsInMemory(TensorFlowDataLoader):
         """
         super().__init__(batch_size, **kwargs)
 
-        X_train, y_train, X_valid, y_valid = load_from_nifti(parent_dir=data_path,
-                                                             percent_train=percent_train,
-                                                             shuffle=pre_split_shuffle,
-                                                             **kwargs)
+        X_train, y_train, X_valid, y_valid = load_from_nifti(
+            parent_dir=data_path,
+            percent_train=percent_train,
+            shuffle=pre_split_shuffle,
+            **kwargs
+        )
         self.X_train = X_train
         self.y_train = y_train
         self.X_valid = X_valid

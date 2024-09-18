@@ -1,7 +1,6 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """MXNet Framework Adapter plugin."""
-
 from pickle import dumps
 from pickle import loads
 from typing import Dict
@@ -11,7 +10,7 @@ import numpy as np
 from mxnet import nd
 
 from openfl.plugins.frameworks_adapters.framework_adapter_interface import (
-    FrameworkAdapterPluginInterface
+    FrameworkAdapterPluginInterface,
 )
 
 
@@ -42,8 +41,9 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
         return state
 
     @staticmethod
-    def set_tensor_dict(model, tensor_dict: Dict[str, np.ndarray],
-                        optimizer=None, device=None) -> None:
+    def set_tensor_dict(
+        model, tensor_dict: Dict[str, np.ndarray], optimizer=None, device=None
+    ) -> None:
         """
         Set tensor dict from a model and an optimizer.
 
@@ -51,8 +51,10 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
         the model and optimizer objects inplace.
         """
         if device is not None:
-            device = mx.cpu() if device.startswith('cpu') else (
-                mx.gpu(int(device.split(':')[1].strip()))
+            device = (
+                mx.cpu()
+                if device.startswith("cpu")
+                else (mx.gpu(int(device.split(":")[1].strip())))
             )
 
         if optimizer is not None:
@@ -62,7 +64,9 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
         model_params = model.collect_params()
 
         for param_name in model_params:
-            model_params[param_name].set_data(nd.array(tensor_dict.pop(param_name), ctx=device))
+            model_params[param_name].set_data(
+                nd.array(tensor_dict.pop(param_name), ctx=device)
+            )
 
 
 def _get_optimizer_state(optimizer):
@@ -75,7 +79,9 @@ def _get_optimizer_state(optimizer):
     result_states = {}
     for state_key, state_tuple in states.items():
         for state_ind, state in enumerate(state_tuple):
-            result_states[f'opt_state__{state_key}__{state_ind}'] = state.asnumpy()
+            result_states[
+                f"opt_state__{state_key}__{state_ind}"
+            ] = state.asnumpy()
 
     return result_states
 
@@ -90,9 +96,9 @@ def _set_optimizer_state(optimizer, device, opt_state_dict):
     """
     state_keys, max_numstates = set(), 0
     for key in opt_state_dict.keys():
-        if not key.startswith('opt_state'):
+        if not key.startswith("opt_state"):
             continue
-        _, part1, part2 = key.split('__')
+        _, part1, part2 = key.split("__")
         state_keys.add(int(part1))
         max_numstates = max(max_numstates, int(part2))
 
@@ -101,7 +107,11 @@ def _set_optimizer_state(optimizer, device, opt_state_dict):
         key = state_keys.pop()
         state_vals = []
         for i in range(max_numstates + 1):
-            state_vals.append(nd.array(opt_state_dict.pop(f'opt_state__{key}__{i}'), ctx=device))
+            state_vals.append(
+                nd.array(
+                    opt_state_dict.pop(f"opt_state__{key}__{i}"), ctx=device
+                )
+            )
         out_state[key] = tuple(state_vals)
 
     optimizer._updaters[0].set_states(dumps(out_state))

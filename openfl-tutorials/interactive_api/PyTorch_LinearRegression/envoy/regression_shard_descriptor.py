@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Noisy-Sin Shard Descriptor."""
-
 from typing import List
 
 import numpy as np
@@ -15,7 +14,7 @@ from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 class RegressionShardDescriptor(ShardDescriptor):
     """Regression Shard descriptor class."""
 
-    def __init__(self, rank_worldsize: str = '1, 1', **kwargs) -> None:
+    def __init__(self, rank_worldsize: str = "1, 1", **kwargs) -> None:
         """
         Initialize Regression Data Shard Descriptor.
 
@@ -24,17 +23,23 @@ class RegressionShardDescriptor(ShardDescriptor):
         Shards data across participants using rank and world size.
         """
 
-        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(','))
+        self.rank, self.worldsize = tuple(
+            int(num) for num in rank_worldsize.split(",")
+        )
         X_train, y_train, X_test, y_test = self.generate_data()
         self.data_by_type = {
-            'train': np.concatenate((X_train, y_train[:, None]), axis=1),
-            'val': np.concatenate((X_test, y_test[:, None]), axis=1)
+            "train": np.concatenate((X_train, y_train[:, None]), axis=1),
+            "val": np.concatenate((X_test, y_test[:, None]), axis=1),
         }
 
     def generate_data(self):
         """Generate regression dataset with predefined params."""
-        x, y = make_regression(n_samples=1000, n_features=1, noise=14, random_state=24)
-        X_train, X_test, y_train, y_test = train_test_split(x, y, random_state=24)
+        x, y = make_regression(
+            n_samples=1000, n_features=1, noise=14, random_state=24
+        )
+        X_train, X_test, y_train, y_test = train_test_split(
+            x, y, random_state=24
+        )
         self.data = np.concatenate((x, y[:, None]), axis=1)
         return X_train, y_train, X_test, y_test
 
@@ -42,15 +47,17 @@ class RegressionShardDescriptor(ShardDescriptor):
         """Get available shard dataset types."""
         return list(self.data_by_type)
 
-    def get_dataset(self, dataset_type='train'):
+    def get_dataset(self, dataset_type="train"):
         """Return a shard dataset by type."""
         if dataset_type not in self.data_by_type:
-            raise Exception(f'Incorrect dataset type: {dataset_type}')
+            raise Exception(f"Incorrect dataset type: {dataset_type}")
 
-        if dataset_type in ['train', 'val']:
+        if dataset_type in ["train", "val"]:
             return torch.tensor(
-                self.data_by_type[dataset_type][self.rank - 1::self.worldsize],
-                dtype=torch.float32
+                self.data_by_type[dataset_type][
+                    self.rank - 1 :: self.worldsize
+                ],
+                dtype=torch.float32,
             )
         else:
             raise ValueError
@@ -70,5 +77,7 @@ class RegressionShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (f'Regression dataset, shard number {self.rank}'
-                f' out of {self.worldsize}')
+        return (
+            f"Regression dataset, shard number {self.rank}"
+            f" out of {self.worldsize}"
+        )

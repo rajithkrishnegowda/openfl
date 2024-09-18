@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import numpy as np
 import torch
@@ -8,19 +7,19 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 
-from openfl.federated import PyTorchTaskRunner
-from openfl.utilities import TensorKey
 from .pt_unet_parts import DoubleConv
 from .pt_unet_parts import Down
 from .pt_unet_parts import soft_dice_coef
 from .pt_unet_parts import soft_dice_loss
 from .pt_unet_parts import Up
+from openfl.federated import PyTorchTaskRunner
+from openfl.utilities import TensorKey
 
 
 class PyTorchFederatedUnet(PyTorchTaskRunner):
     """Simple Unet for segmentation."""
 
-    def __init__(self, device='cpu', **kwargs):
+    def __init__(self, device="cpu", **kwargs):
         """Initialize.
 
         Args:
@@ -38,12 +37,9 @@ class PyTorchFederatedUnet(PyTorchTaskRunner):
         """Initialize the optimizer."""
         self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
 
-    def init_network(self,
-                     device,
-                     n_channels,
-                     n_classes,
-                     print_model=True,
-                     **kwargs):
+    def init_network(
+        self, device, n_channels, n_classes, print_model=True, **kwargs
+    ):
         """Create the network (model).
 
         Args:
@@ -89,7 +85,9 @@ class PyTorchFederatedUnet(PyTorchTaskRunner):
         x = torch.sigmoid(x)
         return x
 
-    def validate_task(self, col_name, round_num, input_tensor_dict, use_tqdm=True, **kwargs):
+    def validate_task(
+        self, col_name, round_num, input_tensor_dict, use_tqdm=True, **kwargs
+    ):
         """Run validation of the model on the local data.
 
         Args:
@@ -110,31 +108,33 @@ class PyTorchFederatedUnet(PyTorchTaskRunner):
 
         loader = self.data_loader.get_valid_loader()
         if use_tqdm:
-            loader = tqdm.tqdm(loader, desc='validate')
+            loader = tqdm.tqdm(loader, desc="validate")
 
         with torch.no_grad():
             for data, target in loader:
                 samples = target.shape[0]
                 total_samples += samples
-                data, target = torch.tensor(data).to(self.device), torch.tensor(
-                    target).to(self.device)
+                data, target = torch.tensor(data).to(
+                    self.device
+                ), torch.tensor(target).to(self.device)
                 output = self(data)
                 # get the index of the max log-probability
                 val = soft_dice_coef(output, target)
                 val_score += val.sum().cpu().numpy()
 
         origin = col_name
-        suffix = 'validate'
-        if kwargs['apply'] == 'local':
-            suffix += '_local'
+        suffix = "validate"
+        if kwargs["apply"] == "local":
+            suffix += "_local"
         else:
-            suffix += '_agg'
-        tags = ('metric', suffix)
+            suffix += "_agg"
+        tags = ("metric", suffix)
         # TODO figure out a better way to pass in metric for this pytorch
         #  validate function
         output_tensor_dict = {
-            TensorKey('dice_coef', origin, round_num, True, tags):
-                np.array(val_score / total_samples)
+            TensorKey("dice_coef", origin, round_num, True, tags): np.array(
+                val_score / total_samples
+            )
         }
 
         return output_tensor_dict, {}

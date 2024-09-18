@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Median module."""
-
 import numpy as np
 
 from openfl.interface.aggregation_functions.core import AggregationFunction

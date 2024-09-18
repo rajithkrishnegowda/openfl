@@ -1,14 +1,16 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import os.path
 import pickle
-from typing import Any, Callable, Optional, Tuple
+from typing import Any
+from typing import Callable
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 from PIL import Image
-
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive
+from torchvision.datasets.utils import check_integrity
+from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.datasets.vision import VisionDataset
 
 
@@ -59,8 +61,9 @@ class CIFAR10(VisionDataset):
         target_transform: Optional[Callable] = None,
         download: bool = False,
     ) -> None:
-
-        super().__init__(root, transform=transform, target_transform=target_transform)
+        super().__init__(
+            root, transform=transform, target_transform=target_transform
+        )
 
         self.train = train  # training set or test set
 
@@ -105,7 +108,9 @@ class CIFAR10(VisionDataset):
         with open(path, "rb") as infile:
             data = pickle.load(infile, encoding="latin1")
             self.classes = data[self.meta["key"]]
-        self.class_to_idx = {_class: i for i, _class in enumerate(self.classes)}
+        self.class_to_idx = {
+            _class: i for i, _class in enumerate(self.classes)
+        }
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """

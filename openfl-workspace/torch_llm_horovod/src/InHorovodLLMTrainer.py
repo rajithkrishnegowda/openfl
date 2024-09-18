@@ -1,21 +1,23 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import os
 import sys
-from typing import Any, Mapping
+from typing import Any
+from typing import Mapping
 
+import datasets
 import horovod.torch as hvd
 import numpy as np
 import torch
 import torch as pt
 import torch.nn as nn
 import tqdm
-import datasets
-from peft.utils import get_peft_model_state_dict, set_peft_model_state_dict
-from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+from peft.utils import get_peft_model_state_dict
+from peft.utils import set_peft_model_state_dict
+from torch.nn import BCEWithLogitsLoss
+from torch.nn import CrossEntropyLoss
+from torch.nn import MSELoss
 
 from openfl.utilities import Metric
 
@@ -82,7 +84,9 @@ class LLMTrainer(nn.Module):
     def state_dict(self):
         return get_peft_model_state_dict(self.model)
 
-    def load_state_dict(self, state_dict: Mapping[str, Any], strict: bool = True):
+    def load_state_dict(
+        self, state_dict: Mapping[str, Any], strict: bool = True
+    ):
         return set_peft_model_state_dict(self.model, state_dict)
 
     def load_state(self, kwargs):
@@ -97,7 +101,9 @@ class LLMTrainer(nn.Module):
         print("kwags broadcast")
         kwargs = hvd.broadcast_object(kwargs, root_rank=0)
         print("optimizer broadcast")
-        optim_state = hvd.broadcast_object(self.optimizer.state_dict(), root_rank=0)
+        optim_state = hvd.broadcast_object(
+            self.optimizer.state_dict(), root_rank=0
+        )
         print("model broadcast")
         state_dict = hvd.broadcast_object(self.state_dict(), root_rank=0)
         print("scheduler broadcast")
@@ -138,9 +144,13 @@ class LLMTrainer(nn.Module):
         if hvd.rank() == 0:
             if self.model.config.problem_type == "regression":
                 loss_fct = MSELoss()
-            elif self.model.config.problem_type == "single_label_classification":
+            elif (
+                self.model.config.problem_type == "single_label_classification"
+            ):
                 loss_fct = CrossEntropyLoss()
-            elif self.model.config.problem_type == "multi_label_classification":
+            elif (
+                self.model.config.problem_type == "multi_label_classification"
+            ):
                 loss_fct = BCEWithLogitsLoss()
             torch.save(
                 {

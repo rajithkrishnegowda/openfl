@@ -1,5 +1,4 @@
 """Layers for Unet model."""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -55,10 +54,7 @@ class Down(nn.Module):
     def __init__(self, in_ch, out_ch):
         """Initialize layer."""
         super(Down, self).__init__()
-        self.mpconv = nn.Sequential(
-            nn.MaxPool2d(2),
-            DoubleConv(in_ch, out_ch)
-        )
+        self.mpconv = nn.Sequential(nn.MaxPool2d(2), DoubleConv(in_ch, out_ch))
 
     def forward(self, x):
         """Do forward pass."""
@@ -76,9 +72,7 @@ class Up(nn.Module):
         self.out_ch = out_ch
         if bilinear:
             self.up = nn.Upsample(
-                scale_factor=2,
-                mode='bilinear',
-                align_corners=True
+                scale_factor=2, mode="bilinear", align_corners=True
             )
         else:
             self.up = nn.ConvTranspose2d(in_ch, in_ch // 2, 2, stride=2)
@@ -92,7 +86,12 @@ class Up(nn.Module):
 
         x1 = F.pad(
             x1,
-            (diff_x // 2, diff_x - diff_x // 2, diff_y // 2, diff_y - diff_y // 2)
+            (
+                diff_x // 2,
+                diff_x - diff_x // 2,
+                diff_y // 2,
+                diff_y - diff_y // 2,
+            ),
         )
 
         x = torch.cat([x2, x1], dim=1)

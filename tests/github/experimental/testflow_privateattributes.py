@@ -1,11 +1,15 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import sys
+
 import numpy as np
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
 
 
 class bcolors:  # NOQA: N801
@@ -73,7 +77,9 @@ class TestFlowPrivateAttributes(FLSpec):
 
         self.exclude_collab_to_collab = 2
         self.include_collab_to_collab = 22
-        self.next(self.collaborator_step_b, exclude=["exclude_collab_to_collab"])
+        self.next(
+            self.collaborator_step_b, exclude=["exclude_collab_to_collab"]
+        )
 
     @collaborator
     def collaborator_step_b(self):
@@ -139,7 +145,9 @@ class TestFlowPrivateAttributes(FLSpec):
                 )
             )
         else:
-            print(f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}")
+            print(
+                f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}"
+            )
 
         TestFlowPrivateAttributes.error_list = []
 
@@ -172,9 +180,14 @@ def validate_collab_private_attr(self, private_attr, step_name):
             )
 
 
-def validate_agg_private_attrs(self, private_attr_1, private_attr_2, step_name):
+def validate_agg_private_attrs(
+    self, private_attr_1, private_attr_2, step_name
+):
     # Collaborator should only be able to access its own attributes
-    if hasattr(self, private_attr_1) is False or hasattr(self, private_attr_2) is False:
+    if (
+        hasattr(self, private_attr_1) is False
+        or hasattr(self, private_attr_2) is False
+    ):
         TestFlowPrivateAttributes.error_list.append(
             step_name + "collab_attributes_not_found"
         )

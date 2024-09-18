@@ -1,9 +1,7 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # This file overrides the step method of PyTorch Optimizer
 # Adopts fix clipping from https://arxiv.org/abs/1710.06963
-
 import torch
 from torch.optim import Optimizer
 
@@ -12,7 +10,11 @@ torch.set_printoptions(precision=10)
 
 class ClipOptimizer(object):
     def __init__(
-        self, base_optimizer: Optimizer, device, clip_norm: float, clip_freq: int = 1
+        self,
+        base_optimizer: Optimizer,
+        device,
+        clip_norm: float,
+        clip_freq: int = 1,
     ):
         super().__init__()
         self.base_optimizer = base_optimizer
@@ -38,7 +40,8 @@ class ClipOptimizer(object):
             local_params = self.param_groups()[0]["params"]
             delta_params = [
                 torch.sub(
-                    local_params[idx], global_model_state[ordered_state_keys[idx]]
+                    local_params[idx],
+                    global_model_state[ordered_state_keys[idx]],
                 )
                 for idx in range(len(local_params))
             ]

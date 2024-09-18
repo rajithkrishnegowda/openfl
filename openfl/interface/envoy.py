@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Envoy CLI."""
 import logging
 import shutil
@@ -10,14 +8,17 @@ from importlib import import_module
 from pathlib import Path
 
 import click
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import group, option, pass_context
 from dynaconf import Validator
 
 from openfl.component.envoy.envoy import Envoy
 from openfl.interface.cli import review_plan_callback
 from openfl.interface.cli_helper import WORKSPACE
-from openfl.utilities import click_types, merge_configs
+from openfl.utilities import click_types
+from openfl.utilities import merge_configs
 from openfl.utilities.path_check import is_directory_traversal
 
 logger = logging.getLogger(__name__)
@@ -112,7 +113,9 @@ def start_(
 
     logger.info("🧿 Starting the Envoy.")
     if is_directory_traversal(envoy_config_path):
-        click.echo("The shard config path is out of the openfl workspace scope.")
+        click.echo(
+            "The shard config path is out of the openfl workspace scope."
+        )
         sys.exit(1)
 
     config = merge_configs(
@@ -146,7 +149,9 @@ def start_(
         for plugin_name, plugin_settings in optional_plugins_section.items():
             template = plugin_settings.get("template")
             if not template:
-                raise Exception("You should put a template" f"for plugin {plugin_name}")
+                raise Exception(
+                    "You should put a template" f"for plugin {plugin_name}"
+                )
             module_path, _, class_name = template.rpartition(".")
             plugin_params = plugin_settings.get("params", {})
 
@@ -162,7 +167,9 @@ def start_(
     del envoy_params.review_experiment
 
     # Instantiate Shard Descriptor
-    shard_descriptor = shard_descriptor_from_config(config.get("shard_descriptor", {}))
+    shard_descriptor = shard_descriptor_from_config(
+        config.get("shard_descriptor", {})
+    )
     envoy = Envoy(
         shard_name=shard_name,
         director_host=director_host,
@@ -180,7 +187,13 @@ def start_(
 
 
 @envoy.command(name="create-workspace")
-@option("-p", "--envoy-path", required=True, help="The Envoy path", type=ClickPath())
+@option(
+    "-p",
+    "--envoy-path",
+    required=True,
+    help="The Envoy path",
+    type=ClickPath(),
+)
 def create(envoy_path):
     """Create an envoy workspace.
 
@@ -192,7 +205,9 @@ def create(envoy_path):
         sys.exit(1)
     envoy_path = Path(envoy_path).absolute()
     if envoy_path.exists():
-        if not click.confirm("Envoy workspace already exists. Recreate?", default=True):
+        if not click.confirm(
+            "Envoy workspace already exists. Recreate?", default=True
+        ):
             sys.exit(1)
         shutil.rmtree(envoy_path)
     (envoy_path / "cert").mkdir(parents=True, exist_ok=True)
@@ -206,7 +221,9 @@ def create(envoy_path):
         WORKSPACE / "default/shard_descriptor.py",
         envoy_path / "shard_descriptor.py",
     )
-    shutil.copyfile(WORKSPACE / "default/requirements.txt", envoy_path / "requirements.txt")
+    shutil.copyfile(
+        WORKSPACE / "default/requirements.txt", envoy_path / "requirements.txt"
+    )
 
 
 def shard_descriptor_from_config(shard_config: dict):
@@ -220,7 +237,10 @@ def shard_descriptor_from_config(shard_config: dict):
     """
     template = shard_config.get("template")
     if not template:
-        raise Exception("You should define a shard " "descriptor template in the envoy config")
+        raise Exception(
+            "You should define a shard "
+            "descriptor template in the envoy config"
+        )
     class_name = template.split(".")[-1]
     module_path = ".".join(template.split(".")[:-1])
     params = shard_config.get("params", {})

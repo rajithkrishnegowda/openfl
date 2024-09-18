@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 from collections.abc import Iterable
 from logging import getLogger
 from os import makedirs
@@ -10,7 +8,6 @@ from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
-from openfl.federated import PyTorchDataLoader
 import numpy as np
 import torch
 from torch.utils.data import random_split
@@ -18,6 +15,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import ToTensor
 from tqdm import tqdm
 
+from openfl.federated import PyTorchDataLoader
 from openfl.utilities import validate_file_hash
 
 logger = getLogger(__name__)
@@ -37,8 +35,14 @@ class PyTorchHistologyInMemory(PyTorchDataLoader):
         """
         super().__init__(batch_size, random_seed=0, **kwargs)
 
-        _, num_classes, X_train, y_train, X_valid, y_valid = load_histology_shard(
-            shard_num=int(data_path), **kwargs)
+        (
+            _,
+            num_classes,
+            X_train,
+            y_train,
+            X_valid,
+            y_valid,
+        ) = load_histology_shard(shard_num=int(data_path), **kwargs)
 
         self.X_train = X_train
         self.y_train = y_train
@@ -51,13 +55,17 @@ class PyTorchHistologyInMemory(PyTorchDataLoader):
 class HistologyDataset(ImageFolder):
     """Colorectal Histology Dataset."""
 
-    URL = ('https://zenodo.org/record/53169/files/Kather_'
-           'texture_2016_image_tiles_5000.zip?download=1')
-    FILENAME = 'Kather_texture_2016_image_tiles_5000.zip'
-    FOLDER_NAME = 'Kather_texture_2016_image_tiles_5000'
-    ZIP_SHA384 = ('7d86abe1d04e68b77c055820c2a4c582a1d25d2983e38ab724e'
-                  'ac75affce8b7cb2cbf5ba68848dcfd9d84005d87d6790')
-    DEFAULT_PATH = Path.cwd().absolute() / 'data'
+    URL = (
+        "https://zenodo.org/record/53169/files/Kather_"
+        "texture_2016_image_tiles_5000.zip?download=1"
+    )
+    FILENAME = "Kather_texture_2016_image_tiles_5000.zip"
+    FOLDER_NAME = "Kather_texture_2016_image_tiles_5000"
+    ZIP_SHA384 = (
+        "7d86abe1d04e68b77c055820c2a4c582a1d25d2983e38ab724e"
+        "ac75affce8b7cb2cbf5ba68848dcfd9d84005d87d6790"
+    )
+    DEFAULT_PATH = Path.cwd().absolute() / "data"
 
     def __init__(self, root: Path = DEFAULT_PATH, **kwargs) -> None:
         """Initialize."""
@@ -65,12 +73,16 @@ class HistologyDataset(ImageFolder):
         filepath = root / HistologyDataset.FILENAME
         if not filepath.is_file():
             self.pbar = tqdm(total=None)
-            urlretrieve(HistologyDataset.URL, filepath, self.report_hook)  # nosec
+            urlretrieve(
+                HistologyDataset.URL, filepath, self.report_hook
+            )  # nosec
             validate_file_hash(filepath, HistologyDataset.ZIP_SHA384)
-            with ZipFile(filepath, 'r') as f:
+            with ZipFile(filepath, "r") as f:
                 f.extractall(root)
 
-        super(HistologyDataset, self).__init__(root / HistologyDataset.FOLDER_NAME, **kwargs)
+        super(HistologyDataset, self).__init__(
+            root / HistologyDataset.FOLDER_NAME, **kwargs
+        )
 
     def report_hook(self, count, block_size, total_size):
         """Update progressbar."""
@@ -82,7 +94,9 @@ class HistologyDataset(ImageFolder):
     def __getitem__(self, index):
         """Allow getting items by slice index."""
         if isinstance(index, Iterable):
-            return [super(HistologyDataset, self).__getitem__(i) for i in index]
+            return [
+                super(HistologyDataset, self).__getitem__(i) for i in index
+            ]
         else:
             return super(HistologyDataset, self).__getitem__(index)
 
@@ -118,7 +132,8 @@ def _load_raw_datashards(shard_num, collaborator_count, train_split_ratio=0.8):
     n_train = int(train_split_ratio * len(dataset))
     n_valid = len(dataset) - n_train
     ds_train, ds_val = random_split(
-        dataset, lengths=[n_train, n_valid], generator=torch.manual_seed(0))
+        dataset, lengths=[n_train, n_valid], generator=torch.manual_seed(0)
+    )
 
     # create the shards
     X_train, y_train = list(zip(*ds_train[shard_num::collaborator_count]))
@@ -130,8 +145,13 @@ def _load_raw_datashards(shard_num, collaborator_count, train_split_ratio=0.8):
     return (X_train, y_train), (X_valid, y_valid)
 
 
-def load_histology_shard(shard_num, collaborator_count,
-                         categorical=False, channels_last=False, **kwargs):
+def load_histology_shard(
+    shard_num,
+    collaborator_count,
+    categorical=False,
+    channels_last=False,
+    **kwargs,
+):
     """
     Load the Histology dataset.
 
@@ -156,7 +176,8 @@ def load_histology_shard(shard_num, collaborator_count,
     num_classes = 8
 
     (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(
-        shard_num, collaborator_count)
+        shard_num, collaborator_count
+    )
 
     if channels_last:
         X_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)
@@ -167,10 +188,10 @@ def load_histology_shard(shard_num, collaborator_count,
         X_valid = X_valid.reshape(X_valid.shape[0], 3, img_rows, img_cols)
         input_shape = (3, img_rows, img_cols)
 
-    logger.info(f'Histology > X_train Shape : {X_train.shape}')
-    logger.info(f'Histology > y_train Shape : {y_train.shape}')
-    logger.info(f'Histology > Train Samples : {X_train.shape[0]}')
-    logger.info(f'Histology > Valid Samples : {X_valid.shape[0]}')
+    logger.info(f"Histology > X_train Shape : {X_train.shape}")
+    logger.info(f"Histology > y_train Shape : {y_train.shape}")
+    logger.info(f"Histology > Train Samples : {X_train.shape[0]}")
+    logger.info(f"Histology > Valid Samples : {X_valid.shape[0]}")
 
     if categorical:
         # convert class vectors to binary class matrices

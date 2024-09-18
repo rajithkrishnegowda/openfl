@@ -1,14 +1,15 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Plan module."""
 import sys
 from logging import getLogger
 from pathlib import Path
 
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import echo, group, option, pass_context
 
 from openfl.experimental.federated import Plan
 from openfl.utilities.path_check import is_directory_traversal
@@ -55,7 +56,9 @@ def plan(context):
     required=False,
     help="The FQDN of the federation agregator",
 )
-def initialize(context, plan_config, cols_config, data_config, aggregator_address):
+def initialize(
+    context, plan_config, cols_config, data_config, aggregator_address
+):
     """
     Initialize Data Science plan.
 
@@ -80,8 +83,13 @@ def initialize(context, plan_config, cols_config, data_config, aggregator_addres
 
     plan_origin = Plan.parse(plan_config, resolve=False).config
 
-    if plan_origin["network"]["settings"]["agg_addr"] == "auto" or aggregator_address:
-        plan_origin["network"]["settings"]["agg_addr"] = aggregator_address or getfqdn_env()
+    if (
+        plan_origin["network"]["settings"]["agg_addr"] == "auto"
+        or aggregator_address
+    ):
+        plan_origin["network"]["settings"]["agg_addr"] = (
+            aggregator_address or getfqdn_env()
+        )
 
         logger.warn(
             f"Patching Aggregator Addr in Plan"

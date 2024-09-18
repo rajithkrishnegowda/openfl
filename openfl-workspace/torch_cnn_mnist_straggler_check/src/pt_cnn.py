@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import numpy as np
 import torch
@@ -30,7 +29,7 @@ def cross_entropy(output, target):
 class PyTorchCNN(PyTorchTaskRunner):
     """Simple CNN for classification."""
 
-    def __init__(self, device='cpu', **kwargs):
+    def __init__(self, device="cpu", **kwargs):
         """Initialize.
 
         Args:
@@ -51,15 +50,17 @@ class PyTorchCNN(PyTorchTaskRunner):
         """Initialize the optimizer."""
         self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
 
-    def init_network(self,
-                     device,
-                     print_model=True,
-                     pool_sqrkernel_size=2,
-                     conv_sqrkernel_size=5,
-                     conv1_channels_out=20,
-                     conv2_channels_out=50,
-                     fc2_insize=500,
-                     **kwargs):
+    def init_network(
+        self,
+        device,
+        print_model=True,
+        pool_sqrkernel_size=2,
+        conv_sqrkernel_size=5,
+        conv1_channels_out=20,
+        conv2_channels_out=50,
+        fc2_insize=500,
+        **kwargs
+    ):
         """Create the network (model).
 
         Args:
@@ -91,8 +92,12 @@ class PyTorchCNN(PyTorchTaskRunner):
         above)
         """
         self.pool_sqrkernel_size = pool_sqrkernel_size
-        channel = self.data_loader.get_feature_shape()[0]  # (channel, dim1, dim2)
-        self.conv1 = nn.Conv2d(channel, conv1_channels_out, conv_sqrkernel_size, 1)
+        channel = self.data_loader.get_feature_shape()[
+            0
+        ]  # (channel, dim1, dim2)
+        self.conv1 = nn.Conv2d(
+            channel, conv1_channels_out, conv_sqrkernel_size, 1
+        )
 
         # perform some calculations to track the size of the single channel activations
         # channels are first for pytorch
@@ -102,7 +107,9 @@ class PyTorchCNN(PyTorchTaskRunner):
         # (note dependence on 'forward' function below)
         conv2_sqrsize_in = int(conv1_sqrsize_out / pool_sqrkernel_size)
 
-        self.conv2 = nn.Conv2d(conv1_channels_out, conv2_channels_out, conv_sqrkernel_size, 1)
+        self.conv2 = nn.Conv2d(
+            conv1_channels_out, conv2_channels_out, conv_sqrkernel_size, 1
+        )
 
         # more tracking of single channel activation size
         conv2_sqrsize_out = conv2_sqrsize_in - (conv_sqrkernel_size - 1)
@@ -132,7 +139,9 @@ class PyTorchCNN(PyTorchTaskRunner):
         x = self.fc2(x)
         return x
 
-    def validate(self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs):
+    def validate(
+        self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs
+    ):
         """Validate.
 
         Run validation of the model on the local data.
@@ -155,32 +164,33 @@ class PyTorchCNN(PyTorchTaskRunner):
 
         loader = self.data_loader.get_valid_loader()
         if use_tqdm:
-            loader = tqdm.tqdm(loader, desc='validate')
+            loader = tqdm.tqdm(loader, desc="validate")
 
         with torch.no_grad():
             for data, target in loader:
                 samples = target.shape[0]
                 total_samples += samples
                 data, target = torch.tensor(data).to(
-                    self.device), torch.tensor(target).to(
-                    self.device, dtype=torch.int64)
+                    self.device
+                ), torch.tensor(target).to(self.device, dtype=torch.int64)
                 output = self(data)
                 # get the index of the max log-probability
                 pred = output.argmax(dim=1)
                 val_score += pred.eq(target).sum().cpu().numpy()
 
         origin = col_name
-        suffix = 'validate'
-        if kwargs['apply'] == 'local':
-            suffix += '_local'
+        suffix = "validate"
+        if kwargs["apply"] == "local":
+            suffix += "_local"
         else:
-            suffix += '_agg'
-        tags = ('metric', suffix)
+            suffix += "_agg"
+        tags = ("metric", suffix)
         # TODO figure out a better way to pass
         #  in metric for this pytorch validate function
         output_tensor_dict = {
-            TensorKey('acc', origin, round_num, True, tags):
-                np.array(val_score / total_samples)
+            TensorKey("acc", origin, round_num, True, tags): np.array(
+                val_score / total_samples
+            )
         }
 
         # Empty list represents metrics that should only be stored locally

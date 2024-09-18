@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import os
 
 import nibabel as nib
@@ -13,15 +11,18 @@ import tensorflow as tf
 class DatasetGenerator:
     """Generate a TensorFlow data loader from the BraTS .nii.gz files."""
 
-    def __init__(self, crop_dim,
-                 data_path,
-                 batch_size=4,
-                 number_input_channels=1,
-                 num_classes=1,
-                 train_test_split=0.80,
-                 validate_test_split=0.5,
-                 random_seed=816,
-                 shard=0):
+    def __init__(
+        self,
+        crop_dim,
+        data_path,
+        batch_size=4,
+        number_input_channels=1,
+        num_classes=1,
+        train_test_split=0.80,
+        validate_test_split=0.5,
+        random_seed=816,
+        shard=0,
+    ):
         """Initialize the class."""
         self.data_path = os.path.abspath(os.path.expanduser(data_path))
         self.batch_size = batch_size
@@ -37,15 +38,15 @@ class DatasetGenerator:
         self.create_file_list()
 
         if self.num_files > 0:
-
             self.ds_train, self.ds_val, self.ds_test = self.get_dataset()
 
         else:
-
             self.ds_train = None
             self.ds_val = None
             self.ds_test = None
-            raise ValueError(f'ERROR: No BraTS datafiles found under directory {self.data_path}')
+            raise ValueError(
+                f"ERROR: No BraTS datafiles found under directory {self.data_path}"
+            )
 
     def create_file_list(self):
         """
@@ -53,7 +54,7 @@ class DatasetGenerator:
 
         Split into training and testing sets.
         """
-        searchpath = os.path.join(self.data_path, '*/*_seg.nii.gz')
+        searchpath = os.path.join(self.data_path, "*/*_seg.nii.gz")
         filenames = tf.io.gfile.glob(searchpath)
 
         # Create a dictionary of tuples with image filename and label filename
@@ -61,7 +62,10 @@ class DatasetGenerator:
         self.num_files = len(filenames)
         self.filenames = {}
         for idx, filename in enumerate(filenames):
-            self.filenames[idx] = [filename.replace('_seg.nii.gz', '_flair.nii.gz'), filename]
+            self.filenames[idx] = [
+                filename.replace("_seg.nii.gz", "_flair.nii.gz"),
+                filename,
+            ]
 
     def z_normalize_img(self, img):
         """
@@ -80,7 +84,6 @@ class DatasetGenerator:
         is_random = randomize and np.random.rand() > 0.5
 
         for idx in range(len(img.shape) - 1):  # Go through each dimension
-
             croplen = self.crop_dim[idx]
             imglen = img.shape[idx]
 
@@ -93,7 +96,7 @@ class DatasetGenerator:
             if offset > 0:
                 if is_random:
                     start += np.random.choice(range(-offset, offset))
-                    if ((start + croplen) > imglen):  # Don't fall off the image
+                    if (start + croplen) > imglen:  # Don't fall off the image
                         start = (imglen - croplen) // 2
             else:
                 start = 0
@@ -151,13 +154,12 @@ class DatasetGenerator:
         img[..., 0] = img_temp
 
         for channel in range(1, self.num_input_channels):
-
             if channel == 1:
-                imgfile = self.filenames[idx][1].replace('_flair', '_t1')
+                imgfile = self.filenames[idx][1].replace("_flair", "_t1")
             elif channel == 2:
-                imgfile = self.filenames[idx][1].replace('_flair', '_t1ce')
+                imgfile = self.filenames[idx][1].replace("_flair", "_t1ce")
             elif channel == 3:
-                imgfile = self.filenames[idx][1].replace('_flair', '_t2')
+                imgfile = self.filenames[idx][1].replace("_flair", "_t2")
 
             img_temp = np.array(nib.load(imgfile).dataobj)
 
@@ -215,15 +217,15 @@ class DatasetGenerator:
 
             for idx in range(bs):
                 plt.subplot(bs, num_cols, idx * num_cols + 1)
-                plt.imshow(img[idx, :, :, slice_num, img_channel], cmap='bone')
-                plt.title('MRI', fontsize=18)
+                plt.imshow(img[idx, :, :, slice_num, img_channel], cmap="bone")
+                plt.title("MRI", fontsize=18)
                 plt.subplot(bs, num_cols, idx * num_cols + 2)
-                plt.imshow(msk[idx, :, :, slice_num, msk_channel], cmap='bone')
-                plt.title('Tumor', fontsize=18)
+                plt.imshow(msk[idx, :, :, slice_num, msk_channel], cmap="bone")
+                plt.title("Tumor", fontsize=18)
 
         plt.show()
 
-        print(f'Mean pixel value of image = {np.mean(img[0, :, :, :, 0])}')
+        print(f"Mean pixel value of image = {np.mean(img[0, :, :, :, 0])}")
 
     def display_train_images(self, slice_num=90):
         """Plot some training images."""
@@ -255,7 +257,8 @@ class DatasetGenerator:
         numvaltest = self.num_files - self.num_train
 
         ds = tf.data.Dataset.range(self.num_files).shuffle(
-            self.num_files, self.random_seed)  # Shuffle the dataset
+            self.num_files, self.random_seed
+        )  # Shuffle the dataset
 
         # Horovod Sharding
         # Here we are not actually dividing the dataset into shards
@@ -263,31 +266,45 @@ class DatasetGenerator:
         # shard. Then in the training loop we just go through the training
         # dataset but the number of steps is divided by the number of shards.
         ds_train = ds.take(self.num_train).shuffle(
-            self.num_train, self.shard)  # Reshuffle based on shard
+            self.num_train, self.shard
+        )  # Reshuffle based on shard
         ds_val_test = ds.skip(self.num_train)
         self.num_val = int(numvaltest * self.validate_test_split)
         self.num_test = self.num_train - self.num_val
         ds_val = ds_val_test.take(self.num_val)
         ds_test = ds_val_test.skip(self.num_val)
 
-        ds_train = ds_train.map(lambda x: tf.py_function(self.read_nifti_file,
-                                                         [x, True], [tf.float32, tf.float32]),
-                                num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_val = ds_val.map(lambda x: tf.py_function(self.read_nifti_file,
-                                                     [x, False], [tf.float32, tf.float32]),
-                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_test = ds_test.map(lambda x: tf.py_function(self.read_nifti_file,
-                                                       [x, False], [tf.float32, tf.float32]),
-                              num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_train = ds_train.map(
+            lambda x: tf.py_function(
+                self.read_nifti_file, [x, True], [tf.float32, tf.float32]
+            ),
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
+        )
+        ds_val = ds_val.map(
+            lambda x: tf.py_function(
+                self.read_nifti_file, [x, False], [tf.float32, tf.float32]
+            ),
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
+        )
+        ds_test = ds_test.map(
+            lambda x: tf.py_function(
+                self.read_nifti_file, [x, False], [tf.float32, tf.float32]
+            ),
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
+        )
 
         ds_train = ds_train.batch(self.batch_size, drop_remainder=True)
         ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
-        batch_size_val = max(1, self.batch_size // 2)    # Could be any batch size you'd like
+        batch_size_val = max(
+            1, self.batch_size // 2
+        )  # Could be any batch size you'd like
         ds_val = ds_val.batch(batch_size_val, drop_remainder=True)
         ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
 
-        batch_size_test = max(1, self.batch_size // 2)   # Could be any batch size you'd like
+        batch_size_test = max(
+            1, self.batch_size // 2
+        )  # Could be any batch size you'd like
         ds_test = ds_test.batch(batch_size_test, drop_remainder=True)
         ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 

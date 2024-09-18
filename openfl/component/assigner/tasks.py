@@ -1,10 +1,8 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Task module."""
-
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
 
 
 @dataclass
@@ -25,7 +23,9 @@ class Task:
     function_name: str
     task_type: str
     apply_local: bool = False
-    parameters: dict = field(default_factory=dict)  # We can expend it in the future
+    parameters: dict = field(
+        default_factory=dict
+    )  # We can expend it in the future
 
 
 @dataclass

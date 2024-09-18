@@ -1,28 +1,29 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # Co-authored-by: Brandon Edwards <brandon.edwards@intel.com>
 # Co-authored-by: Anindya S. Paul <anindya.s.paul@intel.com>
 # Co-authored-by: Mansi Sharma <mansi.sharma@intel.com>
-
-from clip_optimizer import ClipOptimizer
+import argparse
+import warnings
 from copy import deepcopy
+
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
 import torchvision
-from torch.utils.data import TensorDataset
-import numpy as np
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-
-from opacus import PrivacyEngine
-import argparse
 import yaml
+from clip_optimizer import ClipOptimizer
+from opacus import PrivacyEngine
+from torch.utils.data import TensorDataset
 
-import warnings
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 warnings.filterwarnings("ignore")
 
@@ -77,7 +78,11 @@ class GlobalModelTools(object):
     """
 
     def __init__(
-        self, example_model_state, global_model, collaborator_names, dp_params=None
+        self,
+        example_model_state,
+        global_model,
+        collaborator_names,
+        dp_params=None,
     ):
         self.example_state = example_model_state
         self.global_model = global_model
@@ -96,7 +101,9 @@ class GlobalModelTools(object):
             sample_rate = dp_params["sample_rate"]
         self.global_data_loader = torch.utils.data.DataLoader(
             TensorDataset(
-                torch.Tensor(list(range(len(self.collaborator_names)))).to(torch.int)
+                torch.Tensor(list(range(len(self.collaborator_names)))).to(
+                    torch.int
+                )
             ),
             batch_size=int(sample_rate * float(len(collaborator_names))),
             shuffle=True,
@@ -129,7 +136,9 @@ class GlobalModelTools(object):
                 self.global_model.parameters(), self.example_state.keys()
             ):
                 params.data = state_for_params[name]
-                params.grad_sample = torch.stack(per_layer_grad_samples[name], dim=0)
+                params.grad_sample = torch.stack(
+                    per_layer_grad_samples[name], dim=0
+                )
                 # only the shape is important below, values are not important and so we
                 # use only the first state
                 params.grad = states_for_gradients[0][name]
@@ -159,7 +168,9 @@ def default_optimizer(model):
     return optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
 
-def FedAvg(models, global_model_tools, previous_global_state, dp_params):  # NOQA: N802
+def FedAvg(
+    models, global_model_tools, previous_global_state, dp_params
+):  # NOQA: N802
     """
     This tutorial utilizes non-weighted averaging of collaborator model updates
     regardless of whether DP config is used.
@@ -194,7 +205,8 @@ def FedAvg(models, global_model_tools, previous_global_state, dp_params):  # NOQ
     # Clearing state from optimizer from last round so as to not leak information
     global_model_tools.global_optimizer.zero_grad()
     global_model_tools.populate_model_params_and_gradients(
-        state_for_params=previous_global_state, states_for_gradients=neg_delta_states
+        state_for_params=previous_global_state,
+        states_for_gradients=neg_delta_states,
     )
     global_model_tools.global_optimizer.step()
 
@@ -245,7 +257,9 @@ def optimizer_to_device(optimizer, device):
                         state[k] = v.to(device)
     else:
         raise (
-            ValueError("Current optimizer state does not have dict keys: please verify")
+            ValueError(
+                "Current optimizer state does not have dict keys: please verify"
+            )
         )
 
 
@@ -402,7 +416,9 @@ class FederatedFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(f"Performing aggregated model validation for collaborator {self.input}")
+        print(
+            f"Performing aggregated model validation for collaborator {self.input}"
+        )
         self.model = self.model.to(self.device)
         self.global_model = self.global_model.to(self.device)
 
@@ -410,7 +426,9 @@ class FederatedFlow(FLSpec):
         assert next(self.model.parameters()).device == self.device
         assert next(self.global_model.parameters()).device == self.device
 
-        self.agg_validation_score = inference(self.model, self.test_loader, self.device)
+        self.agg_validation_score = inference(
+            self.model, self.test_loader, self.device
+        )
         print(f"{self.input} value of {self.agg_validation_score}")
         self.collaborator_name = self.input
         self.next(self.train)
@@ -446,7 +464,8 @@ class FederatedFlow(FLSpec):
 
             if self.clip_test:
                 optimizer_before_step_params = [
-                    param.data for param in self.optimizer.param_groups()[0]["params"]
+                    param.data
+                    for param in self.optimizer.param_groups()[0]["params"]
                 ]
 
             self.optimizer.step(
@@ -483,7 +502,9 @@ class FederatedFlow(FLSpec):
 
     @collaborator
     def local_model_validation(self):
-        print(f"Performing local model validation for collaborator {self.input}")
+        print(
+            f"Performing local model validation for collaborator {self.input}"
+        )
         self.local_validation_score = inference(
             self.model, self.test_loader, self.device
         )
@@ -503,7 +524,9 @@ class FederatedFlow(FLSpec):
             f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
         )
         print(f"Average training loss = {self.average_loss}")
-        print(f"Average local model validation values = {self.local_model_accuracy}")
+        print(
+            f"Average local model validation values = {self.local_model_accuracy}"
+        )
         self.model.load_state_dict(
             FedAvg(
                 [input.model.cpu() for input in inputs],
@@ -550,7 +573,8 @@ class FederatedFlow(FLSpec):
                 round_collaborator_idxs = batch
                 break
             self.round_collaborators = [
-                self.collaborator_names[idx] for idx in round_collaborator_idxs[0]
+                self.collaborator_names[idx]
+                for idx in round_collaborator_idxs[0]
             ]
 
             print("\n\n" + 20 * "#")

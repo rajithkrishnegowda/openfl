@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Convenience Utilities for DataFrame."""
-
 from typing import Optional
 
 import numpy as np
@@ -110,7 +107,9 @@ def _store(
         idx = idx[0]
     else:
         idx = self.shape[0]
-    self.loc[idx] = np.array([tensor_name, origin, fl_round, metric, tags, nparray], dtype=object)
+    self.loc[idx] = np.array(
+        [tensor_name, origin, fl_round, metric, tags, nparray], dtype=object
+    )
 
 
 def _retrieve(

@@ -1,16 +1,14 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """SKCPipeline module."""
-
 import copy as co
 import gzip as gz
 
 import numpy as np
 from sklearn import cluster
 
-from openfl.pipelines.pipeline import TransformationPipeline, Transformer
+from openfl.pipelines.pipeline import TransformationPipeline
+from openfl.pipelines.pipeline import Transformer
 
 
 class SparsityTransformer(Transformer):
@@ -125,7 +123,9 @@ class KmeansTransformer(Transformer):
         # clustering
         data = data.reshape((-1, 1))
         if data.shape[0] >= self.n_cluster:
-            k_means = cluster.KMeans(n_clusters=self.n_cluster, n_init=self.n_cluster)
+            k_means = cluster.KMeans(
+                n_clusters=self.n_cluster, n_init=self.n_cluster
+            )
             k_means.fit(data)
             quantized_values = k_means.cluster_centers_.squeeze()
             indices = k_means.labels_

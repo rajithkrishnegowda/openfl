@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Keras Framework Adapter plugin."""
 from logging import getLogger
 
@@ -19,7 +17,6 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
 
     def __init__(self) -> None:
         """Initialize framework adapter."""
-        pass
 
     @staticmethod
     def serialization_setup():
@@ -35,7 +32,9 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
             restored_model = deserialize(model)
             if training_config is not None:
                 restored_model.compile(
-                    **saving_utils.compile_args_from_training_config(training_config)
+                    **saving_utils.compile_args_from_training_config(
+                        training_config
+                    )
                 )
             restored_model.set_weights(weights)
             return restored_model
@@ -43,7 +42,6 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
         # Hotfix function, not required for TF versions above 2.7.1.
         # https://github.com/keras-team/keras/pull/14748.
         def make_keras_picklable():
-
             def __reduce__(self):  # NOQA:N807
                 model_metadata = saving_utils.model_metadata(self)
                 training_config = model_metadata.get("training_config", None)
@@ -113,12 +111,16 @@ class FrameworkAdapterPlugin(FrameworkAdapterPluginInterface):
             None
         """
         model_weight_names = [weight.name for weight in model.weights]
-        model_weights_dict = {name: tensor_dict[name] for name in model_weight_names}
+        model_weights_dict = {
+            name: tensor_dict[name] for name in model_weight_names
+        }
         _set_weights_dict(model, model_weights_dict)
 
         if optimizer is not None:
             opt_weight_names = [weight.name for weight in optimizer.weights]
-            opt_weights_dict = {name: tensor_dict[name] for name in opt_weight_names}
+            opt_weights_dict = {
+                name: tensor_dict[name] for name in opt_weight_names
+            }
             _set_weights_dict(optimizer, opt_weights_dict)
 
 

@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import zipfile
 from os import listdir
 from pathlib import Path
@@ -32,7 +30,7 @@ def read_data(image_path, mask_path):
 
     """
     img = io.imread(image_path)
-    assert (img.shape[2] == 3)
+    assert img.shape[2] == 3
     mask = io.imread(mask_path)
     return (img, mask[:, :, 0].astype(np.uint8))
 
@@ -49,33 +47,39 @@ class KvasirDataset(Dataset):
             collaborator_count: Total number of collaborators
 
         """
-        self.images_path = './data/segmented-images/images/'
-        self.masks_path = './data/segmented-images/masks/'
+        self.images_path = "./data/segmented-images/images/"
+        self.masks_path = "./data/segmented-images/masks/"
         self.images_names = [
             img_name
             for img_name in sorted(listdir(self.images_path))
-            if len(img_name) > 3 and img_name[-3:] == 'jpg'
+            if len(img_name) > 3 and img_name[-3:] == "jpg"
         ]
 
-        self.images_names = self.images_names[shard_num:: collaborator_count]
+        self.images_names = self.images_names[shard_num::collaborator_count]
         self.is_validation = is_validation
-        assert (len(self.images_names) > 8)
+        assert len(self.images_names) > 8
         validation_size = len(self.images_names) // 8
 
         if is_validation:
             self.images_names = self.images_names[-validation_size:]
         else:
-            self.images_names = self.images_names[: -validation_size]
+            self.images_names = self.images_names[:-validation_size]
 
-        self.img_trans = tsf.Compose([
-            tsf.ToPILImage(),
-            tsf.Resize((332, 332)),
-            tsf.ToTensor(),
-            tsf.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
-        self.mask_trans = tsf.Compose([
-            tsf.ToPILImage(),
-            tsf.Resize((332, 332), interpolation=PIL.Image.NEAREST),
-            tsf.ToTensor()])
+        self.img_trans = tsf.Compose(
+            [
+                tsf.ToPILImage(),
+                tsf.Resize((332, 332)),
+                tsf.ToTensor(),
+                tsf.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ]
+        )
+        self.mask_trans = tsf.Compose(
+            [
+                tsf.ToPILImage(),
+                tsf.Resize((332, 332), interpolation=PIL.Image.NEAREST),
+                tsf.ToTensor(),
+            ]
+        )
 
     def __getitem__(self, index):
         """Get items by slice index."""
@@ -92,19 +96,25 @@ class KvasirDataset(Dataset):
 
 def load_kvasir_dataset():
     """Load and unzip kvasir dataset."""
-    zip_sha384 = ('66cd659d0e8afd8c83408174'
-                  '1ade2b75dada8d4648b816f2533c8748b1658efa3d49e205415d4116faade2c5810e241e')
-    data_url = ('https://datasets.simula.no/downloads/'
-                'hyper-kvasir/hyper-kvasir-segmented-images.zip')
-    filename = 'kvasir.zip'
-    data_folder_path = Path.cwd().absolute() / 'data'
+    zip_sha384 = (
+        "66cd659d0e8afd8c83408174"
+        "1ade2b75dada8d4648b816f2533c8748b1658efa3d49e205415d4116faade2c5810e241e"
+    )
+    data_url = (
+        "https://datasets.simula.no/downloads/"
+        "hyper-kvasir/hyper-kvasir-segmented-images.zip"
+    )
+    filename = "kvasir.zip"
+    data_folder_path = Path.cwd().absolute() / "data"
     kvasir_archive_path = data_folder_path / filename
     if not kvasir_archive_path.is_file():
         download_url(data_url, data_folder_path, filename=filename)
         validate_file_hash(kvasir_archive_path, zip_sha384)
-        with zipfile.ZipFile(kvasir_archive_path, 'r') as zip_ref:
-            for member in tqdm(iterable=zip_ref.infolist(), desc='Unzipping dataset'):
-                zip_ref.extract(member, './data')
+        with zipfile.ZipFile(kvasir_archive_path, "r") as zip_ref:
+            for member in tqdm(
+                iterable=zip_ref.infolist(), desc="Unzipping dataset"
+            ):
+                zip_ref.extract(member, "./data")
 
 
 class PyTorchKvasirDataLoader(PyTorchDataLoader):
@@ -122,8 +132,12 @@ class PyTorchKvasirDataLoader(PyTorchDataLoader):
         super().__init__(batch_size, **kwargs)
 
         load_kvasir_dataset()
-        self.valid_dataset = KvasirDataset(True, shard_num=int(data_path), **kwargs)
-        self.train_dataset = KvasirDataset(False, shard_num=int(data_path), **kwargs)
+        self.valid_dataset = KvasirDataset(
+            True, shard_num=int(data_path), **kwargs
+        )
+        self.train_dataset = KvasirDataset(
+            False, shard_num=int(data_path), **kwargs
+        )
         self.train_loader = self.get_train_loader()
         self.val_loader = self.get_valid_loader()
         self.batch_size = batch_size
@@ -134,7 +148,9 @@ class PyTorchKvasirDataLoader(PyTorchDataLoader):
 
     def get_train_loader(self, num_batches=None):
         """Return train dataloader."""
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(
+            self.train_dataset, batch_size=self.batch_size, shuffle=True
+        )
 
     def get_train_data_size(self):
         """Return size of train dataset."""

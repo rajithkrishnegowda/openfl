@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Noisy-Sin Shard Descriptor."""
-
 from typing import List
 
 import numpy as np
@@ -12,7 +11,9 @@ from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 class LinRegSD(ShardDescriptor):
     """Shard descriptor class."""
 
-    def __init__(self, rank: int, n_samples: int = 10, noise: float = 0.15) -> None:
+    def __init__(
+        self, rank: int, n_samples: int = 10, noise: float = 0.15
+    ) -> None:
         """
         Initialize LinReg Shard Descriptor.
 
@@ -35,10 +36,10 @@ class LinRegSD(ShardDescriptor):
 
         A simple list with elements (x, y) implemets the Shard Dataset interface.
         """
-        if dataset_type == 'train':
-            return self.data[:self.n_samples // 2]
-        elif dataset_type == 'val':
-            return self.data[self.n_samples // 2:]
+        if dataset_type == "train":
+            return self.data[: self.n_samples // 2]
+        elif dataset_type == "val":
+            return self.data[self.n_samples // 2 :]
         else:
             pass
 
@@ -57,4 +58,4 @@ class LinRegSD(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return 'Allowed dataset types are `train` and `val`'
+        return "Allowed dataset types are `train` and `val`"

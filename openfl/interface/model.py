@@ -1,13 +1,15 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Model CLI module."""
 from logging import getLogger
 from pathlib import Path
 
+from click import confirm
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, group, option, pass_context, style
+from click import style
 
 from openfl.federated import Plan
 from openfl.pipelines import NoCompressionPipeline
@@ -103,7 +105,9 @@ def save_(
             context.obj["fail"] = True
             return
 
-    task_runner = get_model(plan_config, cols_config, data_config, model_protobuf_path)
+    task_runner = get_model(
+        plan_config, cols_config, data_config, model_protobuf_path
+    )
 
     task_runner.save_native(output_filepath)
     logger.info("Saved model in native format:  🠆 %s", output_filepath)
@@ -155,7 +159,9 @@ def get_model(
 
     model_protobuf = utils.load_proto(model_protobuf_path)
 
-    tensor_dict, _ = utils.deconstruct_model_proto(model_protobuf, NoCompressionPipeline())
+    tensor_dict, _ = utils.deconstruct_model_proto(
+        model_protobuf, NoCompressionPipeline()
+    )
 
     # This may break for multiple models.
     # task_runner.set_tensor_dict will need to handle multiple models

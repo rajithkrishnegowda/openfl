@@ -1,13 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+from torch import nn
+from torch import optim
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
-from torch import nn, optim
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 class VerticalTwoPartyFlow(FLSpec):
-
     def __init__(self, batch_num=0, checkpoint: bool = False):
         super().__init__(checkpoint)
         self.batch_num = batch_num
@@ -15,14 +16,14 @@ class VerticalTwoPartyFlow(FLSpec):
     @aggregator
     def start(self):
         self.collaborators = self.runtime.collaborators
-        print(f'Batch_num = {self.batch_num}')
+        print(f"Batch_num = {self.batch_num}")
         # 1) Zero the gradients
         self.label_model_optimizer.zero_grad()
-        self.next(self.data_model_forward_pass, foreach='collaborators')
+        self.next(self.data_model_forward_pass, foreach="collaborators")
 
     @collaborator
     def data_model_forward_pass(self):
-        self.data_model_output_local = ''
+        self.data_model_output_local = ""
         for idx, (images, _) in enumerate(self.trainloader):
             if idx < self.batch_num:
                 continue
@@ -51,13 +52,15 @@ class VerticalTwoPartyFlow(FLSpec):
             self.label_model_optimizer.step()
             total_loss += loss
             break
-        print(f'Total loss = {total_loss}')
-        self.next(self.data_model_backprop, foreach='collaborators')
+        print(f"Total loss = {total_loss}")
+        self.next(self.data_model_backprop, foreach="collaborators")
 
     @collaborator
     def data_model_backprop(self):
         if self.data_remaining:
-            self.data_model_optimizer = optim.SGD(self.data_model.parameters(), lr=0.03)
+            self.data_model_optimizer = optim.SGD(
+                self.data_model.parameters(), lr=0.03
+            )
             self.data_model_optimizer.zero_grad()
             self.data_model_output_local.backward(self.grad_to_local)
             self.data_model_optimizer.step()
@@ -65,10 +68,10 @@ class VerticalTwoPartyFlow(FLSpec):
 
     @aggregator
     def join(self, inputs):
-        print(f'Join batch_num = {self.batch_num}')
+        print(f"Join batch_num = {self.batch_num}")
         self.batch_num += 1
         self.next(self.end)
 
     @aggregator
     def end(self):
-        print('This is the end of the flow')
+        print("This is the end of the flow")

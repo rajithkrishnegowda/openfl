@@ -1,13 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+import inspect
+from types import MethodType
 
 import torch.nn as nn
 import torch.optim as optim
-import inspect
-from types import MethodType
+
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 MIN_COLLECTION_COUNT = 2
 
@@ -42,6 +43,7 @@ class TestFlowReferenceWithIncludeExclude(FLSpec):
     Testflow to validate references of collabartor attributes in Federated Flow with include.
 
     """
+
     step_one_collab_attrs = []
     step_two_collab_attrs = []
     all_ref_error_dict = {}
@@ -103,7 +105,9 @@ class TestFlowReferenceWithIncludeExclude(FLSpec):
             )
             validate_references(matched_ref_dict)
 
-        self.next(self.test_create_more_collab_attr, exclude=["collab_attr_dict_one"])
+        self.next(
+            self.test_create_more_collab_attr, exclude=["collab_attr_dict_one"]
+        )
 
     @collaborator
     def test_create_more_collab_attr(self):
@@ -142,14 +146,18 @@ class TestFlowReferenceWithIncludeExclude(FLSpec):
         validate_references(matched_ref_dict)
         all_shared_attr = ""
         print(f"\n{bcolors.UNDERLINE}Reference test summary: {bcolors.ENDC}\n")
-        for val in TestFlowReferenceWithIncludeExclude.all_ref_error_dict.values():
+        for (
+            val
+        ) in TestFlowReferenceWithIncludeExclude.all_ref_error_dict.values():
             all_shared_attr = all_shared_attr + ",".join(val)
         if all_shared_attr:
             print(
                 f"{bcolors.FAIL}...Test case failed for {all_shared_attr} {bcolors.ENDC}"
             )
         else:
-            print(f"{bcolors.OKGREEN}...Test case passed for all the attributes.")
+            print(
+                f"{bcolors.OKGREEN}...Test case passed for all the attributes."
+            )
 
         self.next(self.end)
 
@@ -201,9 +209,11 @@ def find_matched_references(collab_attr_list, all_collaborators):
     for attr_name in collab_attr_list:
         for i, curr_collab in enumerate(all_collaborators):
             # Compare the current collaborator with the collaborator(s) that come(s) after it.
-            for next_collab in all_collaborators[i + 1:]:
+            for next_collab in all_collaborators[i + 1 :]:
                 # Check if both collaborators have the current attribute
-                if hasattr(curr_collab, attr_name) and hasattr(next_collab, attr_name):
+                if hasattr(curr_collab, attr_name) and hasattr(
+                    next_collab, attr_name
+                ):
                     # Check if both collaborators are sharing same reference
                     if getattr(curr_collab, attr_name) is getattr(
                         next_collab, attr_name
@@ -231,10 +241,15 @@ def validate_references(matched_ref_dict):
             reference_flag = True
     if collborators_sharing_ref:
         for collab in collborators_sharing_ref:
-            if collab not in TestFlowReferenceWithIncludeExclude.all_ref_error_dict:
+            if (
+                collab
+                not in TestFlowReferenceWithIncludeExclude.all_ref_error_dict
+            ):
                 TestFlowReferenceWithIncludeExclude.all_ref_error_dict[
                     collab
                 ] = matched_ref_dict.get(collab)
 
     if not reference_flag:
-        print(f"{bcolors.OKGREEN}  Pass : Reference test passed  {bcolors.ENDC}")
+        print(
+            f"{bcolors.OKGREEN}  Pass : Reference test passed  {bcolors.ENDC}"
+        )

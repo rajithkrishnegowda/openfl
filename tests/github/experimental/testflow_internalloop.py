@@ -1,12 +1,15 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import sys
+
+import numpy as np
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.interface.participants import Aggregator, Collaborator
+from openfl.experimental.interface.participants import Aggregator
+from openfl.experimental.interface.participants import Collaborator
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement.placement import aggregator, collaborator
-import numpy as np
-import sys
 
 
 class bcolors:  # NOQA: N801
@@ -50,7 +53,9 @@ class TestFlowInternalLoop(FLSpec):
         """
 
         self.agg_mean_value = np.mean(self.model)
-        print(f"<Collab>: {self.input} Mean of Agg model: {self.agg_mean_value} ")
+        print(
+            f"<Collab>: {self.input} Mean of Agg model: {self.agg_mean_value} "
+        )
         self.next(self.collab_model_update)
 
     @collaborator
@@ -76,7 +81,9 @@ class TestFlowInternalLoop(FLSpec):
         """
         Joining inputs from collaborators
         """
-        self.agg_mean = sum(input.local_mean_value for input in inputs) / len(inputs)
+        self.agg_mean = sum(input.local_mean_value for input in inputs) / len(
+            inputs
+        )
         print(f"Aggregated mean : {self.agg_mean}")
         self.next(self.internal_loop)
 
@@ -226,12 +233,16 @@ if __name__ == "__main__":
     for collaborator_name in collaborator_names:
         collaborators.append(Collaborator(name=collaborator_name))
 
-    local_runtime = LocalRuntime(aggregator=aggregator, collaborators=collaborators)
+    local_runtime = LocalRuntime(
+        aggregator=aggregator, collaborators=collaborators
+    )
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "ray":
             local_runtime = LocalRuntime(
-                aggregator=aggregator, collaborators=collaborators, backend="ray"
+                aggregator=aggregator,
+                collaborators=collaborators,
+                backend="ray",
             )
 
     print(f"Local runtime collaborators = {local_runtime.collaborators}")

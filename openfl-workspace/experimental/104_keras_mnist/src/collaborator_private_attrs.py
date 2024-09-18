@@ -23,8 +23,11 @@ train_dataset = (X_train, Y_train)
 test_dataset = (X_test, Y_test)
 
 
-def collaborator_private_attrs(n_collaborators, index, train_dataset, test_dataset, batch_size):
+def collaborator_private_attrs(
+    n_collaborators, index, train_dataset, test_dataset, batch_size
+):
     from openfl.utilities.data_splitters import EqualNumPyDataSplitter
+
     train_splitter = EqualNumPyDataSplitter()
     test_splitter = EqualNumPyDataSplitter()
 
@@ -38,6 +41,7 @@ def collaborator_private_attrs(n_collaborators, index, train_dataset, test_datas
     test_dataset = X_test[valid_idx[index]], y_test[valid_idx[index]]
 
     return {
-        "train_loader": train_dataset, "test_loader": test_dataset,
-        "batch_size": batch_size
+        "train_loader": train_dataset,
+        "test_loader": test_dataset,
+        "batch_size": batch_size,
     }

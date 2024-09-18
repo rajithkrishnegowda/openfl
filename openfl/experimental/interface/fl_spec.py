@@ -1,25 +1,22 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.experimental.interface.flspec module."""
-
 from __future__ import annotations
 
 import inspect
 from copy import deepcopy
-from typing import Callable, List, Type
+from typing import Callable
+from typing import List
+from typing import Type
 
-from openfl.experimental.utilities import (
-    MetaflowInterface,
-    SerializationError,
-    aggregator_to_collaborator,
-    checkpoint,
-    collaborator_to_aggregator,
-    filter_attributes,
-    generate_artifacts,
-    should_transfer,
-)
+from openfl.experimental.utilities import aggregator_to_collaborator
+from openfl.experimental.utilities import checkpoint
+from openfl.experimental.utilities import collaborator_to_aggregator
+from openfl.experimental.utilities import filter_attributes
+from openfl.experimental.utilities import generate_artifacts
+from openfl.experimental.utilities import MetaflowInterface
+from openfl.experimental.utilities import SerializationError
+from openfl.experimental.utilities import should_transfer
 
 
 class FLSpec:
@@ -67,7 +64,9 @@ class FLSpec:
 
         # Submit flow to Runtime
         if str(self._runtime) == "LocalRuntime":
-            self._metaflow_interface = MetaflowInterface(self.__class__, self.runtime.backend)
+            self._metaflow_interface = MetaflowInterface(
+                self.__class__, self.runtime.backend
+            )
             self._run_id = self._metaflow_interface.create_run()
             # Initialize aggregator private attributes
             self.runtime.initialize_aggregator()
@@ -149,7 +148,9 @@ class FLSpec:
             return_objs.append(backup)
         return return_objs
 
-    def _is_at_transition_point(self, f: Callable, parent_func: Callable) -> bool:
+    def _is_at_transition_point(
+        self, f: Callable, parent_func: Callable
+    ) -> bool:
         """
         Determines if the collaborator has finished its current sequence.
 
@@ -164,12 +165,16 @@ class FLSpec:
         if parent_func.__name__ in self._foreach_methods:
             self._foreach_methods.append(f.__name__)
             if should_transfer(f, parent_func):
-                print(f"Should transfer from {parent_func.__name__} to {f.__name__}")
+                print(
+                    f"Should transfer from {parent_func.__name__} to {f.__name__}"
+                )
                 self.execute_next = f.__name__
                 return True
         return False
 
-    def _display_transition_logs(self, f: Callable, parent_func: Callable) -> None:
+    def _display_transition_logs(
+        self, f: Callable, parent_func: Callable
+    ) -> None:
         """
         Prints aggregator to collaborators or collaborators to aggregator
         state transition logs.
@@ -205,7 +210,9 @@ class FLSpec:
         for col in selected_collaborators:
             clone = FLSpec._clones[col]
             clone.input = col
-            if ("exclude" in kwargs and hasattr(clone, kwargs["exclude"][0])) or (
+            if (
+                "exclude" in kwargs and hasattr(clone, kwargs["exclude"][0])
+            ) or (
                 "include" in kwargs and hasattr(clone, kwargs["include"][0])
             ):
                 filter_attributes(clone, f, **kwargs)
@@ -214,7 +221,9 @@ class FLSpec:
                 setattr(clone, name, deepcopy(attr))
             clone._foreach_methods = self._foreach_methods
 
-    def restore_instance_snapshot(self, ctx: FLSpec, instance_snapshot: List[FLSpec]):
+    def restore_instance_snapshot(
+        self, ctx: FLSpec, instance_snapshot: List[FLSpec]
+    ):
         """Restores attributes from backup (in instance snapshot) to ctx.
 
         Args:

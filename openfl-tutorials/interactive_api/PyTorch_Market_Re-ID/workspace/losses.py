@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Compute ArcFace loss and Triplet loss."""
-
 import math
 
 import torch
@@ -60,7 +58,7 @@ class TripletLoss(nn.Module):
         distance (str): distance for triplet.
     """
 
-    def __init__(self, margin=0.3, distance='cosine'):
+    def __init__(self, margin=0.3, distance="cosine"):
         """Initialize Triplet loss."""
         super(TripletLoss, self).__init__()
 
@@ -80,7 +78,7 @@ class TripletLoss(nn.Module):
 
         # Compute pairwise distance, replace by the official when merged
         inputs = F.normalize(inputs, p=2, dim=1)
-        dist = - torch.mm(inputs, inputs.t())
+        dist = -torch.mm(inputs, inputs.t())
 
         # For each anchor, find the hardest positive and negative
         mask = targets.expand(n, n).eq(targets.expand(n, n).t())

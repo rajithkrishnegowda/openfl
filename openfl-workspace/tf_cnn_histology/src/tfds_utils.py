@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 from logging import getLogger
 
 import numpy as np
@@ -38,9 +36,15 @@ def _load_raw_datashards(shard_num, collaborator_count):
     Returns:
         2 tuples: (image, label) of the training, validation dataset
     """
-    (ds), metadata = tfds.load('colorectal_histology', data_dir='.',
-                               shuffle_files=False, split='train', batch_size=-1,
-                               with_info=True, as_supervised=True)
+    (ds), metadata = tfds.load(
+        "colorectal_histology",
+        data_dir=".",
+        shuffle_files=False,
+        split="train",
+        batch_size=-1,
+        with_info=True,
+        as_supervised=True,
+    )
 
     image, label = tfds.as_numpy(ds)
 
@@ -69,8 +73,13 @@ def _load_raw_datashards(shard_num, collaborator_count):
     return (X_train, y_train), (X_valid, y_valid)
 
 
-def load_histology_shard(shard_num, collaborator_count, categorical=True,
-                         channels_last=True, **kwargs):
+def load_histology_shard(
+    shard_num,
+    collaborator_count,
+    categorical=True,
+    channels_last=True,
+    **kwargs,
+):
     """
     Load the colorectal histology dataset.
 
@@ -97,26 +106,35 @@ def load_histology_shard(shard_num, collaborator_count, categorical=True,
     channels = 3
 
     (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(
-        shard_num, collaborator_count)
+        shard_num, collaborator_count
+    )
 
     if channels_last:
-        X_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, channels)
-        X_valid = X_valid.reshape(X_valid.shape[0], img_rows, img_cols, channels)
+        X_train = X_train.reshape(
+            X_train.shape[0], img_rows, img_cols, channels
+        )
+        X_valid = X_valid.reshape(
+            X_valid.shape[0], img_rows, img_cols, channels
+        )
         input_shape = (img_rows, img_cols, channels)
     else:
-        X_train = X_train.reshape(X_train.shape[0], channels, img_rows, img_cols)
-        X_valid = X_valid.reshape(X_valid.shape[0], channels, img_rows, img_cols)
+        X_train = X_train.reshape(
+            X_train.shape[0], channels, img_rows, img_cols
+        )
+        X_valid = X_valid.reshape(
+            X_valid.shape[0], channels, img_rows, img_cols
+        )
         input_shape = (channels, img_rows, img_cols)
 
-    X_train = X_train.astype('float32')
-    X_valid = X_valid.astype('float32')
+    X_train = X_train.astype("float32")
+    X_valid = X_valid.astype("float32")
     X_train /= 255
     X_valid /= 255
 
-    logger.info(f'Histology > X_train Shape : {X_train.shape}')
-    logger.info(f'Histology > y_train Shape : {y_train.shape}')
-    logger.info(f'Histology > Train Samples : {X_train.shape[0]}')
-    logger.info(f'Histology > Valid Samples : {X_valid.shape[0]}')
+    logger.info(f"Histology > X_train Shape : {X_train.shape}")
+    logger.info(f"Histology > y_train Shape : {y_train.shape}")
+    logger.info(f"Histology > Train Samples : {X_train.shape[0]}")
+    logger.info(f"Histology > Valid Samples : {X_valid.shape[0]}")
 
     if categorical:
         # convert class vectors to binary class matrices

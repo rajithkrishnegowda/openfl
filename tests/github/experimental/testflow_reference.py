@@ -1,18 +1,21 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-
-import sys
+import inspect
 import io
-import math
 import logging
+import math
+import sys
+from types import MethodType
+
 import torch.nn as nn
 import torch.optim as optim
-import inspect
-from types import MethodType
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 
 class bcolors:  # NOQA: N801
@@ -107,7 +110,9 @@ class TestFlowReference(FLSpec):
         self.collab_attr_str_one = "Test string data in collab " + self.input
         self.collab_attr_list_one = [1, 2, 5, 6, 7, 8]
         self.collab_attr_dict_one = {key: key for key in range(5)}
-        self.collab_attr_file_one = io.StringIO("Test file data in collaborator")
+        self.collab_attr_file_one = io.StringIO(
+            "Test file data in collaborator"
+        )
         self.collab_attr_math_one = math.sqrt(self.index)
         self.collab_attr_complex_num_one = complex(self.index, self.index)
         self.collab_attr_log_one = logging.getLogger(
@@ -242,9 +247,11 @@ def find_matched_references(collab_attr_list, all_collaborators):
     for attr_name in collab_attr_list:
         for i, curr_collab in enumerate(all_collaborators):
             # Compare the current collaborator with the collaborator(s) that come(s) after it.
-            for next_collab in all_collaborators[i + 1:]:
+            for next_collab in all_collaborators[i + 1 :]:
                 # Check if both collaborators have the current attribute
-                if hasattr(curr_collab, attr_name) and hasattr(next_collab, attr_name):
+                if hasattr(curr_collab, attr_name) and hasattr(
+                    next_collab, attr_name
+                ):
                     # Check if both collaborators are sharing same reference
                     if getattr(curr_collab, attr_name) is getattr(
                         next_collab, attr_name
@@ -273,9 +280,9 @@ def validate_collab_references(matched_ref_dict):
     if collborators_sharing_ref:
         for collab in collborators_sharing_ref:
             if collab not in TestFlowReference.all_ref_error_dict:
-                TestFlowReference.all_ref_error_dict[collab] = matched_ref_dict.get(
+                TestFlowReference.all_ref_error_dict[
                     collab
-                )
+                ] = matched_ref_dict.get(collab)
 
     if not reference_flag:
         print(
@@ -290,7 +297,9 @@ def validate_agg_attr_ref(agg_attrs, agg_obj):
     """
     attr_flag = False
     for attr in agg_attrs:
-        if TestFlowReference.agg_attr_dict.get(attr) == id(getattr(agg_obj, attr)):
+        if TestFlowReference.agg_attr_dict.get(attr) == id(
+            getattr(agg_obj, attr)
+        ):
             attr_flag = True
     if not attr_flag:
         print(
@@ -361,7 +370,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "ray":
             local_runtime = LocalRuntime(
-                aggregator=aggregator, collaborators=collaborators, backend="ray"
+                aggregator=aggregator,
+                collaborators=collaborators,
+                backend="ray",
             )
 
     print(f"Local runtime collaborators = {local_runtime.collaborators}")

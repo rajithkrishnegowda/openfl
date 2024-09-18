@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import numpy as np
 import torch
@@ -51,7 +50,9 @@ class PyTorchCNN(PyTorchTaskRunner):
             **kwargs: Additional arguments to pass to the function
 
         """
-        channel = self.data_loader.get_feature_shape()[0]  # (channel, dim1, dim2)
+        channel = self.data_loader.get_feature_shape()[
+            0
+        ]  # (channel, dim1, dim2)
         conv_kwargs = {"kernel_size": 3, "stride": 1, "padding": 1}
         self.conv1 = nn.Conv2d(channel, 16, **conv_kwargs)
         self.conv2 = nn.Conv2d(16, 32, **conv_kwargs)

@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Shard descriptor for text."""
-
 import re
 import urllib.request
 import zipfile
@@ -35,7 +34,7 @@ class NextWordShardDataset(ShardDataset):
 class NextWordShardDescriptor(ShardDescriptor):
     """Data is any text."""
 
-    def __init__(self, title: str = '', author: str = '') -> None:
+    def __init__(self, title: str = "", author: str = "") -> None:
         """Initialize NextWordShardDescriptor."""
         super().__init__()
 
@@ -46,18 +45,20 @@ class NextWordShardDescriptor(ShardDescriptor):
         data = self.load_data(dataset_dir)  # list of words
         self.X, self.y = self.get_sequences(data)
 
-    def get_dataset(self, dataset_type='train', train_val_split=0.8):
+    def get_dataset(self, dataset_type="train", train_val_split=0.8):
         """Return a dataset by type."""
         train_size = round(len(self.X) * train_val_split)
-        if dataset_type == 'train':
+        if dataset_type == "train":
             X = self.X[:train_size]
             y = self.y[:train_size]
-        elif dataset_type == 'val':
+        elif dataset_type == "val":
             X = self.X[train_size:]
             y = self.y[train_size:]
         else:
-            raise Exception(f'Wrong dataset type: {dataset_type}.'
-                            f'Choose from the list: [train, val]')
+            raise Exception(
+                f"Wrong dataset type: {dataset_type}."
+                f"Choose from the list: [train, val]"
+            )
         return NextWordShardDataset(X, y)
 
     @property
@@ -75,13 +76,13 @@ class NextWordShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return f'Dataset from {self.title} by {self.author}'
+        return f"Dataset from {self.title} by {self.author}"
 
     @staticmethod
     def load_data(path):
         """Load text file, return list of words."""
-        file = open(path, 'r', encoding='utf8').read()
-        data = re.findall(r'[a-z]+', file.lower())
+        file = open(path, "r", encoding="utf8").read()
+        data = re.findall(r"[a-z]+", file.lower())
         return data
 
     @staticmethod
@@ -94,13 +95,15 @@ class NextWordShardDescriptor(ShardDescriptor):
         # created with make_vocab.py from
         # https://gist.github.com/katerina-merkulova/e351b11c67832034b49652835b14adb0
         NextWordShardDescriptor.download_vectors()
-        vectors = pd.read_feather('keyed_vectors.feather')
-        vectors.set_index('index', inplace=True)
+        vectors = pd.read_feather("keyed_vectors.feather")
+        vectors.set_index("index", inplace=True)
 
         for i in range(len(data) - 3):
-            x = data[i:i + 3]  # make 3-grams
+            x = data[i : i + 3]  # make 3-grams
             y = data[i + 3]
-            cur_x = [vectors.vector[word] for word in x if word in vectors.index]
+            cur_x = [
+                vectors.vector[word] for word in x if word in vectors.index
+            ]
             if len(cur_x) == 3 and y in vectors.index:
                 x_seq.append(cur_x)
                 y_seq.append(vectors.index.get_loc(y))
@@ -114,29 +117,32 @@ class NextWordShardDescriptor(ShardDescriptor):
     @staticmethod
     def download_data(title):
         """Download text by title form Github Gist."""
-        url = ('https://gist.githubusercontent.com/katerina-merkulova/e351b11c67832034b49652835b'
-               '14adb0/raw/5b6667c3a2e1266f3d9125510069d23d8f24dc73/' + title.replace(' ', '_')
-               + '.txt')
-        filepath = Path.cwd() / f'{title}.txt'
+        url = (
+            "https://gist.githubusercontent.com/katerina-merkulova/e351b11c67832034b49652835b"
+            "14adb0/raw/5b6667c3a2e1266f3d9125510069d23d8f24dc73/"
+            + title.replace(" ", "_")
+            + ".txt"
+        )
+        filepath = Path.cwd() / f"{title}.txt"
         if not filepath.exists():
             with urllib.request.urlopen(url) as response:
-                content = response.read().decode('utf-8')
-            with open(filepath, 'w', encoding='utf-8') as file:
+                content = response.read().decode("utf-8")
+            with open(filepath, "w", encoding="utf-8") as file:
                 file.write(content)
         return filepath
 
     @staticmethod
     def download_vectors():
         """Download vectors."""
-        if Path('keyed_vectors.feather').exists():
+        if Path("keyed_vectors.feather").exists():
             return None
 
-        output = 'keyed_vectors.zip'
+        output = "keyed_vectors.zip"
         if not Path(output).exists():
-            url = 'https://drive.google.com/uc?id=1QfidtkJ9qxzNLs1pgXoY_hqnBjsDI_2i'
+            url = "https://drive.google.com/uc?id=1QfidtkJ9qxzNLs1pgXoY_hqnBjsDI_2i"
             gdown.download(url, output, quiet=False)
 
-        with zipfile.ZipFile(output, 'r') as zip_ref:
+        with zipfile.ZipFile(output, "r") as zip_ref:
             zip_ref.extractall(Path.cwd())
 
         Path(output).unlink()  # remove zip

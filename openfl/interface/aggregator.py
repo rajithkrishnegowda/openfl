@@ -1,17 +1,25 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Aggregator module."""
 import sys
 from logging import getLogger
 from pathlib import Path
 
+from click import confirm
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, echo, group, option, pass_context, style
+from click import style
 
 from openfl.cryptography.ca import sign_certificate
-from openfl.cryptography.io import get_csr_hash, read_crt, read_csr, read_key, write_crt, write_key
+from openfl.cryptography.io import get_csr_hash
+from openfl.cryptography.io import read_crt
+from openfl.cryptography.io import read_csr
+from openfl.cryptography.io import read_key
+from openfl.cryptography.io import write_crt
+from openfl.cryptography.io import write_key
 from openfl.cryptography.participant import generate_csr
 from openfl.federated import Plan
 from openfl.interface.cli_helper import CERT_DIR
@@ -70,10 +78,14 @@ def start_(plan, authorized_cols, secure):
     """
 
     if is_directory_traversal(plan):
-        echo("Federated learning plan path is out of the openfl workspace scope.")
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
         sys.exit(1)
     if is_directory_traversal(authorized_cols):
-        echo("Authorized collaborator list file path is out of the openfl workspace scope.")
+        echo(
+            "Authorized collaborator list file path is out of the openfl workspace scope."
+        )
         sys.exit(1)
 
     plan = Plan.parse(
@@ -91,7 +103,8 @@ def start_(plan, authorized_cols, secure):
     "--fqdn",
     required=False,
     type=click_types.FQDN,
-    help=f"The fully qualified domain name of" f" aggregator node [{getfqdn_env()}]",
+    help=f"The fully qualified domain name of"
+    f" aggregator node [{getfqdn_env()}]",
     default=getfqdn_env(),
 )
 def _generate_cert_request(fqdn):
@@ -123,7 +136,10 @@ def generate_cert_request(fqdn):
 
     (CERT_DIR / "server").mkdir(parents=True, exist_ok=True)
 
-    echo("  Writing AGGREGATOR certificate key pair to: " + style(f"{CERT_DIR}/server", fg="green"))
+    echo(
+        "  Writing AGGREGATOR certificate key pair to: "
+        + style(f"{CERT_DIR}/server", fg="green")
+    )
 
     # Print csr hash before writing csr to disk
     csr_hash = get_csr_hash(server_csr)
@@ -193,7 +209,9 @@ def certify(fqdn, silent):
     csr_path_absolute_path = Path(CERT_DIR / f"{cert_name}.csr").absolute()
     if not csr_path_absolute_path.exists():
         echo(
-            style("Aggregator certificate signing request not found.", fg="red")
+            style(
+                "Aggregator certificate signing request not found.", fg="red"
+            )
             + " Please run `fx aggregator generate-cert-request`"
             " to generate the certificate request."
         )
@@ -201,10 +219,13 @@ def certify(fqdn, silent):
     csr, csr_hash = read_csr(csr_path_absolute_path)
 
     # Load private signing key
-    private_sign_key_absolute_path = Path(CERT_DIR / signing_key_path).absolute()
+    private_sign_key_absolute_path = Path(
+        CERT_DIR / signing_key_path
+    ).absolute()
     if not private_sign_key_absolute_path.exists():
         echo(
-            style("Signing key not found.", fg="red") + " Please run `fx workspace certify`"
+            style("Signing key not found.", fg="red")
+            + " Please run `fx workspace certify`"
             " to initialize the local certificate authority."
         )
 
@@ -214,7 +235,8 @@ def certify(fqdn, silent):
     signing_crt_absolute_path = Path(CERT_DIR / signing_crt_path).absolute()
     if not signing_crt_absolute_path.exists():
         echo(
-            style("Signing certificate not found.", fg="red") + " Please run `fx workspace certify`"
+            style("Signing certificate not found.", fg="red")
+            + " Please run `fx workspace certify`"
             " to initialize the local certificate authority."
         )
 
@@ -230,19 +252,22 @@ def certify(fqdn, silent):
     crt_path_absolute_path = Path(CERT_DIR / f"{cert_name}.crt").absolute()
 
     if silent:
-
-        echo(" Warning: manual check of certificate hashes is bypassed in silent mode.")
+        echo(
+            " Warning: manual check of certificate hashes is bypassed in silent mode."
+        )
         echo(" Signing AGGREGATOR certificate")
-        signed_agg_cert = sign_certificate(csr, signing_key, signing_crt.subject)
+        signed_agg_cert = sign_certificate(
+            csr, signing_key, signing_crt.subject
+        )
         write_crt(signed_agg_cert, crt_path_absolute_path)
 
     else:
-
         echo("Make sure the two hashes above are the same.")
         if confirm("Do you want to sign this certificate?"):
-
             echo(" Signing AGGREGATOR certificate")
-            signed_agg_cert = sign_certificate(csr, signing_key, signing_crt.subject)
+            signed_agg_cert = sign_certificate(
+                csr, signing_key, signing_crt.subject
+            )
             write_crt(signed_agg_cert, crt_path_absolute_path)
 
         else:

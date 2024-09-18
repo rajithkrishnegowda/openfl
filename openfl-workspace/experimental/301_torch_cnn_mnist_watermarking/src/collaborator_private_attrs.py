@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 from copy import deepcopy
 
 import torch
@@ -31,7 +30,9 @@ test_dataset = torchvision.datasets.MNIST(
 )
 
 
-def collaborator_private_attrs(index, n_collaborators, batch_size, train_dataset, test_dataset):
+def collaborator_private_attrs(
+    index, n_collaborators, batch_size, train_dataset, test_dataset
+):
     train = deepcopy(train_dataset)
     test = deepcopy(test_dataset)
     train.data = train_dataset.data[index::n_collaborators]
@@ -40,6 +41,10 @@ def collaborator_private_attrs(index, n_collaborators, batch_size, train_dataset
     test.targets = test_dataset.targets[index::n_collaborators]
 
     return {
-        "train_loader": torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=True),
-        "test_loader": torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=True),
+        "train_loader": torch.utils.data.DataLoader(
+            train, batch_size=batch_size, shuffle=True
+        ),
+        "test_loader": torch.utils.data.DataLoader(
+            test, batch_size=batch_size, shuffle=True
+        ),
     }

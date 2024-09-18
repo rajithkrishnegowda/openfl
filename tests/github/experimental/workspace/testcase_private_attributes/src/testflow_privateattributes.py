@@ -1,9 +1,9 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 from openfl.experimental.component import Aggregator
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 class bcolors:  # NOQA: N801
@@ -71,7 +71,9 @@ class TestFlowPrivateAttributes(FLSpec):
 
         self.exclude_collab_to_collab = 2
         self.include_collab_to_collab = 22
-        self.next(self.collaborator_step_b, exclude=["exclude_collab_to_collab"])
+        self.next(
+            self.collaborator_step_b, exclude=["exclude_collab_to_collab"]
+        )
 
     @collaborator
     def collaborator_step_b(self):
@@ -138,7 +140,9 @@ class TestFlowPrivateAttributes(FLSpec):
                 )
             )
         else:
-            print(f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}")
+            print(
+                f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}"
+            )
 
         TestFlowPrivateAttributes.ERROR_LIST = []
 
@@ -171,7 +175,9 @@ def validate_collab_private_attr(self, private_attr, step_name):
             )
 
 
-def validate_agg_private_attrs(self, private_attr_1, private_attr_2, step_name):
+def validate_agg_private_attrs(
+    self, private_attr_1, private_attr_2, step_name
+):
     # Collaborator should only be able to access its own attributes
     if not hasattr(self, private_attr_1) or not hasattr(self, private_attr_2):
         TestFlowPrivateAttributes.ERROR_LIST.append(
@@ -182,7 +188,9 @@ def validate_agg_private_attrs(self, private_attr_1, private_attr_2, step_name):
             + f"private attributes not accessible {bcolors.ENDC}"
         )
 
-    if hasattr(self.runtime, "_aggregator") and isinstance(self.runtime._aggregator, Aggregator):
+    if hasattr(self.runtime, "_aggregator") and isinstance(
+        self.runtime._aggregator, Aggregator
+    ):
         # Error - we are able to access aggregator attributes
         TestFlowPrivateAttributes.ERROR_LIST.append(
             step_name + "_aggregator_attributes_found"

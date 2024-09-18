@@ -1,13 +1,14 @@
 # Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
+from typing import Iterator
+from typing import Tuple
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from typing import Iterator, Tuple
 
 from openfl.federated import PyTorchTaskRunner
 from openfl.utilities import Metric
@@ -32,14 +33,20 @@ class PyTorchCNN(PyTorchTaskRunner):
         super().__init__(device=device, **kwargs)
 
         # Define the model
-        channel = self.data_loader.get_feature_shape()[0]  # (channel, dim1, dim2)
+        channel = self.data_loader.get_feature_shape()[
+            0
+        ]  # (channel, dim1, dim2)
         self.conv1 = nn.Conv2d(channel, 16, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
         self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
-        self.conv5 = nn.Conv2d(128 + 32, 256, kernel_size=3, stride=1, padding=1)
+        self.conv5 = nn.Conv2d(
+            128 + 32, 256, kernel_size=3, stride=1, padding=1
+        )
         self.conv6 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
-        self.conv7 = nn.Conv2d(512 + 128 + 32, 256, kernel_size=3, stride=1, padding=1)
+        self.conv7 = nn.Conv2d(
+            512 + 128 + 32, 256, kernel_size=3, stride=1, padding=1
+        )
         self.conv8 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
         self.fc1 = nn.Linear(1184 * 9 * 9, 128)
         self.fc2 = nn.Linear(128, 8)
@@ -95,9 +102,9 @@ class PyTorchCNN(PyTorchTaskRunner):
         """
         losses = []
         for data, target in train_dataloader:
-            data, target = torch.tensor(data).to(self.device), torch.tensor(target).to(
-                self.device
-            )
+            data, target = torch.tensor(data).to(self.device), torch.tensor(
+                target
+            ).to(self.device)
             self.optimizer.zero_grad()
             output = self(data)
             loss = self.loss_fn(output, target)
@@ -128,9 +135,9 @@ class PyTorchCNN(PyTorchTaskRunner):
             for data, target in validation_dataloader:
                 samples = target.shape[0]
                 total_samples += samples
-                data, target = torch.tensor(data).to(self.device), torch.tensor(
-                    target
-                ).to(self.device, dtype=torch.int64)
+                data, target = torch.tensor(data).to(
+                    self.device
+                ), torch.tensor(target).to(self.device, dtype=torch.int64)
                 output = self(data)
                 # get the index of the max log-probability
                 pred = output.argmax(dim=1)

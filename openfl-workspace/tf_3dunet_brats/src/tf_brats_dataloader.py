@@ -1,24 +1,26 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-
 import os
 
-from openfl.federated import TensorFlowDataLoader
 from .dataloader import DatasetGenerator
+from openfl.federated import TensorFlowDataLoader
 
 
 class TensorFlowBratsDataLoader(TensorFlowDataLoader):
     """TensorFlow Data Loader for the BraTS dataset."""
 
-    def __init__(self, data_path, batch_size=4,
-                 crop_dim=64, percent_train=0.8,
-                 pre_split_shuffle=True,
-                 number_input_channels=1,
-                 num_classes=1,
-                 **kwargs):
+    def __init__(
+        self,
+        data_path,
+        batch_size=4,
+        crop_dim=64,
+        percent_train=0.8,
+        pre_split_shuffle=True,
+        number_input_channels=1,
+        num_classes=1,
+        **kwargs
+    ):
         """Initialize.
 
         Args:
@@ -43,14 +45,16 @@ class TensorFlowBratsDataLoader(TensorFlowDataLoader):
 
         self.train_test_split = percent_train
 
-        self.brats_data = DatasetGenerator(crop_dim,
-                                           data_path=data_path,
-                                           number_input_channels=number_input_channels,
-                                           batch_size=batch_size,
-                                           train_test_split=percent_train,
-                                           validate_test_split=0.5,
-                                           num_classes=num_classes,
-                                           random_seed=816)
+        self.brats_data = DatasetGenerator(
+            crop_dim,
+            data_path=data_path,
+            number_input_channels=number_input_channels,
+            batch_size=batch_size,
+            train_test_split=percent_train,
+            validate_test_split=0.5,
+            num_classes=num_classes,
+            random_seed=816,
+        )
 
     def get_feature_shape(self):
         """

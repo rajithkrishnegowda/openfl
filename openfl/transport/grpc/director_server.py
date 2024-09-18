@@ -1,22 +1,27 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Director server."""
-
 import asyncio
 import logging
 import uuid
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Callable
+from typing import Optional
+from typing import Union
 
 import grpc
-from google.protobuf.json_format import MessageToDict, ParseDict
-from grpc import aio, ssl_server_credentials
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.json_format import ParseDict
+from grpc import aio
+from grpc import ssl_server_credentials
 
 from openfl.pipelines import NoCompressionPipeline
-from openfl.protocols import base_pb2, director_pb2, director_pb2_grpc
-from openfl.protocols.utils import construct_model_proto, deconstruct_model_proto, get_headers
+from openfl.protocols import base_pb2
+from openfl.protocols import director_pb2
+from openfl.protocols import director_pb2_grpc
+from openfl.protocols.utils import construct_model_proto
+from openfl.protocols.utils import deconstruct_model_proto
+from openfl.protocols.utils import get_headers
 from openfl.transport.grpc.exceptions import ShardNotFoundError
 from openfl.transport.grpc.grpc_channel_options import channel_options
 
@@ -137,14 +142,18 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
             str: The name of the caller.
         """
         if self.tls:
-            return context.auth_context()["x509_common_name"][0].decode("utf-8")
+            return context.auth_context()["x509_common_name"][0].decode(
+                "utf-8"
+            )
         headers = get_headers(context)
         client_id = headers.get("client_id", CLIENT_ID_DEFAULT)
         return client_id
 
     def start(self):
         """Launch the director GRPC server."""
-        loop = asyncio.get_event_loop()  # TODO: refactor after end of support for python3.6
+        loop = (
+            asyncio.get_event_loop()
+        )  # TODO: refactor after end of support for python3.6
         loop.create_task(self.director.start_experiment_execution_loop())
         loop.run_until_complete(self._run_server())
 
@@ -186,7 +195,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
                 request.
         """
         logger.info("Updating shard info: %s", request.shard_info)
-        dict_shard_info = MessageToDict(request.shard_info, preserving_proto_field_name=True)
+        dict_shard_info = MessageToDict(
+            request.shard_info, preserving_proto_field_name=True
+        )
         is_accepted = self.director.acknowledge_shard(dict_shard_info)
         reply = director_pb2.UpdateShardInfoResponse(accepted=is_accepted)
 
@@ -207,14 +218,18 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
         data_file_path = self.root_dir / str(uuid.uuid4())
         with open(data_file_path, "wb") as data_file:
             async for request in stream:
-                if request.experiment_data.size == len(request.experiment_data.npbytes):
+                if request.experiment_data.size == len(
+                    request.experiment_data.npbytes
+                ):
                     data_file.write(request.experiment_data.npbytes)
                 else:
                     raise Exception("Could not register new experiment")
 
         tensor_dict = None
         if request.model_proto:
-            tensor_dict, _ = deconstruct_model_proto(request.model_proto, NoCompressionPipeline())
+            tensor_dict, _ = deconstruct_model_proto(
+                request.model_proto, NoCompressionPipeline()
+            )
 
         caller = self.get_caller(context)
 
@@ -248,7 +263,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
             experiment_name=request.experiment_name, caller=caller
         )
         logger.debug("Sending GetExperimentStatus response")
-        return director_pb2.GetExperimentStatusResponse(experiment_status=experiment_status)
+        return director_pb2.GetExperimentStatusResponse(
+            experiment_status=experiment_status
+        )
 
     async def GetTrainedModel(self, request, context):  # NOQA:N802
         """
@@ -264,9 +281,15 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
         """
         logger.debug("Received request for trained model...")
 
-        if request.model_type == director_pb2.GetTrainedModelRequest.BEST_MODEL:
+        if (
+            request.model_type
+            == director_pb2.GetTrainedModelRequest.BEST_MODEL
+        ):
             model_type = "best"
-        elif request.model_type == director_pb2.GetTrainedModelRequest.LAST_MODEL:
+        elif (
+            request.model_type
+            == director_pb2.GetTrainedModelRequest.LAST_MODEL
+        ):
             model_type = "last"
         else:
             logger.error("Incorrect model type")
@@ -283,7 +306,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
         if trained_model_dict is None:
             return director_pb2.TrainedModelResponse()
 
-        model_proto = construct_model_proto(trained_model_dict, 0, NoCompressionPipeline())
+        model_proto = construct_model_proto(
+            trained_model_dict, 0, NoCompressionPipeline()
+        )
 
         logger.debug("Sending trained model")
 
@@ -303,7 +328,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
         # TODO: add size filling
         # TODO: add experiment name field
         # TODO: rename npbytes to data
-        data_file_path = self.director.get_experiment_data(request.experiment_name)
+        data_file_path = self.director.get_experiment_data(
+            request.experiment_name
+        )
         max_buffer_size = 2 * 1024 * 1024
         with open(data_file_path, "rb") as df:
             while True:
@@ -328,14 +355,18 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
             "Request WaitExperiment received from envoy %s",
             request.collaborator_name,
         )
-        experiment_name = await self.director.wait_experiment(request.collaborator_name)
+        experiment_name = await self.director.wait_experiment(
+            request.collaborator_name
+        )
         logger.debug(
             "Experiment %s is ready for %s",
             experiment_name,
             request.collaborator_name,
         )
 
-        return director_pb2.WaitExperimentResponse(experiment_name=experiment_name)
+        return director_pb2.WaitExperimentResponse(
+            experiment_name=experiment_name
+        )
 
     async def GetDatasetInfo(self, request, context):  # NOQA:N802
         """
@@ -352,7 +383,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
         logger.debug("Received request for dataset info...")
 
         sample_shape, target_shape = self.director.get_dataset_info()
-        shard_info = director_pb2.ShardInfo(sample_shape=sample_shape, target_shape=target_shape)
+        shard_info = director_pb2.ShardInfo(
+            sample_shape=sample_shape, target_shape=target_shape
+        )
         resp = director_pb2.GetDatasetInfoResponse(shard_info=shard_info)
 
         logger.debug("Sending dataset info")
@@ -486,8 +519,12 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
                 is_online=envoy_info["is_online"],
                 is_experiment_running=envoy_info["is_experiment_running"],
             )
-            envoy_info_message.valid_duration.seconds = envoy_info["valid_duration"]
-            envoy_info_message.last_updated.seconds = int(envoy_info["last_updated"])
+            envoy_info_message.valid_duration.seconds = envoy_info[
+                "valid_duration"
+            ]
+            envoy_info_message.last_updated.seconds = int(
+                envoy_info["last_updated"]
+            )
 
             envoy_statuses.append(envoy_info_message)
 
@@ -507,8 +544,12 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
         """
         caller = self.get_caller(context)
         experiments = self.director.get_experiments_list(caller)
-        experiment_list = [director_pb2.ExperimentListItem(**exp) for exp in experiments]
-        return director_pb2.GetExperimentsListResponse(experiments=experiment_list)
+        experiment_list = [
+            director_pb2.ExperimentListItem(**exp) for exp in experiments
+        ]
+        return director_pb2.GetExperimentsListResponse(
+            experiments=experiment_list
+        )
 
     async def GetExperimentDescription(self, request, context):  # NOQA:N802
         """Get an experiment description.
@@ -523,7 +564,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
                 request.
         """
         caller = self.get_caller(context)
-        experiment = self.director.get_experiment_description(caller, request.name)
+        experiment = self.director.get_experiment_description(
+            caller, request.name
+        )
         models_statuses = [
             base_pb2.DownloadStatus(name=ms["name"], status=ms["status"])
             for ms in experiment["download_statuses"]["models"]
@@ -548,7 +591,9 @@ class DirectorGRPCServer(director_pb2_grpc.DirectorServicer):
             for col in experiment["collaborators"]
         ]
         tasks = [
-            base_pb2.TaskDescription(name=task["name"], description=task["description"])
+            base_pb2.TaskDescription(
+                name=task["name"], description=task["description"]
+            )
             for task in experiment["tasks"]
         ]
 

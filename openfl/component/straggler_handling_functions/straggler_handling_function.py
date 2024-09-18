@@ -1,10 +1,8 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Straggler handling module."""
-
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 
 class StragglerHandlingFunction(ABC):

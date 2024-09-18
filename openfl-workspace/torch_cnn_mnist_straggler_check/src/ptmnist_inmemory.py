@@ -1,10 +1,8 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-from openfl.federated import PyTorchDataLoader
 from .mnist_utils import load_mnist_shard
+from openfl.federated import PyTorchDataLoader
 
 
 class PyTorchMNISTInMemory(PyTorchDataLoader):
@@ -28,7 +26,8 @@ class PyTorchMNISTInMemory(PyTorchDataLoader):
         # of collaborator list.
 
         num_classes, X_train, y_train, X_valid, y_valid = load_mnist_shard(
-            shard_num=int(data_path), **kwargs)
+            shard_num=int(data_path), **kwargs
+        )
 
         self.X_train = X_train
         self.y_train = y_train

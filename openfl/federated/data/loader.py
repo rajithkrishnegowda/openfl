@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """DataLoader module."""
 
 
@@ -21,7 +19,6 @@ class DataLoader:
         Args:
             kwargs: Additional arguments to pass to the function.
         """
-        pass
 
     def get_feature_shape(self):
         """Returns the shape of an example feature array.

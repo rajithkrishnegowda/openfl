@@ -1,8 +1,8 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 class bcolors:  # NOQA: N801
@@ -40,7 +40,10 @@ class TestFlowIncludeExclude(FLSpec):
 
         self.exclude_agg_to_agg = 10
         self.include_agg_to_agg = 100
-        self.next(self.test_include_exclude_agg_to_agg, exclude=["exclude_agg_to_agg"])
+        self.next(
+            self.test_include_exclude_agg_to_agg,
+            exclude=["exclude_agg_to_agg"],
+        )
 
     @aggregator
     def test_include_exclude_agg_to_agg(self):

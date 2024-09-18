@@ -1,22 +1,24 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import json
 import os
 import subprocess
 import sys
 from logging import getLogger
-from typing import Any, Mapping
+from typing import Any
+from typing import Mapping
 
 import numpy as np
 import torch
 import torch as pt
-from peft.utils import get_peft_model_state_dict, set_peft_model_state_dict
+from peft.utils import get_peft_model_state_dict
+from peft.utils import set_peft_model_state_dict
 
 from openfl.federated import PyTorchTaskRunner
 from openfl.federated.task.runner_pt import change_tags
-from openfl.utilities import Metric, TensorKey
+from openfl.utilities import Metric
+from openfl.utilities import TensorKey
 from openfl.utilities.split import split_tensor_dict_for_holdouts
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -63,7 +65,9 @@ class LLMTaskRunner(PyTorchTaskRunner):
     def state_dict(self):
         return get_peft_model_state_dict(self.model)
 
-    def load_state_dict(self, state_dict: Mapping[str, Any], strict: bool = True):
+    def load_state_dict(
+        self, state_dict: Mapping[str, Any], strict: bool = True
+    ):
         return set_peft_model_state_dict(self.model, state_dict)
 
     def save_modelstate(self, col_name, round_num, func_name, kwargs):
@@ -174,14 +178,22 @@ class LLMTaskRunner(PyTorchTaskRunner):
         # TODO figure out a better way to pass in metric for this pytorch
         #  validate function
         output_tensor_dict = {
-            TensorKey("acc", origin, round_num, True, tags): np.array(val_score)
+            TensorKey("acc", origin, round_num, True, tags): np.array(
+                val_score
+            )
         }
 
         # Empty list represents metrics that should only be stored locally
         return output_tensor_dict, {}
 
     def train_task(
-        self, col_name, round_num, input_tensor_dict, use_tqdm=False, epochs=1, **kwargs
+        self,
+        col_name,
+        round_num,
+        input_tensor_dict,
+        use_tqdm=False,
+        epochs=1,
+        **kwargs,
     ):
         """Train batches.
 
@@ -226,7 +238,9 @@ class LLMTaskRunner(PyTorchTaskRunner):
         origin = col_name
         tags = ("trained",)
         output_metric_dict = {
-            TensorKey(metric.name, origin, round_num, True, ("metric",)): metric.value
+            TensorKey(
+                metric.name, origin, round_num, True, ("metric",)
+            ): metric.value
         }
 
         # output model tensors (Doesn't include TensorKey)
@@ -249,11 +263,16 @@ class LLMTaskRunner(PyTorchTaskRunner):
         # for the updated model parameters.
         # This ensures they will be resolved locally
         next_local_tensorkey_model_dict = {
-            TensorKey(tensor_name, origin, round_num + 1, False, ("model",)): nparray
+            TensorKey(
+                tensor_name, origin, round_num + 1, False, ("model",)
+            ): nparray
             for tensor_name, nparray in local_model_dict.items()
         }
 
-        global_tensor_dict = {**output_metric_dict, **global_tensorkey_model_dict}
+        global_tensor_dict = {
+            **output_metric_dict,
+            **global_tensorkey_model_dict,
+        }
         local_tensor_dict = {
             **local_tensorkey_model_dict,
             **next_local_tensorkey_model_dict,

@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """FederatedFastEstimator module."""
 import os
 from logging import getLogger
@@ -70,11 +68,15 @@ class FederatedFastEstimator:
 
         self.rounds = plan.config["aggregator"]["settings"]["rounds_to_train"]
         data_loader = FastEstimatorDataLoader(self.estimator.pipeline)
-        runner = FastEstimatorTaskRunner(self.estimator, data_loader=data_loader)
+        runner = FastEstimatorTaskRunner(
+            self.estimator, data_loader=data_loader
+        )
         # Overwrite plan values
         tensor_pipe = plan.get_tensor_pipe()
         # Initialize model weights
-        init_state_path = plan.config["aggregator"]["settings"]["init_state_path"]
+        init_state_path = plan.config["aggregator"]["settings"][
+            "init_state_path"
+        ]
         tensor_dict, holdout_params = split_tensor_dict_for_holdouts(
             self.logger, runner.get_tensor_dict(False)
         )
@@ -83,7 +85,9 @@ class FederatedFastEstimator:
             tensor_dict=tensor_dict, round_number=0, tensor_pipe=tensor_pipe
         )
 
-        self.logger.info(f"Creating Initial Weights File" f"    🠆 {init_state_path}")
+        self.logger.info(
+            f"Creating Initial Weights File" f"    🠆 {init_state_path}"
+        )
 
         utils.dump_proto(model_proto=model_snap, fpath=init_state_path)
 
@@ -151,7 +155,6 @@ class FederatedFastEstimator:
         model = None
         for round_num in range(self.rounds):
             for col in plan.authorized_cols:
-
                 collaborator = collaborators[col]
 
                 if round_num != 0:
@@ -159,7 +162,9 @@ class FederatedFastEstimator:
                     # saved in different directories (i.e. path must be
                     # reset here)
 
-                    runners[col].estimator.system.load_state(f"save/{col}_state")
+                    runners[col].estimator.system.load_state(
+                        f"save/{col}_state"
+                    )
                     runners[col].rebuild_model(round_num, model_states[col])
 
                 # Reset the save directory if BestModelSaver is present
@@ -170,7 +175,9 @@ class FederatedFastEstimator:
 
                 collaborator.run_simulation()
 
-                model_states[col] = runners[col].get_tensor_dict(with_opt_vars=True)
+                model_states[col] = runners[col].get_tensor_dict(
+                    with_opt_vars=True
+                )
                 model = runners[col].model
                 runners[col].estimator.system.save_state(f"save/{col}_state")
 

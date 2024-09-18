@@ -1,13 +1,13 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 batch_size_train = 64
 learning_rate = 0.01
@@ -63,6 +63,7 @@ class TestFlowDatastoreAndCli(FLSpec):
     """
     Testflow for Dataflow and CLI Functionality
     """
+
     def __init__(self, model=None, optimizer=None, rounds=3, **kwargs):
         super().__init__(**kwargs)
         if model is not None:
@@ -158,16 +159,13 @@ def validate_datastore_cli(flow_obj, expected_flow_steps, num_rounds):
     validate_flow_error = []
 
     verify_stdout = {
-        "start":
-            "\x1b[94mTesting FederatedFlow - Starting Test for Dataflow"
-            + " and CLI Functionality\x1b[0m\x1b[94m\n\x1b[0m\n",
-        "aggregated_model_validation":
-            "\x1b[94mPerforming aggregated model validation for"
-            + " collaborator\x1b[0m\x1b[94m\n\x1b[0m\n",
+        "start": "\x1b[94mTesting FederatedFlow - Starting Test for Dataflow"
+        + " and CLI Functionality\x1b[0m\x1b[94m\n\x1b[0m\n",
+        "aggregated_model_validation": "\x1b[94mPerforming aggregated model validation for"
+        + " collaborator\x1b[0m\x1b[94m\n\x1b[0m\n",
         "train": "\x1b[94mTrain the model\x1b[0m\x1b[94m\n\x1b[0m\n",
-        "local_model_validation":
-            "\x1b[94mDoing local model validation for collaborator"
-            + "\x1b[0m\x1b[94m\n\x1b[0m\n",
+        "local_model_validation": "\x1b[94mDoing local model validation for collaborator"
+        + "\x1b[0m\x1b[94m\n\x1b[0m\n",
         "join": "\x1b[94mExecuting join\x1b[0m\x1b[94m\n\x1b[0m\n",
         "end": "\x1b[94mThis is the end of the flow\x1b[0m\x1b[94m\n\x1b[0m\n",
     }
@@ -251,12 +249,14 @@ def validate_datastore_cli(flow_obj, expected_flow_steps, num_rounds):
     if validate_flow_error:
         display_validate_errors(validate_flow_error)
     else:
-        print(f"""{Bcolors.OKGREEN}\n**** Summary of internal flow testing ****
+        print(
+            f"""{Bcolors.OKGREEN}\n**** Summary of internal flow testing ****
               No issues found and below are the tests that ran successfully
               1. Datastore steps and expected steps are matching
               2. Task stdout and task stderr verified through metaflow cli is as expected
               3. Number of tasks are aligned with number of rounds and number """
-              f"""of collaborators {Bcolors.ENDC}""")
+            f"""of collaborators {Bcolors.ENDC}"""
+        )
 
 
 def display_validate_errors(validate_flow_error):

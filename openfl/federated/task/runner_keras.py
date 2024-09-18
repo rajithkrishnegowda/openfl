@@ -1,18 +1,19 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """
 Base classes for developing a ke.Model() Federated Learning model.
 
 You may copy this file as the starting point of your own keras model.
 """
-from warnings import catch_warnings, simplefilter
+from warnings import catch_warnings
+from warnings import simplefilter
 
 import numpy as np
 
 from openfl.federated.task.runner import TaskRunner
-from openfl.utilities import Metric, TensorKey, change_tags
+from openfl.utilities import change_tags
+from openfl.utilities import Metric
+from openfl.utilities import TensorKey
 from openfl.utilities.split import split_tensor_dict_for_holdouts
 
 with catch_warnings():
@@ -61,7 +62,11 @@ class KerasTaskRunner(TaskRunner):
         if self.opt_treatment == "RESET":
             self.reset_opt_vars()
             self.set_tensor_dict(input_tensor_dict, with_opt_vars=False)
-        elif round_num > 0 and self.opt_treatment == "CONTINUE_GLOBAL" and not validation:
+        elif (
+            round_num > 0
+            and self.opt_treatment == "CONTINUE_GLOBAL"
+            and not validation
+        ):
             self.set_tensor_dict(input_tensor_dict, with_opt_vars=True)
         else:
             self.set_tensor_dict(input_tensor_dict, with_opt_vars=False)
@@ -111,7 +116,9 @@ class KerasTaskRunner(TaskRunner):
         origin = col_name
         tags = ("trained",)
         output_metric_dict = {
-            TensorKey(metric_name, origin, round_num, True, ("metric",)): metric_value
+            TensorKey(
+                metric_name, origin, round_num, True, ("metric",)
+            ): metric_value
             for (metric_name, metric_value) in results
         }
 
@@ -135,7 +142,9 @@ class KerasTaskRunner(TaskRunner):
         # for the updated model parameters.
         # this ensures they will be resolved locally
         next_local_tensorkey_model_dict = {
-            TensorKey(tensor_name, origin, round_num + 1, False, ("model",)): nparray
+            TensorKey(
+                tensor_name, origin, round_num + 1, False, ("model",)
+            ): nparray
             for tensor_name, nparray in local_model_dict.items()
         }
 
@@ -223,7 +232,9 @@ class KerasTaskRunner(TaskRunner):
         self.rebuild_model(round_num, input_tensor_dict, validation=True)
         param_metrics = kwargs["metrics"]
 
-        vals = self.model.evaluate(self.data_loader.get_valid_loader(batch_size), verbose=1)
+        vals = self.model.evaluate(
+            self.data_loader.get_valid_loader(batch_size), verbose=1
+        )
         model_metrics_names = self.model.metrics_names
         if type(vals) is not list:
             vals = [vals]
@@ -248,7 +259,9 @@ class KerasTaskRunner(TaskRunner):
         tags = ("metric",)
         tags = change_tags(tags, add_field=suffix)
         output_tensor_dict = {
-            TensorKey(metric, origin, round_num, True, tags): np.array(ret_dict[metric])
+            TensorKey(metric, origin, round_num, True, tags): np.array(
+                ret_dict[metric]
+            )
             for metric in param_metrics
         }
 
@@ -335,7 +348,9 @@ class KerasTaskRunner(TaskRunner):
 
             model_weights.update(opt_weights)
             if len(opt_weights) == 0:
-                self.logger.debug("WARNING: We didn't find variables for the optimizer.")
+                self.logger.debug(
+                    "WARNING: We didn't find variables for the optimizer."
+                )
         return model_weights
 
     def set_tensor_dict(self, tensor_dict, with_opt_vars):
@@ -349,13 +364,21 @@ class KerasTaskRunner(TaskRunner):
             # It is possible to pass in opt variables from the input tensor
             # dict. This will make sure that the correct layers are updated
             model_weight_names = [weight.name for weight in self.model.weights]
-            model_weights_dict = {name: tensor_dict[name] for name in model_weight_names}
+            model_weights_dict = {
+                name: tensor_dict[name] for name in model_weight_names
+            }
             self._set_weights_dict(self.model, model_weights_dict)
         else:
             model_weight_names = [weight.name for weight in self.model.weights]
-            model_weights_dict = {name: tensor_dict[name] for name in model_weight_names}
-            opt_weight_names = [weight.name for weight in self.model.optimizer.weights]
-            opt_weights_dict = {name: tensor_dict[name] for name in opt_weight_names}
+            model_weights_dict = {
+                name: tensor_dict[name] for name in model_weight_names
+            }
+            opt_weight_names = [
+                weight.name for weight in self.model.optimizer.weights
+            ]
+            opt_weights_dict = {
+                name: tensor_dict[name] for name in opt_weight_names
+            }
             self._set_weights_dict(self.model, model_weights_dict)
             self._set_weights_dict(self.model.optimizer, opt_weights_dict)
 
@@ -365,7 +388,9 @@ class KerasTaskRunner(TaskRunner):
             var.assign(tf.zeros_like(var))
         self.logger.debug("Optimizer variables reset")
 
-    def set_required_tensorkeys_for_function(self, func_name, tensor_key, **kwargs):
+    def set_required_tensorkeys_for_function(
+        self, func_name, tensor_key, **kwargs
+    ):
         """
         Set the required tensors for specified function that could be called as part of a task.
 
@@ -384,7 +409,9 @@ class KerasTaskRunner(TaskRunner):
         if func_name == "validate":
             # Should produce 'apply=global' or 'apply=local'
             local_model = "apply" + kwargs["apply"]
-            self.required_tensorkeys_for_function[func_name][local_model].append(tensor_key)
+            self.required_tensorkeys_for_function[func_name][
+                local_model
+            ].append(tensor_key)
         else:
             self.required_tensorkeys_for_function[func_name].append(tensor_key)
 
@@ -403,7 +430,9 @@ class KerasTaskRunner(TaskRunner):
         """
         if func_name == "validate":
             local_model = "apply=" + str(kwargs["apply"])
-            return self.required_tensorkeys_for_function[func_name][local_model]
+            return self.required_tensorkeys_for_function[func_name][
+                local_model
+            ]
         else:
             return self.required_tensorkeys_for_function[func_name]
 
@@ -423,17 +452,24 @@ class KerasTaskRunner(TaskRunner):
         tensor_names = model_layer_names + opt_names
         self.logger.debug("Updating model tensor names: %s", tensor_names)
         self.required_tensorkeys_for_function["train"] = [
-            TensorKey(tensor_name, "GLOBAL", 0, ("model",)) for tensor_name in tensor_names
+            TensorKey(tensor_name, "GLOBAL", 0, ("model",))
+            for tensor_name in tensor_names
         ]
 
         # Validation may be performed on local or aggregated (global) model,
         # so there is an extra lookup dimension for kwargs
         self.required_tensorkeys_for_function["validate"] = {}
-        self.required_tensorkeys_for_function["validate"]["local_model=True"] = [
-            TensorKey(tensor_name, "LOCAL", 0, ("trained",)) for tensor_name in tensor_names
+        self.required_tensorkeys_for_function["validate"][
+            "local_model=True"
+        ] = [
+            TensorKey(tensor_name, "LOCAL", 0, ("trained",))
+            for tensor_name in tensor_names
         ]
-        self.required_tensorkeys_for_function["validate"]["local_model=False"] = [
-            TensorKey(tensor_name, "GLOBAL", 0, ("model",)) for tensor_name in tensor_names
+        self.required_tensorkeys_for_function["validate"][
+            "local_model=False"
+        ] = [
+            TensorKey(tensor_name, "GLOBAL", 0, ("model",))
+            for tensor_name in tensor_names
         ]
 
     def initialize_tensorkeys_for_functions(self, with_opt_vars=False):
@@ -460,7 +496,10 @@ class KerasTaskRunner(TaskRunner):
             local_model_dict_val = local_model_dict
         else:
             output_model_dict = self.get_tensor_dict(with_opt_vars=False)
-            global_model_dict_val, local_model_dict_val = split_tensor_dict_for_holdouts(
+            (
+                global_model_dict_val,
+                local_model_dict_val,
+            ) = split_tensor_dict_for_holdouts(
                 self.logger,
                 output_model_dict,
                 **self.tensor_dict_split_fn_kwargs,
@@ -481,7 +520,10 @@ class KerasTaskRunner(TaskRunner):
         # TODO This is not stateless. The optimizer will not be
         self.required_tensorkeys_for_function["validate"]["apply=local"] = [
             TensorKey(tensor_name, "LOCAL", 0, False, ("trained",))
-            for tensor_name in {**global_model_dict_val, **local_model_dict_val}
+            for tensor_name in {
+                **global_model_dict_val,
+                **local_model_dict_val,
+            }
         ]
         self.required_tensorkeys_for_function["validate"]["apply=global"] = [
             TensorKey(tensor_name, "GLOBAL", 0, False, ("model",))

@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """PyTorchDataLoader module."""
-
 from math import ceil
 
 import numpy as np
@@ -80,7 +77,9 @@ class PyTorchDataLoader(DataLoader):
         Returns:
             DataLoader: The DataLoader object for the validation data.
         """
-        return self._get_batch_generator(X=self.X_valid, y=self.y_valid, batch_size=batch_size)
+        return self._get_batch_generator(
+            X=self.X_valid, y=self.y_valid, batch_size=batch_size
+        )
 
     def get_train_data_size(self):
         """Returns the total number of training samples.

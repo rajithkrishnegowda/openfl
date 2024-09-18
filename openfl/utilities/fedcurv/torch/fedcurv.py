@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Implementation of FedCurv algorithm."""
-
 from copy import deepcopy
 
 import torch
@@ -43,7 +40,9 @@ def get_buffer(module, target):
     mod: torch.nn.Module = module.get_submodule(module_path)
 
     if not hasattr(mod, buffer_name):
-        raise AttributeError(f"{mod._get_name()} has no attribute `{buffer_name}`")
+        raise AttributeError(
+            f"{mod._get_name()} has no attribute `{buffer_name}`"
+        )
 
     buffer: torch.Tensor = getattr(mod, buffer_name)
 
@@ -107,7 +106,9 @@ class FedCurv:
         Args:
             model (torch.nn.Module): The model to update the parameters for.
         """
-        self._params = deepcopy({n: p for n, p in model.named_parameters() if p.requires_grad})
+        self._params = deepcopy(
+            {n: p for n, p in model.named_parameters() if p.requires_grad}
+        )
 
     def _diag_fisher(self, model, data_loader, device):
         """Calculate the diagonal of the Fisher information matrix.
@@ -138,7 +139,9 @@ class FedCurv:
 
             for n, p in model.named_parameters():
                 if p.requires_grad:
-                    precision_matrices[n].data = p.grad.data**2 / len(data_loader)
+                    precision_matrices[n].data = p.grad.data**2 / len(
+                        data_loader
+                    )
 
         return precision_matrices
 
@@ -162,7 +165,8 @@ class FedCurv:
                     for target in (f"{name}_u", f"{name}_v", f"{name}_w")
                 )
                 u_local, v_local, w_local = (
-                    getattr(self, name).detach() for name in (f"{name}_u", f"{name}_v", f"{name}_w")
+                    getattr(self, name).detach()
+                    for name in (f"{name}_u", f"{name}_v", f"{name}_w")
                 )
                 u = u_global - u_local
                 v = v_global - v_local

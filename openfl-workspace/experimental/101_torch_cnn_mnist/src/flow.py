@@ -1,14 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
-import numpy as np
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 learning_rate = 0.01
 momentum = 0.5
@@ -29,15 +29,16 @@ dropout2d = nn.Dropout2d()
 
 
 class Net(nn.Module):
-    def __init__(self, convolutional_block,
-                 in_features: int, out_features: int):
+    def __init__(
+        self, convolutional_block, in_features: int, out_features: int
+    ):
         super(Net, self).__init__()
         self.conv_block = convolutional_block
         self.linear_block = nn.Sequential(
             nn.Linear(320, in_features),
             nn.ReLU(),
             nn.Dropout(),
-            nn.Linear(in_features, out_features)
+            nn.Linear(in_features, out_features),
         )
 
     def forward(self, x):
@@ -74,7 +75,8 @@ def fedavg(models):
     state_dict = new_model.state_dict()
     for key in models[1].state_dict():
         state_dict[key] = np.sum(
-            np.array([state[key] for state in state_dicts], dtype=object), axis=0
+            np.array([state[key] for state in state_dicts], dtype=object),
+            axis=0,
         ) / len(models)
     new_model.load_state_dict(state_dict)
     return new_model
@@ -107,7 +109,9 @@ class MNISTFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(f"Performing aggregated model validation for collaborator {self.input}")
+        print(
+            f"Performing aggregated model validation for collaborator {self.input}"
+        )
         self.agg_validation_score = inference(self.model, self.test_loader)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.next(self.train)
@@ -160,7 +164,9 @@ class MNISTFlow(FLSpec):
             f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
         )
         print(f"Average training loss = {self.average_loss}")
-        print(f"Average local model validation values = {self.local_model_accuracy}")
+        print(
+            f"Average local model validation values = {self.local_model_accuracy}"
+        )
         self.model = fedavg([input.model for input in inputs])
         self.optimizer = [input.optimizer for input in inputs][0]
         self.next(self.internal_loop)

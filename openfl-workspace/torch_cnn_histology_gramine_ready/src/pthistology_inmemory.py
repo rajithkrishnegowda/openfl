@@ -1,10 +1,8 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-from openfl.federated import PyTorchDataLoader
 from .histology_utils import load_histology_shard
+from openfl.federated import PyTorchDataLoader
 
 
 class PyTorchHistologyInMemory(PyTorchDataLoader):
@@ -21,8 +19,14 @@ class PyTorchHistologyInMemory(PyTorchDataLoader):
         """
         super().__init__(batch_size, random_seed=0, **kwargs)
 
-        _, num_classes, X_train, y_train, X_valid, y_valid = load_histology_shard(
-            shard_num=int(data_path), **kwargs)
+        (
+            _,
+            num_classes,
+            X_train,
+            y_train,
+            X_valid,
+            y_valid,
+        ) = load_histology_shard(shard_num=int(data_path), **kwargs)
 
         self.X_train = X_train
         self.y_train = y_train

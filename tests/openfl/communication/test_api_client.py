@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Derector API's client tests module."""
-
 import sys
 from unittest import mock
 
@@ -12,13 +11,13 @@ from openfl.transport.grpc.director_client import DirectorClient
 
 
 @pytest.fixture
-@mock.patch('openfl.transport.grpc.director_client.director_pb2_grpc')
+@mock.patch("openfl.transport.grpc.director_client.director_pb2_grpc")
 def director_client(director_pb2_grpc):
     """Director client fixture."""
     director_pb2_grpc.DirectorStub.return_value = mock.Mock()
 
-    client_id = 'one'
-    director_host = 'localhost'
+    client_id = "one"
+    director_host = "localhost"
     director_port = 50051
     tls = False
     root_certificate, private_key, certificate = None, None, None
@@ -29,7 +28,7 @@ def director_client(director_pb2_grpc):
         tls=tls,
         root_certificate=root_certificate,
         private_key=private_key,
-        certificate=certificate
+        certificate=certificate,
     )
     return director_client
 
@@ -41,16 +40,19 @@ def test_get_dataset_info(director_client):
 
 
 @pytest.mark.parametrize(
-    'clients_method,model_type', [
-        ('get_best_model', 'BEST_MODEL'),
-        ('get_last_model', 'LAST_MODEL'),
-    ])
-@mock.patch('openfl.transport.grpc.director_client.deconstruct_model_proto')
-def test_get_best_model(deconstruct_model_proto, director_client,
-                        clients_method, model_type):
+    "clients_method,model_type",
+    [
+        ("get_best_model", "BEST_MODEL"),
+        ("get_last_model", "LAST_MODEL"),
+    ],
+)
+@mock.patch("openfl.transport.grpc.director_client.deconstruct_model_proto")
+def test_get_best_model(
+    deconstruct_model_proto, director_client, clients_method, model_type
+):
     """Test get_best_model RPC."""
     deconstruct_model_proto.return_value = {}, {}
-    getattr(director_client, clients_method)('test name')
+    getattr(director_client, clients_method)("test name")
     director_client.stub.GetTrainedModel.assert_called_once()
 
     request = director_client.stub.GetTrainedModel.call_args
@@ -58,4 +60,6 @@ def test_get_best_model(deconstruct_model_proto, director_client,
         incoming_model_type = request[0][0].model_type
     else:
         incoming_model_type = request.args[0].model_type
-    assert incoming_model_type == getattr(director_pb2.GetTrainedModelRequest, model_type)
+    assert incoming_model_type == getattr(
+        director_pb2.GetTrainedModelRequest, model_type
+    )

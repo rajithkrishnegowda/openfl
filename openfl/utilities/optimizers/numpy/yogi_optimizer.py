@@ -1,10 +1,9 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Adam optimizer module."""
-
-from typing import Dict, Optional, Tuple
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 
@@ -79,7 +78,8 @@ class NumPyYogi(NumPyAdam):
         """
         sign = np.sign(grad**2 - self.grads_second_moment[grad_name])
         self.grads_second_moment[grad_name] = (
-            self.beta_2 * self.grads_second_moment[grad_name] + (1.0 - self.beta_2) * sign * grad**2
+            self.beta_2 * self.grads_second_moment[grad_name]
+            + (1.0 - self.beta_2) * sign * grad**2
         )
 
     def step(self, gradients: Dict[str, np.ndarray]) -> None:

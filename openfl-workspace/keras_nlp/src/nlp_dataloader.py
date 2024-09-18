@@ -22,8 +22,15 @@ logger = getLogger(__name__)
 class NLPDataLoader(KerasDataLoader):
     """NLP Dataloader template."""
 
-    def __init__(self, collaborator_count: int, split_ratio: float,
-                 num_samples: int, data_path: str, batch_size: int, **kwargs) -> None:
+    def __init__(
+        self,
+        collaborator_count: int,
+        split_ratio: float,
+        num_samples: int,
+        data_path: str,
+        batch_size: int,
+        **kwargs
+    ) -> None:
         """Instantiate the data object.
 
         Args:
@@ -39,14 +46,19 @@ class NLPDataLoader(KerasDataLoader):
 
         self.batch_size = batch_size
 
-        train, valid, details = dlu.load_shard(collaborator_count, self.shard_num,
-                                               self.data_path, num_samples, split_ratio)
+        train, valid, details = dlu.load_shard(
+            collaborator_count,
+            self.shard_num,
+            self.data_path,
+            num_samples,
+            split_ratio,
+        )
 
-        self.num_samples = details['num_samples']
-        self.num_encoder_tokens = details['num_encoder_tokens']
-        self.num_decoder_tokens = details['num_decoder_tokens']
-        self.max_encoder_seq_length = details['max_encoder_seq_length']
-        self.max_decoder_seq_length = details['max_decoder_seq_length']
+        self.num_samples = details["num_samples"]
+        self.num_encoder_tokens = details["num_encoder_tokens"]
+        self.num_decoder_tokens = details["num_decoder_tokens"]
+        self.max_encoder_seq_length = details["max_encoder_seq_length"]
+        self.max_decoder_seq_length = details["max_decoder_seq_length"]
 
         self.X_train = [train[0], train[1]]
         self.y_train = train[2]
@@ -57,7 +69,9 @@ class NLPDataLoader(KerasDataLoader):
         """Get the shape of an example feature array."""
         return self.X_train[0].shape
 
-    def get_train_loader(self, batch_size: Optional[int] = None) -> Iterator[List[np.ndarray]]:
+    def get_train_loader(
+        self, batch_size: Optional[int] = None
+    ) -> Iterator[List[np.ndarray]]:
         """
         Get training data loader.
 
@@ -65,18 +79,28 @@ class NLPDataLoader(KerasDataLoader):
         -------
         loader object
         """
-        return self._get_batch_generator(X1=self.X_train[0], X2=self.X_train[1],
-                                         y=self.y_train, batch_size=batch_size)
+        return self._get_batch_generator(
+            X1=self.X_train[0],
+            X2=self.X_train[1],
+            y=self.y_train,
+            batch_size=batch_size,
+        )
 
-    def get_valid_loader(self, batch_size: Optional[int] = None) -> Iterator[List[np.ndarray]]:
+    def get_valid_loader(
+        self, batch_size: Optional[int] = None
+    ) -> Iterator[List[np.ndarray]]:
         """
         Get validation data loader.
 
         Returns:
             loader object
         """
-        return self._get_batch_generator(X1=self.X_valid[0], X2=self.X_valid[1],
-                                         y=self.y_valid, batch_size=batch_size)
+        return self._get_batch_generator(
+            X1=self.X_valid[0],
+            X2=self.X_valid[1],
+            y=self.y_valid,
+            batch_size=batch_size,
+        )
 
     def get_train_data_size(self) -> int:
         """
@@ -97,10 +121,14 @@ class NLPDataLoader(KerasDataLoader):
         return self.X_valid[0].shape[0]
 
     @staticmethod
-    def _batch_generator(X1: np.ndarray, X2: np.ndarray,
-                         y: np.ndarray, idxs: np.ndarray,
-                         batch_size: int,
-                         num_batches: int) -> Iterator[List[np.ndarray]]:
+    def _batch_generator(
+        X1: np.ndarray,
+        X2: np.ndarray,
+        y: np.ndarray,
+        idxs: np.ndarray,
+        batch_size: int,
+        num_batches: int,
+    ) -> Iterator[List[np.ndarray]]:
         """
         Generate batch of data.
 
@@ -118,9 +146,13 @@ class NLPDataLoader(KerasDataLoader):
             b = a + batch_size
             yield [X1[idxs[a:b]], X2[idxs[a:b]]], y[idxs[a:b]]
 
-    def _get_batch_generator(self, X1: np.ndarray, X2: np.ndarray,
-                             y: np.ndarray,
-                             batch_size: Union[int, None]) -> Iterator[List[np.ndarray]]:
+    def _get_batch_generator(
+        self,
+        X1: np.ndarray,
+        X2: np.ndarray,
+        y: np.ndarray,
+        batch_size: Union[int, None],
+    ) -> Iterator[List[np.ndarray]]:
         """
         Return the dataset generator.
 

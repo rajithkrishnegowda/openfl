@@ -1,14 +1,13 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Experimental CLI."""
 from logging import getLogger
 from pathlib import Path
 from subprocess import check_call
 from sys import executable
 
-from click import group, pass_context
+from click import group
+from click import pass_context
 
 import openfl
 

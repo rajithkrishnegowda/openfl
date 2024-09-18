@@ -1,31 +1,31 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # Co-authored-by: Anindya S. Paul <anindya.s.paul@intel.com>
 # Co-authored-by: Brandon Edwards <brandon.edwards@intel.com>
 # Co-authored-by: Mansi Sharma <mansi.sharma@intel.com>
-
-from clip_optimizer import ClipOptimizer
+import argparse
+import warnings
 from copy import deepcopy
+
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
 import torchvision
-import numpy as np
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-
-from torch.distributions.normal import Normal
+import yaml
+from clip_optimizer import ClipOptimizer
 from opacus.accountants.rdp import RDPAccountant
 from opacus.data_loader import DPDataLoader
+from torch.distributions.normal import Normal
 from torch.utils.data import DataLoader
 
-import argparse
-import yaml
-
-import warnings
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 warnings.filterwarnings("ignore")
 
@@ -129,7 +129,8 @@ def FedAvg(models, previous_global_model=None, dp_params=None):  # NOQA: N802
         for non_delta_state in non_delta_states:
             delta_states.append(
                 {
-                    key: non_delta_state[key] - previous_global_model_state[key]
+                    key: non_delta_state[key]
+                    - previous_global_model_state[key]
                     for key in non_delta_state
                 }
             )
@@ -138,7 +139,10 @@ def FedAvg(models, previous_global_model=None, dp_params=None):  # NOQA: N802
             for key, tensor in state.items():
                 per_layer_norms.append(torch.norm(tensor))
 
-            if torch.norm(torch.Tensor(per_layer_norms)) > dp_params["clip_norm"]:
+            if (
+                torch.norm(torch.Tensor(per_layer_norms))
+                > dp_params["clip_norm"]
+            ):
                 raise ValueError(
                     f"The model with index {idx} had update whose "
                     + "L2-norm was greater than clip norm."
@@ -150,7 +154,8 @@ def FedAvg(models, previous_global_model=None, dp_params=None):  # NOQA: N802
     if len(state_dicts) > 1:
         for key in models[0].state_dict():
             state_dict[key] = np.sum(
-                np.array([state[key] for state in state_dicts], dtype=object), axis=0
+                np.array([state[key] for state in state_dicts], dtype=object),
+                axis=0,
             ) / len(models)
     new_model.load_state_dict(state_dict)
     return new_model
@@ -200,7 +205,9 @@ def optimizer_to_device(optimizer, device):
                         state[k] = v.to(device)
     else:
         raise (
-            ValueError("Current optimizer state does not have dict keys: please verify")
+            ValueError(
+                "Current optimizer state does not have dict keys: please verify"
+            )
         )
 
 
@@ -364,7 +371,9 @@ class FederatedFlow(FLSpec):
             self.sample_rate = self.dp_params["sample_rate"]
             global_data_loader = DataLoader(
                 self.collaborators,
-                batch_size=int(self.sample_rate * float(len(self.collaborators))),
+                batch_size=int(
+                    self.sample_rate * float(len(self.collaborators))
+                ),
             )
             dp_data_loader = DPDataLoader.from_data_loader(
                 global_data_loader, distributed=False
@@ -392,23 +401,33 @@ class FederatedFlow(FLSpec):
                     exclude=["private"],
                 )
             else:
-                print(f"No collaborator selected for training at Round: {self.round}")
+                print(
+                    f"No collaborator selected for training at Round: {self.round}"
+                )
                 self.next(self.check_round_completion)
         else:
-            print(f"No collaborator selected for training at Round: {self.round}")
+            print(
+                f"No collaborator selected for training at Round: {self.round}"
+            )
             self.next(self.check_round_completion)
 
     @collaborator
     def aggregated_model_validation(self):
-        print(f"Performing aggregated model validation for collaborator {self.input}")
+        print(
+            f"Performing aggregated model validation for collaborator {self.input}"
+        )
         self.model = self.model.to(self.device)
         self.previous_global_model = self.previous_global_model.to(self.device)
 
         # verifying that model went to the correct GPU device
         assert next(self.model.parameters()).device == self.device
-        assert next(self.previous_global_model.parameters()).device == self.device
+        assert (
+            next(self.previous_global_model.parameters()).device == self.device
+        )
 
-        self.agg_validation_score = inference(self.model, self.test_loader, self.device)
+        self.agg_validation_score = inference(
+            self.model, self.test_loader, self.device
+        )
         print(f"{self.input} value of {self.agg_validation_score}")
         self.collaborator_name = self.input
         self.next(self.train)
@@ -443,7 +462,8 @@ class FederatedFlow(FLSpec):
 
             if self.clip_test:
                 optimizer_before_step_params = [
-                    param.data for param in self.optimizer.param_groups()[0]["params"]
+                    param.data
+                    for param in self.optimizer.param_groups()[0]["params"]
                 ]
 
             self.optimizer.step(
@@ -480,7 +500,9 @@ class FederatedFlow(FLSpec):
 
     @collaborator
     def local_model_validation(self):
-        print(f"Performing local model validation for collaborator {self.input}")
+        print(
+            f"Performing local model validation for collaborator {self.input}"
+        )
         self.local_validation_score = inference(
             self.model, self.test_loader, self.device
         )
@@ -500,7 +522,9 @@ class FederatedFlow(FLSpec):
             f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
         )
         print(f"Average training loss = {self.average_loss}")
-        print(f"Average local model validation values = {self.local_model_accuracy}")
+        print(
+            f"Average local model validation values = {self.local_model_accuracy}"
+        )
         if self.dp_params is not None:
             self.model = FedAvg(
                 [input.model.cpu() for input in inputs],
@@ -527,7 +551,9 @@ class FederatedFlow(FLSpec):
                 + f"is epsilon={epsilon} (best alpha was: {best_alpha})."
             )
             print(20 * "#")
-        self.previous_global_model.load_state_dict(deepcopy(self.model.state_dict()))
+        self.previous_global_model.load_state_dict(
+            deepcopy(self.model.state_dict())
+        )
         self.optimizers.update(
             {input.collaborator_name: input.optimizer for input in inputs}
         )
@@ -550,7 +576,9 @@ class FederatedFlow(FLSpec):
             if self.dp_params is not None:
                 global_data_loader = DataLoader(
                     self.collaborators,
-                    batch_size=int(self.sample_rate * float(len(self.collaborators))),
+                    batch_size=int(
+                        self.sample_rate * float(len(self.collaborators))
+                    ),
                 )
                 dp_data_loader = DPDataLoader.from_data_loader(
                     global_data_loader, distributed=False
@@ -587,7 +615,9 @@ class FederatedFlow(FLSpec):
                     )
                     self.next(self.check_round_completion)
             else:
-                print(f"No collaborator selected for training at Round: {self.round}")
+                print(
+                    f"No collaborator selected for training at Round: {self.round}"
+                )
                 self.next(self.check_round_completion)
 
     @aggregator

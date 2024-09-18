@@ -1,29 +1,27 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """PKI CLI."""
-
 import logging
 import os
 import sys
 from pathlib import Path
 
+from click import group
+from click import option
+from click import pass_context
+from click import password_option
 from click import Path as ClickPath
-from click import group, option, pass_context, password_option
 
-from openfl.utilities.ca.ca import (
-    CA_CONFIG_JSON,
-    CA_PASSWORD_FILE,
-    CA_PKI_DIR,
-    CA_STEP_CONFIG_DIR,
-    certify,
-    get_ca_bin_paths,
-    get_token,
-    install,
-    remove_ca,
-    run_ca,
-)
+from openfl.utilities.ca.ca import CA_CONFIG_JSON
+from openfl.utilities.ca.ca import CA_PASSWORD_FILE
+from openfl.utilities.ca.ca import CA_PKI_DIR
+from openfl.utilities.ca.ca import CA_STEP_CONFIG_DIR
+from openfl.utilities.ca.ca import certify
+from openfl.utilities.ca.ca import get_ca_bin_paths
+from openfl.utilities.ca.ca import get_token
+from openfl.utilities.ca.ca import install
+from openfl.utilities.ca.ca import remove_ca
+from openfl.utilities.ca.ca import run_ca
 
 logger = logging.getLogger(__name__)
 
@@ -71,14 +69,18 @@ def run(ca_path):
         or not os.path.exists(ca_json)
         or not os.path.exists(step_ca_path)
     ):
-        logger.error("CA is not installed or corrupted, please install it first")
+        logger.error(
+            "CA is not installed or corrupted, please install it first"
+        )
         sys.exit(1)
     run_ca(step_ca_path, password_file, ca_json)
 
 
 @pki.command(name="install")
 @option("-p", "--ca-path", required=True, help="The ca path", type=ClickPath())
-@password_option(prompt="The password will encrypt some ca files \nEnter the password")
+@password_option(
+    prompt="The password will encrypt some ca files \nEnter the password"
+)
 @option("--ca-url", required=False, default=CA_URL)
 def install_(ca_path, password, ca_url):
     """Create a ca workspace.

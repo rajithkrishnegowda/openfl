@@ -1,21 +1,19 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+import time
 from bisect import bisect
 
 import matplotlib.pyplot as plt
 import numpy as np
+import privacy_meter.hypothesis_test as prtest
 import torch
-
 from privacy_meter.audit import Audit
 from privacy_meter.constants import InferenceGame
 from privacy_meter.dataset import Dataset
 from privacy_meter.information_source import InformationSource
-
-import time
+from privacy_meter.information_source_signal import ModelGradientNorm
+from privacy_meter.information_source_signal import ModelLoss
 from privacy_meter.metric import PopulationMetric
-from privacy_meter.information_source_signal import ModelLoss, ModelGradientNorm
-import privacy_meter.hypothesis_test as prtest
 
 
 class PM_report:  # NOQA: N801
@@ -54,7 +52,9 @@ class PM_report:  # NOQA: N801
         self.level = level  # which target model to audit
         self.log_dir = log_dir
         self.interval = interval
-        self.history = {}  # history information based on each snapshot of the model
+        self.history = (
+            {}
+        )  # history information based on each snapshot of the model
         self.other_info = other_info
 
         for attr in ["tpr", "fpr", "auc", "roc", "round"]:
@@ -90,7 +90,10 @@ def PopulationAuditor(target_model, datasets, pm_info):  # NOQA: N802
     if torch.is_tensor(train_dataset.data):
         train_ds = {"x": train_dataset.data, "y": train_dataset.targets}
         test_ds = {"x": test_dataset.data, "y": test_dataset.targets}
-        population_ds = {"x": population_dataset.data, "y": population_dataset.targets}
+        population_ds = {
+            "x": population_dataset.data,
+            "y": population_dataset.targets,
+        }
     else:
         train_ds = {
             "x": torch.from_numpy(train_dataset.data).float(),
@@ -237,7 +240,9 @@ def plot_tpr_history(history_dict, client, fpr_tolerance_list):
             for sidx, signal in enumerate(history_dict[key].signals):
                 hist = np.array(history_dict[key].history["tpr"])[:, sidx, idx]
                 plt.plot(
-                    history_dict[key].history["round"], hist, label=f"{key}-{signal}"
+                    history_dict[key].history["round"],
+                    hist,
+                    label=f"{key}-{signal}",
                 )
         plt.title(f"{client} (FPR @ {fpr_tolerance_list[idx]})")
         plt.legend()
@@ -278,7 +283,9 @@ def plot_roc_history(history_dict, client):
             fpr = history_dict[key].history["roc"][-1][sidx]["fpr"]
             plt.plot(fpr, tpr, label=f"{key}-{signal}")
 
-        round_num = history_dict[key].history["round"][-1]  # the current round number
+        round_num = history_dict[key].history["round"][
+            -1
+        ]  # the current round number
 
     plt.grid()
     plt.legend(loc="upper left")

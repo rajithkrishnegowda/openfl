@@ -1,31 +1,30 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """CustomAssigner tests."""
-
 from unittest import mock
 
 import pytest
 
-from openfl.interface.aggregation_functions import GeometricMedian
-from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.assigner.custom_assigner import Assigner
 from openfl.component.assigner.tasks import TrainTask
 from openfl.component.assigner.tasks import ValidateTask
+from openfl.interface.aggregation_functions import GeometricMedian
+from openfl.interface.aggregation_functions import WeightedAverage
 
 
 default_tasks = [
     TrainTask(
-        name='train',
-        function_name='train_func',
+        name="train",
+        function_name="train_func",
     ),
     ValidateTask(
-        name='locally_tuned_model_validate',
-        function_name='validate',
+        name="locally_tuned_model_validate",
+        function_name="validate",
         apply_local=True,
     ),
     ValidateTask(
-        name='aggregated_model_validate',
-        function_name='validate',
+        name="aggregated_model_validate",
+        function_name="validate",
     ),
 ]
 
@@ -43,10 +42,8 @@ def assigner():
     """Return Assigner fixture."""
     assigner = Assigner(
         assigner_function=assigner_function,
-        aggregation_functions_by_task={
-            'train_func': GeometricMedian()
-        },
-        authorized_cols=['one', 'two'],
+        aggregation_functions_by_task={"train_func": GeometricMedian()},
+        authorized_cols=["one", "two"],
         rounds_to_train=10,
     )
     assigner.define_task_assignments = mock.Mock()
@@ -60,7 +57,7 @@ def test_define_task_assignments(assigner):
 
 def test_get_tasks_for_collaborator(assigner):
     """Test `get_tasks_for_collaborator` base working."""
-    tasks = assigner.get_tasks_for_collaborator('one', 2)
+    tasks = assigner.get_tasks_for_collaborator("one", 2)
 
     assert tasks == default_tasks
     assert len(tasks) == 3
@@ -70,9 +67,9 @@ def test_get_tasks_for_collaborator(assigner):
 
 def test_get_collaborators_for_task(assigner):
     """Test `get_collaborators_for_task` base working."""
-    collaborators = assigner.get_collaborators_for_task('train', 2)
+    collaborators = assigner.get_collaborators_for_task("train", 2)
 
-    assert collaborators == ['one', 'two']
+    assert collaborators == ["one", "two"]
 
 
 def test_get_all_tasks_for_round(assigner):
@@ -84,7 +81,7 @@ def test_get_all_tasks_for_round(assigner):
 
 def test_get_aggregation_type_for_task(assigner):
     """Test `get_aggregation_type_for_task` base working."""
-    agg_fn = assigner.get_aggregation_type_for_task('train')
+    agg_fn = assigner.get_aggregation_type_for_task("train")
 
     assert isinstance(agg_fn, GeometricMedian)
 
@@ -94,9 +91,9 @@ def test_get_aggregation_type_for_task_by_default():
     assigner = Assigner(
         assigner_function=assigner_function,
         aggregation_functions_by_task={},
-        authorized_cols=['one', 'two'],
+        authorized_cols=["one", "two"],
         rounds_to_train=10,
     )
-    agg_fn = assigner.get_aggregation_type_for_task('train')
+    agg_fn = assigner.get_aggregation_type_for_task("train")
 
     assert isinstance(agg_fn, WeightedAverage)

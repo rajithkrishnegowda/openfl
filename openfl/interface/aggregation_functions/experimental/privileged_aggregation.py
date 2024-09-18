@@ -1,10 +1,9 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Aggregation function interface module."""
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import List
+from typing import Tuple
 
 import numpy as np
 import pandas as pd

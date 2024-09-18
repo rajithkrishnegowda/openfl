@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """You may copy this file as the starting point of your own model."""
-
 import logging
 import os
 
@@ -43,13 +42,13 @@ def train_val_split(features, labels, percent_train, shuffle):
 
         """
         if idx < 0 or idx > len(lst):
-            raise ValueError('split was out of expected range.')
+            raise ValueError("split was out of expected range.")
         return lst[:idx], lst[idx:]
 
     nb_features = len(features)
     nb_labels = len(labels)
     if nb_features != nb_labels:
-        raise RuntimeError('Number of features and labels do not match.')
+        raise RuntimeError("Number of features and labels do not match.")
     if shuffle:
         new_order = np.random.permutation(np.arange(nb_features))
         features = features[new_order]
@@ -60,12 +59,14 @@ def train_val_split(features, labels, percent_train, shuffle):
     return train_features, train_labels, val_features, val_labels
 
 
-def load_from_nifti(parent_dir,
-                    percent_train,
-                    shuffle,
-                    channels_last=True,
-                    task='whole_tumor',
-                    **kwargs):
+def load_from_nifti(
+    parent_dir,
+    percent_train,
+    shuffle,
+    channels_last=True,
+    task="whole_tumor",
+    **kwargs,
+):
     """Load the BraTS dataset from the NiFTI file format.
 
     Loads data from the parent directory (NIfTI files for whole brains are
@@ -94,10 +95,12 @@ def load_from_nifti(parent_dir,
     subdirs = os.listdir(path)
     subdirs.sort()
     if not subdirs:
-        raise SystemError(f'''{parent_dir} does not contain subdirectories.
+        raise SystemError(
+            f"""{parent_dir} does not contain subdirectories.
 Please make sure you have BraTS dataset downloaded
 and located in data directory for this collaborator.
-        ''')
+        """
+        )
     subdir_paths = [os.path.join(path, subdir) for subdir in subdirs]
 
     imgs_all = []
@@ -107,11 +110,13 @@ and located in data directory for this collaborator.
             brain_path=brain_path,
             task=task,
             channels_last=channels_last,
-            **kwargs
+            **kwargs,
         )
         # the needed files where not present if a tuple of None is returned
         if these_imgs is None:
-            logger.debug(f'Brain subdirectory: {brain_path} did not contain the needed files.')
+            logger.debug(
+                f"Brain subdirectory: {brain_path} did not contain the needed files."
+            )
         else:
             imgs_all.append(these_imgs)
             msks_all.append(these_msks)
@@ -122,11 +127,16 @@ and located in data directory for this collaborator.
 
     # note here that each is a list of 155 slices per brain, and so the
     # split keeps brains intact
-    imgs_all_train, msks_all_train, imgs_all_val, msks_all_val = train_val_split(
+    (
+        imgs_all_train,
+        msks_all_train,
+        imgs_all_val,
+        msks_all_val,
+    ) = train_val_split(
         features=imgs_all,
         labels=msks_all,
         percent_train=percent_train,
-        shuffle=shuffle
+        shuffle=shuffle,
     )
     # now concatenate the lists
     imgs_train = np.concatenate(imgs_all_train, axis=0)

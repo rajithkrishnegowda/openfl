@@ -1,13 +1,13 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """STCPipelinemodule."""
 import copy
 import gzip as gz
 
 import numpy as np
 
-from openfl.pipelines.pipeline import TransformationPipeline, Transformer
+from openfl.pipelines.pipeline import TransformationPipeline
+from openfl.pipelines.pipeline import Transformer
 
 
 class SparsityTransformer(Transformer):

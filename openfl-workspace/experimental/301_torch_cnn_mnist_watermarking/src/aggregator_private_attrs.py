@@ -1,23 +1,27 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import torch
-import torchvision
-import numpy as np
-import pathlib
 import os
+import pathlib
+
+import imagen as ig
 import matplotlib
 import matplotlib.pyplot as plt
-import PIL.Image as Image
-import imagen as ig
 import numbergen as ng
+import numpy as np
+import PIL.Image as Image
+import torch
+import torchvision
 
 
 watermark_dir = "./files/watermark-dataset/MWAFFLE/"
 
 
 def generate_watermark(
-    x_size=28, y_size=28, num_class=10, num_samples_per_class=10, img_dir=watermark_dir
+    x_size=28,
+    y_size=28,
+    num_class=10,
+    num_samples_per_class=10,
+    img_dir=watermark_dir,
 ):
     """
     Generate Watermark by superimposing a pattern on noisy background.
@@ -78,8 +82,8 @@ def generate_watermark(
         for i in range(num_samples_per_class):
             base = np.random.rand(x_size, y_size)
             base[
-                x_offset: x_offset + pat.shape[0],
-                y_offset: y_offset + pat.shape[1],
+                x_offset : x_offset + pat.shape[0],
+                y_offset : y_offset + pat.shape[1],
             ] += pat
             d = np.ones((x_size, x_size))
             img = np.minimum(base, d)
@@ -98,7 +102,6 @@ if watermark_path.exists() and watermark_path.is_dir():
     print(
         f"Watermark dataset already exists at: {watermark_path}. Proceeding to next step ... "
     )
-    pass
 else:
     print("Generating Watermark dataset... ")
     generate_watermark()
@@ -108,7 +111,8 @@ class WatermarkDataset(torch.utils.data.Dataset):
     def __init__(self, images_dir, label_dir=None, transforms=None):
         self.images_dir = os.path.abspath(images_dir)
         self.image_paths = [
-            os.path.join(self.images_dir, d) for d in os.listdir(self.images_dir)
+            os.path.join(self.images_dir, d)
+            for d in os.listdir(self.images_dir)
         ]
         self.label_paths = label_dir
         self.transform = transforms
@@ -146,7 +150,9 @@ def get_watermark_transforms():
             torchvision.transforms.Grayscale(),
             torchvision.transforms.Resize(28),
             torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(mean=(0.5,), std=(0.5,)),  # Normalize
+            torchvision.transforms.Normalize(
+                mean=(0.5,), std=(0.5,)
+            ),  # Normalize
         ]
     )
 

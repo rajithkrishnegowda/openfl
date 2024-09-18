@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Base abstract optimizer class module."""
 import abc
 from importlib import import_module
@@ -35,7 +33,6 @@ class Optimizer(abc.ABC):
             gradients (dict): Partial derivatives with respect to optimized
                 parameters.
         """
-        pass
 
     def _set_params_from_model(self, model_interface):
         """
@@ -54,6 +51,8 @@ class Optimizer(abc.ABC):
         framework_adapter_plugin: FrameworkAdapterPluginInterface = getattr(
             framework_adapter, class_name, None
         )
-        self.params: Dict[str, ndarray] = framework_adapter_plugin.get_tensor_dict(
+        self.params: Dict[
+            str, ndarray
+        ] = framework_adapter_plugin.get_tensor_dict(
             model_interface.provide_model()
         )

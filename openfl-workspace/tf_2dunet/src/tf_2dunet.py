@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import tensorflow.compat.v1 as tf
 
 from openfl.federated import TensorFlowTaskRunner
@@ -30,10 +28,9 @@ class TensorFlow2DUNet(TensorFlowTaskRunner):
         self.create_model(**kwargs)
         self.initialize_tensorkeys_for_functions()
 
-    def create_model(self,
-                     training_smoothing=32.0,
-                     validation_smoothing=1.0,
-                     **kwargs):
+    def create_model(
+        self, training_smoothing=32.0, validation_smoothing=1.0, **kwargs
+    ):
         """Create the TensorFlow 2D U-Net model.
 
         Args:
@@ -52,10 +49,13 @@ class TensorFlow2DUNet(TensorFlowTaskRunner):
         self.y = tf.placeholder(tf.float32, self.input_shape)
         self.output = define_model(self.X, use_upsampling=True, **kwargs)
 
-        self.loss = dice_coef_loss(self.y, self.output, smooth=training_smoothing)
+        self.loss = dice_coef_loss(
+            self.y, self.output, smooth=training_smoothing
+        )
         self.loss_name = dice_coef_loss.__name__
         self.validation_metric = dice_coef(
-            self.y, self.output, smooth=validation_smoothing)
+            self.y, self.output, smooth=validation_smoothing
+        )
         self.validation_metric_name = dice_coef.__name__
 
         self.global_step = tf.train.get_or_create_global_step()
@@ -65,8 +65,9 @@ class TensorFlow2DUNet(TensorFlowTaskRunner):
         self.optimizer = tf.train.RMSPropOptimizer(1e-2)
 
         self.gvs = self.optimizer.compute_gradients(self.loss, self.tvars)
-        self.train_step = self.optimizer.apply_gradients(self.gvs,
-                                                         global_step=self.global_step)
+        self.train_step = self.optimizer.apply_gradients(
+            self.gvs, global_step=self.global_step
+        )
 
         self.opt_vars = self.optimizer.variables()
 
@@ -93,10 +94,10 @@ def dice_coef(y_true, y_pred, smooth=1.0, **kwargs):
 
     """
     intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
-    coef = (
-        (tf.constant(2.) * intersection + tf.constant(smooth))
-        / (tf.reduce_sum(y_true, axis=[1, 2, 3])
-           + tf.reduce_sum(y_pred, axis=[1, 2, 3]) + tf.constant(smooth))
+    coef = (tf.constant(2.0) * intersection + tf.constant(smooth)) / (
+        tf.reduce_sum(y_true, axis=[1, 2, 3])
+        + tf.reduce_sum(y_pred, axis=[1, 2, 3])
+        + tf.constant(smooth)
     )
     return tf.reduce_mean(coef)
 
@@ -119,8 +120,11 @@ def dice_coef_loss(y_true, y_pred, smooth=1.0, **kwargs):
     intersection = tf.reduce_sum(y_true * y_pred, axis=(1, 2, 3))
 
     term1 = -tf.log(tf.constant(2.0) * intersection + smooth)
-    term2 = tf.log(tf.reduce_sum(y_true, axis=(1, 2, 3))
-                   + tf.reduce_sum(y_pred, axis=(1, 2, 3)) + smooth)
+    term2 = tf.log(
+        tf.reduce_sum(y_true, axis=(1, 2, 3))
+        + tf.reduce_sum(y_pred, axis=(1, 2, 3))
+        + smooth
+    )
 
     term1 = tf.reduce_mean(term1)
     term2 = tf.reduce_mean(term2)
@@ -133,26 +137,28 @@ def dice_coef_loss(y_true, y_pred, smooth=1.0, **kwargs):
 CHANNEL_LAST = True
 if CHANNEL_LAST:
     concat_axis = -1
-    data_format = 'channels_last'
+    data_format = "channels_last"
 else:
     concat_axis = 1
-    data_format = 'channels_first'
+    data_format = "channels_first"
 
 tf.keras.backend.set_image_data_format(data_format)
 
 
-def define_model(input_tensor,
-                 use_upsampling=False,
-                 n_cl_out=1,
-                 dropout=0.2,
-                 print_summary=True,
-                 activation_function='relu',
-                 seed=0xFEEDFACE,
-                 depth=5,
-                 dropout_at=None,
-                 initial_filters=32,
-                 batch_norm=True,
-                 **kwargs):
+def define_model(
+    input_tensor,
+    use_upsampling=False,
+    n_cl_out=1,
+    dropout=0.2,
+    print_summary=True,
+    activation_function="relu",
+    seed=0xFEEDFACE,
+    depth=5,
+    dropout_at=None,
+    initial_filters=32,
+    batch_norm=True,
+    **kwargs,
+):
     """Define the TensorFlow model.
 
     Args:
@@ -181,19 +187,19 @@ def define_model(input_tensor,
     # Don't initialize variables on the fly
     tf.keras.backend.manual_variable_initialization(False)
 
-    inputs = tf.keras.layers.Input(tensor=input_tensor, name='Images')
+    inputs = tf.keras.layers.Input(tensor=input_tensor, name="Images")
 
-    if activation_function == 'relu':
+    if activation_function == "relu":
         activation = tf.nn.relu
-    elif activation_function == 'leakyrelu':
+    elif activation_function == "leakyrelu":
         activation = tf.nn.leaky_relu
 
     params = {
-        'activation': activation,
-        'data_format': data_format,
-        'kernel_initializer': tf.keras.initializers.he_uniform(seed=seed),
-        'kernel_size': (3, 3),
-        'padding': 'same',
+        "activation": activation,
+        "data_format": data_format,
+        "kernel_initializer": tf.keras.initializers.he_uniform(seed=seed),
+        "kernel_size": (3, 3),
+        "padding": "same",
     }
 
     convb_layers = {}
@@ -201,19 +207,21 @@ def define_model(input_tensor,
     net = inputs
     filters = initial_filters
     for i in range(depth):
-        name = f'conv{i + 1}a'
+        name = f"conv{i + 1}a"
         net = tf.keras.layers.Conv2D(name=name, filters=filters, **params)(net)
         if i in dropout_at:
             net = tf.keras.layers.Dropout(dropout)(net)
-        name = f'conv{i + 1}b'
+        name = f"conv{i + 1}b"
         net = tf.keras.layers.Conv2D(name=name, filters=filters, **params)(net)
         if batch_norm:
             net = tf.keras.layers.BatchNormalization()(net)
         convb_layers[name] = net
         # only pool if not last level
         if i != depth - 1:
-            name = f'pool{i + 1}'
-            net = tf.keras.layers.MaxPooling2D(name=name, pool_size=(2, 2))(net)
+            name = f"pool{i + 1}"
+            net = tf.keras.layers.MaxPooling2D(name=name, pool_size=(2, 2))(
+                net
+            )
             filters *= 2
 
     # do the up levels
@@ -221,26 +229,35 @@ def define_model(input_tensor,
     for i in range(depth - 1):
         if use_upsampling:
             up = tf.keras.layers.UpSampling2D(
-                name=f'up{depth + i + 1}', size=(2, 2))(net)
+                name=f"up{depth + i + 1}", size=(2, 2)
+            )(net)
         else:
             up = tf.keras.layers.Conv2DTranspose(
-                name='transConv6', filters=filters, data_format=data_format,
-                kernel_size=(2, 2), strides=(2, 2), padding='same')(net)
+                name="transConv6",
+                filters=filters,
+                data_format=data_format,
+                kernel_size=(2, 2),
+                strides=(2, 2),
+                padding="same",
+            )(net)
         net = tf.keras.layers.concatenate(
-            [up, convb_layers[f'conv{depth - i - 1}b']],
-            axis=concat_axis
+            [up, convb_layers[f"conv{depth - i - 1}b"]], axis=concat_axis
         )
         net = tf.keras.layers.Conv2D(
-            name=f'conv{depth + i + 1}a',
-            filters=filters, **params)(net)
+            name=f"conv{depth + i + 1}a", filters=filters, **params
+        )(net)
         net = tf.keras.layers.Conv2D(
-            name=f'conv{depth + i + 1}b',
-            filters=filters, **params)(net)
+            name=f"conv{depth + i + 1}b", filters=filters, **params
+        )(net)
         filters //= 2
 
-    net = tf.keras.layers.Conv2D(name='Mask', filters=n_cl_out,
-                                 kernel_size=(1, 1), data_format=data_format,
-                                 activation='sigmoid')(net)
+    net = tf.keras.layers.Conv2D(
+        name="Mask",
+        filters=n_cl_out,
+        kernel_size=(1, 1),
+        data_format=data_format,
+        activation="sigmoid",
+    )(net)
 
     model = tf.keras.models.Model(inputs=[inputs], outputs=[net])
 

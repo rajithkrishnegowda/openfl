@@ -1,6 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Workspace utils module."""
 import logging
 import os
@@ -11,7 +10,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from subprocess import check_call  # nosec
 from sys import executable
-from typing import Optional, Tuple, Union
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from pip._internal.operations import freeze
 
@@ -96,7 +97,9 @@ class ExperimentWorkspace:
             shutil.rmtree(self.experiment_work_dir, ignore_errors=True)
         os.makedirs(self.experiment_work_dir)
 
-        shutil.unpack_archive(self.data_file_path, self.experiment_work_dir, format="zip")
+        shutil.unpack_archive(
+            self.data_file_path, self.experiment_work_dir, format="zip"
+        )
 
         if self.install_requirements:
             self._install_requirements()
@@ -122,7 +125,9 @@ class ExperimentWorkspace:
                 "Exiting from the workspace context manager"
                 f" for {self.experiment_name} experiment"
             )
-            logger.debug("Archive still exists: %s", self.data_file_path.exists())
+            logger.debug(
+                "Archive still exists: %s", self.data_file_path.exists()
+            )
             self.data_file_path.unlink(missing_ok=False)
 
 

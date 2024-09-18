@@ -1,14 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
-
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
-import numpy as np
+
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 # MNIST parameters
 learning_rate = 5e-2
@@ -34,7 +34,9 @@ def inference(network, test_loader):
     return accuracy
 
 
-def train_model(model, optimizer, data_loader, entity, round_number, log=False):
+def train_model(
+    model, optimizer, data_loader, entity, round_number, log=False
+):
     # Helper function to train the model
     train_loss = 0
     model.train()
@@ -49,10 +51,12 @@ def train_model(model, optimizer, data_loader, entity, round_number, log=False):
 
         train_loss += loss.item() * len(X)
         if batch_idx % log_interval == 0 and log:
-            print(f"{entity:<20} Train Epoch: {round_number:<3}"
-                  + f" [{batch_idx * len(X):<3}/{len(data_loader.dataset):<4}"
-                  + f" ({100.0 * batch_idx / len(data_loader):<.0f}%)]"
-                  + f" Loss: {loss.item():<.6f}")
+            print(
+                f"{entity:<20} Train Epoch: {round_number:<3}"
+                + f" [{batch_idx * len(X):<3}/{len(data_loader.dataset):<4}"
+                + f" ({100.0 * batch_idx / len(data_loader):<.0f}%)]"
+                + f" Loss: {loss.item():<.6f}"
+            )
     train_loss /= len(data_loader.dataset)
     return train_loss
 
@@ -63,7 +67,8 @@ def fedavg(agg_model, models):
     for key in models[0].state_dict():
         state_dict[key] = np.sum(
             np.array([state[key] for state in state_dicts], dtype=object),
-            axis=0) / len(models)
+            axis=0,
+        ) / len(models)
     agg_model.load_state_dict(state_dict)
     return agg_model
 
@@ -154,11 +159,9 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
         Pre-Train the Model before starting Federated Learning.
         """
         if not self.watermark_pretraining_completed:
-
             print("<Agg>: Performing Watermark Pre-training")
 
             for i in range(self.pretrain_epochs):
-
                 watermark_pretrain_loss = train_model(
                     self.model,
                     self.watermark_pretrain_optimizer,
@@ -171,9 +174,11 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
                     self.model, self.watermark_data_loader
                 )
 
-                print(f"<Agg>: Watermark Pretraining: Round: {i:<3}"
-                      + f" Loss: {watermark_pretrain_loss:<.6f}"
-                      + f" Acc: {watermark_pretrain_validation_score:<.6f}")
+                print(
+                    f"<Agg>: Watermark Pretraining: Round: {i:<3}"
+                    + f" Loss: {watermark_pretrain_loss:<.6f}"
+                    + f" Acc: {watermark_pretrain_validation_score:<.6f}"
+                )
 
             self.watermark_pretraining_completed = True
 
@@ -188,9 +193,10 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
         Perform Aggregated Model validation on Collaborators.
         """
         self.agg_validation_score = inference(self.model, self.test_loader)
-        print(f"<Collab: {self.input}>"
-              + f" Aggregated Model validation score = {self.agg_validation_score}"
-              )
+        print(
+            f"<Collab: {self.input}>"
+            + f" Aggregated Model validation score = {self.agg_validation_score}"
+        )
 
         self.next(self.train)
 
@@ -246,7 +252,9 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
             f"   Aggregated model validation score = {self.aggregated_model_accuracy}"
         )
         print(f"   Average training loss = {self.average_loss}")
-        print(f"   Average local model validation values = {self.local_model_accuracy}")
+        print(
+            f"   Average local model validation values = {self.local_model_accuracy}"
+        )
 
         self.model = fedavg(self.model, [input.model for input in inputs])
 
@@ -270,7 +278,8 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
             self.model, self.watermark_data_loader
         )
         while (
-            self.watermark_retrain_validation_score < self.watermark_acc_threshold
+            self.watermark_retrain_validation_score
+            < self.watermark_acc_threshold
         ) and (retrain_round < self.retrain_epochs):
             self.watermark_retrain_train_loss = train_model(
                 self.model,
@@ -284,10 +293,12 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
                 self.model, self.watermark_data_loader
             )
 
-            print(f"<Agg>: Watermark Retraining: Train Epoch: {self.round_number:<3}"
-                  + f" Retrain Round: {retrain_round:<3}"
-                  + f" Loss: {self.watermark_retrain_train_loss:<.6f},"
-                  + f" Acc: {self.watermark_retrain_validation_score:<.6f}")
+            print(
+                f"<Agg>: Watermark Retraining: Train Epoch: {self.round_number:<3}"
+                + f" Retrain Round: {retrain_round:<3}"
+                + f" Loss: {self.watermark_retrain_train_loss:<.6f},"
+                + f" Acc: {self.watermark_retrain_validation_score:<.6f}"
+            )
             retrain_round += 1
 
         if self.round_number < self.n_rounds:

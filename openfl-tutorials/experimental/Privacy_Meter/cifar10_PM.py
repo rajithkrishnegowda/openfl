@@ -1,39 +1,38 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # -----------------------------------------------------------
 # Primary author: Hongyan Chang <hongyan.chang@intel.com>
 # Co-authored-by: Anindya S. Paul <anindya.s.paul@intel.com>
 # Co-authored-by: Brandon Edwards <brandon.edwards@intel.com>
 # ------------------------------------------------------------
-
-from copy import deepcopy
-import torch.nn as nn
-import torch.optim as optim
-import torch
-import numpy as np
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-import torchvision.transforms as transforms
+import argparse
+import copy
+import os
 import pickle
+import time
+import warnings
+from copy import deepcopy
 from pathlib import Path
 
-from privacy_meter.model import PytorchModelTensor
-import copy
-from auditor import (
-    PopulationAuditor,
-    plot_auc_history,
-    plot_tpr_history,
-    plot_roc_history,
-    PM_report,
-)
-
-import time
-import os
-import argparse
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.transforms as transforms
+from auditor import plot_auc_history
+from auditor import plot_roc_history
+from auditor import plot_tpr_history
+from auditor import PM_report
+from auditor import PopulationAuditor
 from cifar10_loader import CIFAR10
-import warnings
+from privacy_meter.model import PytorchModelTensor
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 warnings.filterwarnings("ignore")
 
@@ -93,7 +92,9 @@ def default_optimizer(model, optimizer_type=None, optimizer_like=None):
         optimizer_like: "torch.optim.SGD" or "torch.optim.Adam" optimizer
     """
     if optimizer_type == "SGD" or isinstance(optimizer_like, optim.SGD):
-        return optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+        return optim.SGD(
+            model.parameters(), lr=learning_rate, momentum=momentum
+        )
     elif optimizer_type == "Adam" or isinstance(optimizer_like, optim.Adam):
         return optim.Adam(model.parameters())
 
@@ -191,7 +192,9 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
     print(f"Loading model and optimizer state dict for round {round_num-1}")
     model_prevround = Net()  # instanciate a new model
     model_prevround = model_prevround.to(device)
-    optimizer_prevround = default_optimizer(model_prevround, optimizer_like=optimizer)
+    optimizer_prevround = default_optimizer(
+        model_prevround, optimizer_like=optimizer
+    )
     if os.path.isfile(
         f"Collaborator_{collaborator_name}_model_config_roundnumber_{round_num-1}.pickle"
     ):
@@ -200,7 +203,9 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
             "rb",
         ) as f:
             model_prevround_config = pickle.load(f)
-            model_prevround.load_state_dict(model_prevround_config["model_state_dict"])
+            model_prevround.load_state_dict(
+                model_prevround_config["model_state_dict"]
+            )
             optimizer_prevround.load_state_dict(
                 model_prevround_config["optim_state_dict"]
             )
@@ -225,20 +230,21 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
 
                 if isinstance(optimizer, optim.SGD):
                     if optimizer.state_dict()["state"] != {}:
-                        for param_idx in optimizer.state_dict()["param_groups"][0][
-                            "params"
-                        ]:
+                        for param_idx in optimizer.state_dict()[
+                            "param_groups"
+                        ][0]["params"]:
                             for tensor_1, tensor_2 in zip(
                                 optimizer.state_dict()["state"][param_idx][
                                     "momentum_buffer"
                                 ],
-                                optimizer_prevround.state_dict()["state"][param_idx][
-                                    "momentum_buffer"
-                                ],
+                                optimizer_prevround.state_dict()["state"][
+                                    param_idx
+                                ]["momentum_buffer"],
                             ):
                                 if (
                                     torch.equal(
-                                        tensor_1.to(device), tensor_2.to(device)
+                                        tensor_1.to(device),
+                                        tensor_2.to(device),
                                     )
                                     is not True
                                 ):
@@ -257,10 +263,16 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
                     model.state_dict()[param_tensor]
                     for param_tensor in model.state_dict()
                 ]
-                for idx, param in enumerate(optimizer.param_groups[0]["params"]):
-                    for tensor_1, tensor_2 in zip(param.data, model_params[idx]):
+                for idx, param in enumerate(
+                    optimizer.param_groups[0]["params"]
+                ):
+                    for tensor_1, tensor_2 in zip(
+                        param.data, model_params[idx]
+                    ):
                         if (
-                            torch.equal(tensor_1.to(device), tensor_2.to(device))
+                            torch.equal(
+                                tensor_1.to(device), tensor_2.to(device)
+                            )
                             is not True
                         ):
                             raise (
@@ -352,7 +364,9 @@ class FederatedFlow(FLSpec):
                 f"{self.input} in round {self.round_num}"
             )
         )
-        self.agg_validation_score = inference(self.model, self.test_loader, self.device)
+        self.agg_validation_score = inference(
+            self.model, self.test_loader, self.device
+        )
         print(f"{self.input} value of {self.agg_validation_score}")
         self.collaborator_name = self.input
         self.next(self.train)
@@ -404,7 +418,10 @@ class FederatedFlow(FLSpec):
 
         if self.flow_internal_loop_test:
             save_current_round_model_and_optimizer_for_next_round_testing(
-                self.model, self.optimizer, self.collaborator_name, self.round_num
+                self.model,
+                self.optimizer,
+                self.collaborator_name,
+                self.round_num,
             )
 
         self.model.to("cpu")
@@ -483,18 +500,24 @@ class FederatedFlow(FLSpec):
         target_model.model_obj.to("cpu")
         self.local_pm_info.update_history("round", self.round_num)
 
-        print(f"population attack for the local model uses {time.time() - start_time}")
+        print(
+            f"population attack for the local model uses {time.time() - start_time}"
+        )
 
         start_time = time.time()
         target_model = PytorchModelTensor(
-            copy.deepcopy(self.global_model), nn.CrossEntropyLoss(), self.device
+            copy.deepcopy(self.global_model),
+            nn.CrossEntropyLoss(),
+            self.device,
         )
         self.global_pm_info = PopulationAuditor(
             target_model, datasets, self.global_pm_info
         )
         self.global_pm_info.update_history("round", self.round_num)
         target_model.model_obj.to("cpu")
-        print(f"population attack for the global model uses {time.time() - start_time}")
+        print(
+            f"population attack for the global model uses {time.time() - start_time}"
+        )
 
         start_time = time.time()
 
@@ -504,7 +527,9 @@ class FederatedFlow(FLSpec):
         }
 
         # # generate the plot for the privacy loss
-        plot_tpr_history(history_dict, self.input, self.local_pm_info.fpr_tolerance)
+        plot_tpr_history(
+            history_dict, self.input, self.local_pm_info.fpr_tolerance
+        )
         plot_auc_history(history_dict, self.input)
         plot_roc_history(history_dict, self.input)
 
@@ -536,7 +561,9 @@ class FederatedFlow(FLSpec):
             f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
         )
         print(f"Average training loss = {self.average_loss}")
-        print(f"Average local model validation values = {self.local_model_accuracy}")
+        print(
+            f"Average local model validation values = {self.local_model_accuracy}"
+        )
 
         self.model = FedAvg([input.model.cpu() for input in inputs])
         self.global_model.load_state_dict(deepcopy(self.model.state_dict()))
@@ -626,7 +653,10 @@ if __name__ == "__main__":
         help="Indicate the communication round of FL",
     )
     argparser.add_argument(
-        "--auditing_interval", type=int, default=1, help="Indicate auditing interval"
+        "--auditing_interval",
+        type=int,
+        default=1,
+        help="Indicate auditing interval",
     )
     argparser.add_argument(
         "--is_features",
@@ -670,9 +700,13 @@ if __name__ == "__main__":
     # Download and setup the train, and test dataset
     transform = transforms.Compose([transforms.ToTensor()])
 
-    cifar_train = CIFAR10(root="./data", train=True, download=True, transform=transform)
+    cifar_train = CIFAR10(
+        root="./data", train=True, download=True, transform=transform
+    )
 
-    cifar_test = CIFAR10(root="./data", train=False, download=True, transform=transform)
+    cifar_test = CIFAR10(
+        root="./data", train=False, download=True, transform=transform
+    )
 
     # Split the dataset in train, test, and population dataset
     N_total_samples = len(cifar_test) + len(cifar_train)
@@ -691,9 +725,11 @@ if __name__ == "__main__":
     train_dataset.targets = Y[:train_dataset_size]
 
     test_dataset = deepcopy(cifar_test)
-    test_dataset.data = X[train_dataset_size: train_dataset_size + test_dataset_size]
+    test_dataset.data = X[
+        train_dataset_size : train_dataset_size + test_dataset_size
+    ]
     test_dataset.targets = Y[
-        train_dataset_size: train_dataset_size + test_dataset_size
+        train_dataset_size : train_dataset_size + test_dataset_size
     ]
 
     population_dataset = deepcopy(cifar_test)
@@ -727,7 +763,9 @@ if __name__ == "__main__":
         local_test.targets = test_ds.targets[index::n_collaborators]
 
         local_population.data = population_ds.data[index::n_collaborators]
-        local_population.targets = population_ds.targets[index::n_collaborators]
+        local_population.targets = population_ds.targets[
+            index::n_collaborators
+        ]
 
         # initialize pm report to track the privacy loss during the training
         local_pm_info = PM_report(
@@ -794,7 +832,9 @@ if __name__ == "__main__":
 
     # Set backend='ray' to use ray-backend
     local_runtime = LocalRuntime(
-        aggregator=aggregator, collaborators=collaborators, backend="single_process"
+        aggregator=aggregator,
+        collaborators=collaborators,
+        backend="single_process",
     )
 
     print(f"Local runtime collaborators = {local_runtime.collaborators}")
@@ -803,7 +843,9 @@ if __name__ == "__main__":
     model = Net()
     top_model_accuracy = 0
     optimizers = {
-        collaborator.name: default_optimizer(model, optimizer_type=args.optimizer_type)
+        collaborator.name: default_optimizer(
+            model, optimizer_type=args.optimizer_type
+        )
         for collaborator in collaborators
     }
     flflow = FederatedFlow(

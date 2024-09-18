@@ -1,15 +1,13 @@
 # Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import xml.etree.ElementTree as ETree
-import json
-import os
-import math
 import hashlib
+import json
+import math
+import os
+import xml.etree.ElementTree as ETree
 
 
 def xml_to_json(input_base_folder, subfolders, output_folder, verify_hash=1):
-
     if not os.path.exists(input_base_folder):
         raise SystemExit(f"The folder '{input_base_folder}' does not exist.")
 
@@ -18,15 +16,20 @@ def xml_to_json(input_base_folder, subfolders, output_folder, verify_hash=1):
     train_count, test_count = 0, 0
 
     if verify_hash == 1:
-        expected_hash = ('9d645c469ba37eb9ec2e121ae6ac90fbebccfb91f2aff7f'
-                         'faabc0531f2ede54ab4c91bea775922e5910b276340c040e8')
-        verify_aggregated_hashes(input_base_folder, subfolders,
-                                 expected_hash=expected_hash)
+        expected_hash = (
+            "9d645c469ba37eb9ec2e121ae6ac90fbebccfb91f2aff7f"
+            "faabc0531f2ede54ab4c91bea775922e5910b276340c040e8"
+        )
+        verify_aggregated_hashes(
+            input_base_folder, subfolders, expected_hash=expected_hash
+        )
 
     for subfolder in subfolders:
         folder_path = os.path.join(input_base_folder, subfolder)
         if os.path.isdir(folder_path):
-            xml_files = [f for f in os.listdir(folder_path) if f.endswith('.xml')]
+            xml_files = [
+                f for f in os.listdir(folder_path) if f.endswith(".xml")
+            ]
             test_file_count = math.ceil(len(xml_files) * 0.01)
 
             # Process files for training data
@@ -44,11 +47,15 @@ def xml_to_json(input_base_folder, subfolders, output_folder, verify_hash=1):
             raise SystemError(f"{folder_path} does not exist")
 
     # Save the data to JSON files
-    save_json(train_data, os.path.join(output_folder, 'medquad_alpaca_train.json'))
-    save_json(test_data, os.path.join(output_folder, 'medquad_alpaca_test.json'))
+    save_json(
+        train_data, os.path.join(output_folder, "medquad_alpaca_train.json")
+    )
+    save_json(
+        test_data, os.path.join(output_folder, "medquad_alpaca_test.json")
+    )
 
     # Write the counts to a text file
-    with open(os.path.join(output_folder, 'data_counts.txt'), 'w') as f:
+    with open(os.path.join(output_folder, "data_counts.txt"), "w") as f:
         f.write(f"Training data pairs: {train_count}\n")
         f.write(f"Test data pairs: {test_count}\n")
 
@@ -63,20 +70,16 @@ def process_xml_file(folder, xml_file):
     data = []
     count = 0
     for qa_pair in root.findall(".//QAPair"):
-        question = qa_pair.find('Question').text
-        answer = qa_pair.find('Answer').text
+        question = qa_pair.find("Question").text
+        answer = qa_pair.find("Answer").text
 
         if not question or not answer:
             continue
 
         question = question.strip()
-        answer = answer.strip().replace('\n', ' ').replace('  ', ' ')
+        answer = answer.strip().replace("\n", " ").replace("  ", " ")
 
-        json_obj = {
-            "instruction": question,
-            "input": "",
-            "output": answer
-        }
+        json_obj = {"instruction": question, "input": "", "output": answer}
         data.append(json_obj)
         count += 1
 
@@ -84,15 +87,15 @@ def process_xml_file(folder, xml_file):
 
 
 def save_json(data, filename):
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def compute_hash(file_path, hash_name='sha384'):
+def compute_hash(file_path, hash_name="sha384"):
     """Compute the hash of a single file using SHA-384."""
     hash_func = getattr(hashlib, hash_name)()
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
             hash_func.update(chunk)
     return hash_func.hexdigest()
 
@@ -108,7 +111,7 @@ def verify_aggregated_hashes(input_base_folder, dir_list, expected_hash):
                 for file in files:
                     file_path = os.path.join(root, file)
                     file_hash = compute_hash(file_path)
-                    aggregated_hash_func.update(file_hash.encode('utf-8'))
+                    aggregated_hash_func.update(file_hash.encode("utf-8"))
         else:
             raise SystemError(f"{directory} does not exist")
 
@@ -118,6 +121,7 @@ def verify_aggregated_hashes(input_base_folder, dir_list, expected_hash):
     # Compare the aggregated hash with the expected, hardcoded hash
     if aggregated_hash != expected_hash:
         raise SystemError(
-            "Verification failed. Downloaded hash doesn\'t match expected hash.")
+            "Verification failed. Downloaded hash doesn't match expected hash."
+        )
     else:
         print("Verification passed")

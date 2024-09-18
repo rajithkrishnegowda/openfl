@@ -1,18 +1,19 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Module with auxiliary CLI helper functions."""
 import os
 import re
 import shutil
 from itertools import islice
-from os import environ, stat
+from os import environ
+from os import stat
 from pathlib import Path
 from sys import argv
 
-from click import echo, style
-from yaml import FullLoader, load
+from click import echo
+from click import style
+from yaml import FullLoader
+from yaml import load
 
 FX = argv[0]
 
@@ -45,7 +46,6 @@ def tree(path):
     echo(f"+ {path}")
 
     for path in sorted(path.rglob("*")):
-
         depth = len(path.relative_to(path).parts)
         space = "    " * depth
 
@@ -95,7 +95,9 @@ def print_tree(
                 yield prefix + pointer + path.name
                 directories += 1
                 extension = branch if pointer == tee else space
-                yield from inner(path, prefix=prefix + extension, level=level - 1)
+                yield from inner(
+                    path, prefix=prefix + extension, level=level - 1
+                )
             elif not limit_to_directories:
                 yield prefix + pointer + path.name
                 files += 1
@@ -106,7 +108,9 @@ def print_tree(
         echo(line)
     if next(iterator, None):
         echo(f"... length_limit, {length_limit}, reached, counted:")
-    echo(f"\n{directories} directories" + (f", {files} files" if files else ""))
+    echo(
+        f"\n{directories} directories" + (f", {files} files" if files else "")
+    )
 
 
 def copytree(
@@ -139,7 +143,6 @@ def copytree(
     copy_function = shutil.copy2
 
     def _copytree():
-
         if ignore is not None:
             ignored_names = ignore(os.fspath(src), [x.name for x in entries])
         else:
@@ -147,7 +150,9 @@ def copytree(
 
         os.makedirs(dst, exist_ok=dirs_exist_ok)
         errors = []
-        use_srcentry = copy_function is shutil.copy2 or copy_function is shutil.copy
+        use_srcentry = (
+            copy_function is shutil.copy2 or copy_function is shutil.copy
+        )
 
         for srcentry in entries:
             if srcentry.name in ignored_names:
@@ -165,9 +170,14 @@ def copytree(
                     linkto = os.readlink(srcname)
                     if symlinks:
                         os.symlink(linkto, dstname)
-                        shutil.copystat(srcobj, dstname, follow_symlinks=not symlinks)
+                        shutil.copystat(
+                            srcobj, dstname, follow_symlinks=not symlinks
+                        )
                     else:
-                        if not os.path.exists(linkto) and ignore_dangling_symlinks:
+                        if (
+                            not os.path.exists(linkto)
+                            and ignore_dangling_symlinks
+                        ):
                             continue
                         if srcentry.is_dir():
                             copytree(

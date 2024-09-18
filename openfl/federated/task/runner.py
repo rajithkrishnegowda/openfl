@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """
 Mixin class for FL models. No default implementation.
 
@@ -11,7 +9,6 @@ TensorflowTaskRunner) that uses this mixin.
 You may copy use this file or the appropriate framework-specific base-class to
 port your own models.
 """
-
 from logging import getLogger
 
 
@@ -26,7 +23,9 @@ class TaskRunner:
         opt_treatment (str): Treatment of current instance optimizer.
     """
 
-    def __init__(self, data_loader, tensor_dict_split_fn_kwargs: dict = None, **kwargs):
+    def __init__(
+        self, data_loader, tensor_dict_split_fn_kwargs: dict = None, **kwargs
+    ):
         """Intializes the TaskRunner object.
 
         Args:
@@ -94,8 +93,13 @@ class TaskRunner:
         Returns:
             None
         """
-        if data_loader.get_feature_shape() != self.data_loader.get_feature_shape():
-            raise ValueError("The data_loader feature shape is not compatible with model.")
+        if (
+            data_loader.get_feature_shape()
+            != self.data_loader.get_feature_shape()
+        ):
+            raise ValueError(
+                "The data_loader feature shape is not compatible with model."
+            )
 
         self.data_loader = data_loader
 

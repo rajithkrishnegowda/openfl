@@ -32,9 +32,15 @@ def build_model(latent_dim, num_encoder_tokens, num_decoder_tokens, **kwargs):
     # We set up our decoder to return full output sequences,
     # and to return internal states as well. We don't use the
     # return states in the training model, but we will use them in inference.
-    decoder_lstm = keras.layers.LSTM(latent_dim, return_sequences=True, return_state=True)
-    decoder_outputs, _, _ = decoder_lstm(decoder_inputs, initial_state=encoder_states)
-    decoder_dense = keras.layers.Dense(num_decoder_tokens, activation='softmax')
+    decoder_lstm = keras.layers.LSTM(
+        latent_dim, return_sequences=True, return_state=True
+    )
+    decoder_outputs, _, _ = decoder_lstm(
+        decoder_inputs, initial_state=encoder_states
+    )
+    decoder_dense = keras.layers.Dense(
+        num_decoder_tokens, activation="softmax"
+    )
     decoder_outputs = decoder_dense(decoder_outputs)
 
     # Define the model that will turn
@@ -43,7 +49,8 @@ def build_model(latent_dim, num_encoder_tokens, num_decoder_tokens, **kwargs):
 
     model.compile(
         optimizer=keras.optimizers.legacy.RMSprop(),
-        loss='categorical_crossentropy', metrics=['accuracy']
+        loss="categorical_crossentropy",
+        metrics=["accuracy"],
     )
 
     return model
@@ -61,13 +68,15 @@ class KerasNLP(KerasTaskRunner):
         """
         super().__init__(**kwargs)
 
-        self.model = build_model(latent_dim,
-                                 self.data_loader.num_encoder_tokens,
-                                 self.data_loader.num_decoder_tokens,
-                                 **kwargs)
+        self.model = build_model(
+            latent_dim,
+            self.data_loader.num_encoder_tokens,
+            self.data_loader.num_decoder_tokens,
+            **kwargs,
+        )
 
         self.initialize_tensorkeys_for_functions()
 
         self.model.summary(print_fn=self.logger.info)
 
-        self.logger.info(f'Train Set Size : {self.get_train_data_size()}')
+        self.logger.info(f"Train Set Size : {self.get_train_data_size()}")

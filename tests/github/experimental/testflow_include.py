@@ -1,10 +1,13 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import sys
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
 
 
 class bcolors:  # NOQA: N801
@@ -58,7 +61,9 @@ class TestFlowInclude(FLSpec):
                 + f"{bcolors.ENDC}"
             )
         else:
-            TestFlowInclude.include_error_list.append("test_include_agg_to_agg")
+            TestFlowInclude.include_error_list.append(
+                "test_include_agg_to_agg"
+            )
             print(
                 f"{bcolors.FAIL} ... Include test failed in test_include_agg_to_agg {bcolors.ENDC}"
             )
@@ -87,7 +92,9 @@ class TestFlowInclude(FLSpec):
                 + f"{bcolors.ENDC}"
             )
         else:
-            TestFlowInclude.include_error_list.append("test_include_agg_to_collab")
+            TestFlowInclude.include_error_list.append(
+                "test_include_agg_to_collab"
+            )
             print(
                 f"{bcolors.FAIL} ... Include test failed in test_include_agg_to_collab "
                 + f"{bcolors.ENDC}"
@@ -117,7 +124,9 @@ class TestFlowInclude(FLSpec):
                 + f"{bcolors.ENDC}"
             )
         else:
-            TestFlowInclude.include_error_list.append("test_include_collab_to_collab")
+            TestFlowInclude.include_error_list.append(
+                "test_include_collab_to_collab"
+            )
             print(
                 f"{bcolors.FAIL} ... Include test failed in test_include_collab_to_collab "
                 + f"{bcolors.ENDC}"
@@ -150,15 +159,23 @@ class TestFlowInclude(FLSpec):
             )
 
         if validation:
-            print(f"{bcolors.OKGREEN} ... Include test passed in join {bcolors.ENDC}")
+            print(
+                f"{bcolors.OKGREEN} ... Include test passed in join {bcolors.ENDC}"
+            )
         else:
             TestFlowInclude.include_error_list.append("join")
-            print(f"{bcolors.FAIL} ... Include test failed in join {bcolors.ENDC}")
+            print(
+                f"{bcolors.FAIL} ... Include test failed in join {bcolors.ENDC}"
+            )
 
-        print(f"\n{bcolors.UNDERLINE}Include attribute test summary: {bcolors.ENDC}\n")
+        print(
+            f"\n{bcolors.UNDERLINE}Include attribute test summary: {bcolors.ENDC}\n"
+        )
 
         if TestFlowInclude.include_error_list:
-            validated_include_variables = ",".join(TestFlowInclude.include_error_list)
+            validated_include_variables = ",".join(
+                TestFlowInclude.include_error_list
+            )
             print(
                 f"{bcolors.FAIL} ...Test case failed for {validated_include_variables} "
                 + f"{bcolors.ENDC}"
@@ -202,7 +219,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "ray":
             local_runtime = LocalRuntime(
-                aggregator=aggregator, collaborators=collaborators, backend="ray"
+                aggregator=aggregator,
+                collaborators=collaborators,
+                backend="ray",
             )
 
     print(f"Local runtime collaborators = {local_runtime.collaborators}")

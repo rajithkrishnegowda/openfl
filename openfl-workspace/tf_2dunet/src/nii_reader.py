@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import os
 
 import nibabel as nib
@@ -28,7 +26,7 @@ def parse_segments(seg, msk_modes):
     msks_parsed = []
     for slice_ in range(seg.shape[-1]):
         # which mask values indicicate which label mode
-        mode_to_key_value = {'necrotic': 1, 'edema': 2, 'GD': 4}
+        mode_to_key_value = {"necrotic": 1, "edema": 2, "GD": 4}
         curr = seg[:, :, slice_]
         this_msk_parts = []
         for mode in msk_modes:
@@ -80,16 +78,23 @@ def resize_data(dataset, new_size=128, rotate=3):
 
     """
     # Determine whether dataset and new_size are compatible with existing logic
-    if (dataset.shape[1] - new_size) % 2 != 0 and (dataset.shape[2] - new_size) % 2 != 0:
-        raise ValueError(f'dataset shape: {dataset.shape} and new_size: {new_size} '
-                         f'are not compatible with existing logic')
+    if (dataset.shape[1] - new_size) % 2 != 0 and (
+        dataset.shape[2] - new_size
+    ) % 2 != 0:
+        raise ValueError(
+            f"dataset shape: {dataset.shape} and new_size: {new_size} "
+            f"are not compatible with existing logic"
+        )
 
     start_index = int((dataset.shape[1] - new_size) / 2)
     end_index = dataset.shape[1] - start_index
 
     if rotate != 0:
-        resized = np.rot90(dataset[:, start_index:end_index, start_index:end_index],
-                           rotate, axes=(1, 2))
+        resized = np.rot90(
+            dataset[:, start_index:end_index, start_index:end_index],
+            rotate,
+            axes=(1, 2),
+        )
     else:
         resized = dataset[:, start_index:end_index, start_index:end_index]
 
@@ -97,8 +102,9 @@ def resize_data(dataset, new_size=128, rotate=3):
 
 
 # adapted from https://github.com/NervanaSystems/topologies
-def _update_channels(imgs, msks, img_channels_to_keep,
-                     msk_channels_to_keep, channels_last):
+def _update_channels(
+    imgs, msks, img_channels_to_keep, msk_channels_to_keep, channels_last
+):
     """Filter the channels of images and move placement of channels in shape if desired.
 
     Args:
@@ -122,13 +128,16 @@ def _update_channels(imgs, msks, img_channels_to_keep,
     # note the indices producing non-zero entries on these masks are mutually exclusive
     # so that the result continues to be an array with only ones and zeros
     msk_summands = [
-        msks[:, :, :, channel:channel + 1] for channel in msk_channels_to_keep
+        msks[:, :, :, channel : channel + 1]
+        for channel in msk_channels_to_keep
     ]
     new_msks = np.sum(msk_summands, axis=0)
 
     if not channels_last:
         new_order = [0, 3, 1, 2]
-        return np.transpose(new_imgs, new_order), np.transpose(new_msks, new_order)
+        return np.transpose(new_imgs, new_order), np.transpose(
+            new_msks, new_order
+        )
     else:
         return new_imgs, new_msks
 
@@ -139,8 +148,14 @@ def list_files(root, extension, parts):
     return files
 
 
-def nii_reader(brain_path, task, channels_last=True,
-               numpy_type='float64', normalization='by_mode', **kwargs):
+def nii_reader(
+    brain_path,
+    task,
+    channels_last=True,
+    numpy_type="float64",
+    normalization="by_mode",
+    **kwargs,
+):
     """Fetch a whole brain 3D image from disc.
 
     Assumes data_dir contains only subdirectories, each containing exactly one
@@ -184,51 +199,52 @@ def nii_reader(brain_path, task, channels_last=True,
     """
     files = os.listdir(brain_path)
     # link task to appropriate image and mask channels of interest
-    img_modes = ['t1', 't2', 'flair', 't1ce']
-    msk_modes = ['necrotic', 'edema', 'GD']
+    img_modes = ["t1", "t2", "flair", "t1ce"]
+    msk_modes = ["necrotic", "edema", "GD"]
     task_to_img_modes = {
-        'whole_tumor': ['flair'],
-        'enhanced_tumor': ['t1'],
-        'active_core': ['t2'],
-        'other': ['t1', 't2', 'flair', 't1ce'],
+        "whole_tumor": ["flair"],
+        "enhanced_tumor": ["t1"],
+        "active_core": ["t2"],
+        "other": ["t1", "t2", "flair", "t1ce"],
     }
     task_to_msk_modes = {
-        'whole_tumor': ['necrotic', 'edema', 'GD'],
-        'enhanced_tumor': ['GD'],
-        'active_core': ['edema', 'GD'],
-        'other': ['necrotic', 'edema', 'GD'],
+        "whole_tumor": ["necrotic", "edema", "GD"],
+        "enhanced_tumor": ["GD"],
+        "active_core": ["edema", "GD"],
+        "other": ["necrotic", "edema", "GD"],
     }
-    msk_names = ['seg_binary', 'seg_binarized', 'SegBinarized', 'seg']
+    msk_names = ["seg_binary", "seg_binarized", "SegBinarized", "seg"]
 
     # validate that task is an allowed key
     if task not in task_to_img_modes.keys():
-        raise ValueError(f'{task} is not a valid task')
+        raise ValueError(f"{task} is not a valid task")
 
     # validate that the tasks used in task_to_img_modes and
     # task_to_msk_modes are the same
     if set(task_to_img_modes.keys()) != set(task_to_msk_modes.keys()):
-        raise RuntimeError('Hard coded keys to task_to_img_modes'
-                           'and task_to_mask_modes are not the same and should be.')
+        raise RuntimeError(
+            "Hard coded keys to task_to_img_modes"
+            "and task_to_mask_modes are not the same and should be."
+        )
 
     # check that all appropriate files are present
-    file_root = brain_path.split('/')[-1] + '_'
-    extension = '.nii.gz'
+    file_root = brain_path.split("/")[-1] + "_"
+    extension = ".nii.gz"
 
     # record files needed
     # needed mask files are currntly independent of task
     need_files_oneof = list_files(file_root, extension, msk_names)
-    if normalization != 'modes_together':
-        need_files_all = list_files(file_root, extension, task_to_img_modes[task])
+    if normalization != "modes_together":
+        need_files_all = list_files(
+            file_root, extension, task_to_img_modes[task]
+        )
     else:
         need_files_all = list_files(file_root, extension, img_modes)
 
-    correct_files = np.all([
-        (reqd in files)
-        for reqd in need_files_all
-    ]) and np.sum([
-        (reqd in files)
-        for reqd in need_files_oneof
-    ]) == 1
+    correct_files = (
+        np.all([(reqd in files) for reqd in need_files_all])
+        and np.sum([(reqd in files) for reqd in need_files_oneof]) == 1
+    )
 
     if not correct_files:
         return None, None
@@ -242,14 +258,16 @@ def nii_reader(brain_path, task, channels_last=True,
 
     # normalize each model then stack, stack after normalizing all modes together,
     # or stack without normalizing at all
-    if normalization == 'by_mode':
-        imgs = np.stack([normalize_stack(imgs) for imgs in imgs_per_mode], axis=-1)
-    elif normalization == 'modes_together':
+    if normalization == "by_mode":
+        imgs = np.stack(
+            [normalize_stack(imgs) for imgs in imgs_per_mode], axis=-1
+        )
+    elif normalization == "modes_together":
         imgs = normalize_stack(np.stack(imgs_per_mode, axis=-1))
     elif normalization is None:
         imgs = np.stack(imgs_per_mode, axis=-1)
     else:
-        raise ValueError(f'{normalization} is not a supported normalization.')
+        raise ValueError(f"{normalization} is not a supported normalization.")
 
     # get mask (labels)
     for file in need_files_oneof:
@@ -265,12 +283,13 @@ def nii_reader(brain_path, task, channels_last=True,
         mode: channel_num for (channel_num, mode) in enumerate(msk_modes)
     }
     msk_channels_to_keep = np.array(
-        [msk_mode_to_channel[mode] for mode in task_to_msk_modes[task]])
+        [msk_mode_to_channel[mode] for mode in task_to_msk_modes[task]]
+    )
     # if we normalization is by_mode or None,
     # we have already restricted the image channels
-    if normalization in ['by_mode', None]:
+    if normalization in ["by_mode", None]:
         img_channels_to_keep = np.arange(imgs.shape[-1])
-    elif normalization == 'modes_together':
+    elif normalization == "modes_together":
         img_mode_to_channel = {
             mode: channel_num for (channel_num, mode) in enumerate(img_modes)
         }
@@ -278,12 +297,13 @@ def nii_reader(brain_path, task, channels_last=True,
             [img_mode_to_channel[mode] for mode in task_to_img_modes[task]]
         )
     else:
-        raise ValueError(f'{normalization} is not a supported normalization.')
+        raise ValueError(f"{normalization} is not a supported normalization.")
 
     img = imgs
     msk = msks
 
     img, msk = _update_channels(
-        img, msk, img_channels_to_keep, msk_channels_to_keep, channels_last)
+        img, msk, img_channels_to_keep, msk_channels_to_keep, channels_last
+    )
 
     return img.astype(numpy_type), msk.astype(numpy_type)

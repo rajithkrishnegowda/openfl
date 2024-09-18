@@ -1,13 +1,11 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """FederatedDataset module."""
-
 import numpy as np
 
 from openfl.federated.data.loader_pt import PyTorchDataLoader
-from openfl.utilities.data_splitters import EqualNumPyDataSplitter, NumPyDataSplitter
+from openfl.utilities.data_splitters import EqualNumPyDataSplitter
+from openfl.utilities.data_splitters import NumPyDataSplitter
 
 
 class FederatedDataSet(PyTorchDataLoader):
@@ -61,7 +59,9 @@ class FederatedDataSet(PyTorchDataLoader):
 
         if num_classes is None:
             num_classes = np.unique(self.y_train).shape[0]
-            print(f"Inferred {num_classes} classes from the provided labels...")
+            print(
+                f"Inferred {num_classes} classes from the provided labels..."
+            )
         self.num_classes = num_classes
         self.train_splitter = self._get_splitter_or_default(train_splitter)
         self.valid_splitter = self._get_splitter_or_default(valid_splitter)
@@ -83,7 +83,9 @@ class FederatedDataSet(PyTorchDataLoader):
         if isinstance(value, NumPyDataSplitter):
             return value
         else:
-            raise NotImplementedError(f"Data splitter {value} is not supported")
+            raise NotImplementedError(
+                f"Data splitter {value} is not supported"
+            )
 
     def split(self, num_collaborators):
         """Splits the dataset into equal parts for each collaborator and

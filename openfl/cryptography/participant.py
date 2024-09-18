@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Cryptography participant utilities."""
 from typing import Tuple
 
@@ -72,7 +70,8 @@ def generate_csr(
     )
 
     builder = builder.add_extension(
-        x509.SubjectAlternativeName([x509.DNSName(common_name)]), critical=False
+        x509.SubjectAlternativeName([x509.DNSName(common_name)]),
+        critical=False,
     )
 
     # Sign the CSR

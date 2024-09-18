@@ -1,11 +1,9 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Data package."""
-
 import importlib
-from warnings import catch_warnings, simplefilter
+from warnings import catch_warnings
+from warnings import simplefilter
 
 with catch_warnings():
     simplefilter(action="ignore", category=FutureWarning)

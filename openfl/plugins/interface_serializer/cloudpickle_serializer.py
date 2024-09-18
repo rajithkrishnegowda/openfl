@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Cloudpickle serializer plugin."""
-
 import cloudpickle
 
 from openfl.plugins.interface_serializer.serializer_interface import Serializer

@@ -1,20 +1,21 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Plan API's tests module."""
-
+from pathlib import Path
 from unittest import mock
 
 import pytest
-from pathlib import Path
 
-from openfl.federated.plan.plan import Plan
-from openfl.component.assigner import RandomGroupedAssigner
 from openfl.component.aggregator import Aggregator
+from openfl.component.assigner import RandomGroupedAssigner
+from openfl.federated.plan.plan import Plan
 
 
 @pytest.fixture
 def plan():
-    return Plan.parse(Path(__file__).parent / 'plan_example.yaml', resolve=True)
+    return Plan.parse(
+        Path(__file__).parent / "plan_example.yaml", resolve=True
+    )
 
 
 @pytest.fixture
@@ -23,16 +24,23 @@ def empty_plan():
 
 
 def test_import():
-    assert isinstance(Plan.import_('openfl.federated.plan.plan.Plan'), type(Plan))
+    assert isinstance(
+        Plan.import_("openfl.federated.plan.plan.Plan"), type(Plan)
+    )
 
 
 def test_build(plan):
-    defaults = plan.config['assigner']
-    defaults['settings']['authorized_cols'] = ['col1']
-    defaults['settings']['rounds_to_train'] = 1
-    defaults['settings']['tasks'] = plan.get_tasks()
-    assert isinstance(Plan.build(plan.config['assigner']['template'],
-                                 plan.config['assigner']['settings']), RandomGroupedAssigner)
+    defaults = plan.config["assigner"]
+    defaults["settings"]["authorized_cols"] = ["col1"]
+    defaults["settings"]["rounds_to_train"] = 1
+    defaults["settings"]["tasks"] = plan.get_tasks()
+    assert isinstance(
+        Plan.build(
+            plan.config["assigner"]["template"],
+            plan.config["assigner"]["settings"],
+        ),
+        RandomGroupedAssigner,
+    )
 
 
 def test_get_assigner(plan):
@@ -44,6 +52,6 @@ def test_get_tasks(empty_plan):
 
 
 def test_get_aggregator(mocker, plan):
-    mocker.patch('openfl.protocols.utils.load_proto', mock.Mock())
+    mocker.patch("openfl.protocols.utils.load_proto", mock.Mock())
     Aggregator._load_initial_tensors = mock.Mock()
     assert isinstance(plan.get_aggregator(), Aggregator)

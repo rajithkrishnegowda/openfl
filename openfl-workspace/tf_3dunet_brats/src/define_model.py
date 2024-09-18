@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import tensorflow as tf
 
 
@@ -18,7 +16,7 @@ def dice_coef(target, prediction, axis=(1, 2, 3), smooth=0.0001):
 
     intersection = tf.reduce_sum(target * prediction, axis=axis)
     union = tf.reduce_sum(target + prediction, axis=axis)
-    numerator = tf.constant(2.) * intersection + smooth
+    numerator = tf.constant(2.0) * intersection + smooth
     denominator = union + smooth
     coef = numerator / denominator
 
@@ -37,7 +35,7 @@ def soft_dice_coef(target, prediction, axis=(1, 2, 3), smooth=0.0001):
     """
     intersection = tf.reduce_sum(target * prediction, axis=axis)
     union = tf.reduce_sum(target + prediction, axis=axis)
-    numerator = tf.constant(2.) * intersection + smooth
+    numerator = tf.constant(2.0) * intersection + smooth
     denominator = union + smooth
     coef = numerator / denominator
 
@@ -61,22 +59,24 @@ def dice_loss(target, prediction, axis=(1, 2, 3), smooth=0.0001):
     t = tf.reduce_sum(target, axis=axis)
     numerator = tf.reduce_mean(intersection + smooth)
     denominator = tf.reduce_mean(t + p + smooth)
-    dice_loss = -tf.math.log(2. * numerator) + tf.math.log(denominator)
+    dice_loss = -tf.math.log(2.0 * numerator) + tf.math.log(denominator)
 
     return dice_loss
 
 
-def build_model(input_shape,
-                n_cl_out=1,
-                use_upsampling=False,
-                dropout=0.2,
-                print_summary=True,
-                seed=816,
-                depth=5,
-                dropout_at=(2, 3),
-                initial_filters=16,
-                batch_norm=True,
-                **kwargs):
+def build_model(
+    input_shape,
+    n_cl_out=1,
+    use_upsampling=False,
+    dropout=0.2,
+    print_summary=True,
+    seed=816,
+    depth=5,
+    dropout_at=(2, 3),
+    initial_filters=16,
+    batch_norm=True,
+    **kwargs,
+):
     """Build the TensorFlow model.
 
     Args:
@@ -95,34 +95,41 @@ def build_model(input_shape,
         **kwargs: Additional parameters to pass to the function
     """
     if (input_shape[0] % (2**depth)) > 0:
-        raise ValueError(f'Crop dimension must be a multiple of 2^(depth of U-Net) = {2**depth}')
+        raise ValueError(
+            f"Crop dimension must be a multiple of 2^(depth of U-Net) = {2**depth}"
+        )
 
-    inputs = tf.keras.layers.Input(input_shape, name='brats_mr_image')
+    inputs = tf.keras.layers.Input(input_shape, name="brats_mr_image")
 
     activation = tf.keras.activations.relu
 
-    params = {'kernel_size': (3, 3, 3), 'activation': activation,
-              'padding': 'same',
-              'kernel_initializer': tf.keras.initializers.he_uniform(seed=seed)}
+    params = {
+        "kernel_size": (3, 3, 3),
+        "activation": activation,
+        "padding": "same",
+        "kernel_initializer": tf.keras.initializers.he_uniform(seed=seed),
+    }
 
     convb_layers = {}
 
     net = inputs
     filters = initial_filters
     for i in range(depth):
-        name = f'conv{i + 1}a'
+        name = f"conv{i + 1}a"
         net = tf.keras.layers.Conv3D(name=name, filters=filters, **params)(net)
         if i in dropout_at:
             net = tf.keras.layers.Dropout(dropout)(net)
-        name = f'conv{i + 1}b'
+        name = f"conv{i + 1}b"
         net = tf.keras.layers.Conv3D(name=name, filters=filters, **params)(net)
         if batch_norm:
             net = tf.keras.layers.BatchNormalization()(net)
         convb_layers[name] = net
         # only pool if not last level
         if i != depth - 1:
-            name = f'pool{i + 1}'
-            net = tf.keras.layers.MaxPooling3D(name=name, pool_size=(2, 2, 2))(net)
+            name = f"pool{i + 1}"
+            net = tf.keras.layers.MaxPooling3D(name=name, pool_size=(2, 2, 2))(
+                net
+            )
             filters *= 2
 
     # do the up levels
@@ -130,28 +137,33 @@ def build_model(input_shape,
     for i in range(depth - 1):
         if use_upsampling:
             up = tf.keras.layers.UpSampling3D(
-                name=f'up{depth + i + 1}', size=(2, 2, 2))(net)
+                name=f"up{depth + i + 1}", size=(2, 2, 2)
+            )(net)
         else:
-            up = tf.keras.layers.Conv3DTranspose(name=f'transConv{depth + i + 1}',
-                                                 filters=filters,
-                                                 kernel_size=(2, 2, 2),
-                                                 strides=(2, 2, 2),
-                                                 padding='same')(net)
+            up = tf.keras.layers.Conv3DTranspose(
+                name=f"transConv{depth + i + 1}",
+                filters=filters,
+                kernel_size=(2, 2, 2),
+                strides=(2, 2, 2),
+                padding="same",
+            )(net)
         net = tf.keras.layers.concatenate(
-            [up, convb_layers[f'conv{depth - i - 1}b']],
-            axis=-1
+            [up, convb_layers[f"conv{depth - i - 1}b"]], axis=-1
         )
         net = tf.keras.layers.Conv3D(
-            name=f'conv{depth + i + 1}a',
-            filters=filters, **params)(net)
+            name=f"conv{depth + i + 1}a", filters=filters, **params
+        )(net)
         net = tf.keras.layers.Conv3D(
-            name=f'conv{depth + i + 1}b',
-            filters=filters, **params)(net)
+            name=f"conv{depth + i + 1}b", filters=filters, **params
+        )(net)
         filters //= 2
 
-    net = tf.keras.layers.Conv3D(name='prediction', filters=n_cl_out,
-                                 kernel_size=(1, 1, 1),
-                                 activation='sigmoid')(net)
+    net = tf.keras.layers.Conv3D(
+        name="prediction",
+        filters=n_cl_out,
+        kernel_size=(1, 1, 1),
+        activation="sigmoid",
+    )(net)
 
     model = tf.keras.models.Model(inputs=[inputs], outputs=[net])
 

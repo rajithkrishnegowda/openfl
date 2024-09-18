@@ -1,16 +1,15 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """
 pynvml CUDA Device monitor plugin module.
 
 Required package: pynvml
 """
-
 import pynvml
 
-from openfl.plugins.processing_units_monitor.cuda_device_monitor import CUDADeviceMonitor
+from openfl.plugins.processing_units_monitor.cuda_device_monitor import (
+    CUDADeviceMonitor,
+)
 
 pynvml.nvmlInit()
 

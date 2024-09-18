@@ -1,15 +1,17 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import os
 import sys
 from logging import getLogger
 
 import torch.nn as nn
-from peft import LoraConfig, TaskType, get_peft_model
+from peft import get_peft_model
+from peft import LoraConfig
+from peft import TaskType
 from torch.optim import AdamW
-from transformers import AutoModelForSequenceClassification, get_scheduler
+from transformers import AutoModelForSequenceClassification
+from transformers import get_scheduler
 from transformers.trainer_pt_utils import get_parameter_names
 
 logger = getLogger(__name__)
@@ -22,7 +24,9 @@ ALL_LAYERNORM_LAYERS = [nn.LayerNorm]
 
 def _init_model(base_model_name="roberta-base", device=None):
     model = AutoModelForSequenceClassification.from_pretrained(
-        base_model_name, return_dict=True, num_labels=6,
+        base_model_name,
+        return_dict=True,
+        num_labels=6,
     )
     peft_config = LoraConfig(
         task_type=TaskType.SEQ_CLS,
@@ -39,7 +43,9 @@ def _init_model(base_model_name="roberta-base", device=None):
 
 def _init_optimizer(model, num_training_steps):
     decay_parameters = get_parameter_names(model, ALL_LAYERNORM_LAYERS)
-    decay_parameters = [name for name in decay_parameters if "bias" not in name]
+    decay_parameters = [
+        name for name in decay_parameters if "bias" not in name
+    ]
 
     optimizer_grouped_parameters = [
         {

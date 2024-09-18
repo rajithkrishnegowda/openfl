@@ -1,15 +1,18 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import os
+import random
+import shutil
+import sys
+
+from metaflow import Step
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.interface.participants import Aggregator, Collaborator
+from openfl.experimental.interface.participants import Aggregator
+from openfl.experimental.interface.participants import Collaborator
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement.placement import aggregator, collaborator
-from metaflow import Step
-import random
-import sys
-import os
-import shutil
 
 
 class bcolors:  # NOQA: N801
@@ -47,7 +50,9 @@ class TestFlowSubsetCollaborators(FLSpec):
         self.collaborators = self.runtime.collaborators
 
         # select subset of collaborators
-        self.subset_collabrators = self.collaborators[: random.choice(self.random_ints)]
+        self.subset_collabrators = self.collaborators[
+            : random.choice(self.random_ints)
+        ]
 
         print(
             f"... Executing flow for {len(self.subset_collabrators)} collaborators out of Total: "
@@ -82,7 +87,9 @@ class TestFlowSubsetCollaborators(FLSpec):
         End of the flow
 
         """
-        print(f"End of the test case {TestFlowSubsetCollaborators.__name__} reached.")
+        print(
+            f"End of the test case {TestFlowSubsetCollaborators.__name__} reached."
+        )
 
 
 if __name__ == "__main__":
@@ -121,10 +128,14 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "ray":
             local_runtime = LocalRuntime(
-                aggregator=aggregator, collaborators=collaborators, backend="ray"
+                aggregator=aggregator,
+                collaborators=collaborators,
+                backend="ray",
             )
 
-    random_ints = random.sample(range(1, len(collaborators) + 1), len(collaborators))
+    random_ints = random.sample(
+        range(1, len(collaborators) + 1), len(collaborators)
+    )
     tc_pass_fail = {"passed": [], "failed": []}
     for round_num in range(len(collaborators)):
         print(f"{bcolors.OKBLUE}Starting round {round_num}...{bcolors.ENDC}")
@@ -138,7 +149,9 @@ if __name__ == "__main__":
         testflow_subset_collaborators.runtime = local_runtime
         testflow_subset_collaborators.run()
 
-        subset_collaborators = testflow_subset_collaborators.subset_collabrators
+        subset_collaborators = (
+            testflow_subset_collaborators.subset_collabrators
+        )
         collaborators_ran = testflow_subset_collaborators.collaborators_ran
         # We now convert names to lowercase
         random_ints = testflow_subset_collaborators.random_ints
@@ -162,8 +175,8 @@ if __name__ == "__main__":
                 + f"Testcase Passed.{bcolors.ENDC}"
             )
         passed = True
-        print(f'subset_collaborators = {subset_collaborators}')
-        print(f'collaborators_ran = {collaborators_ran}')
+        print(f"subset_collaborators = {subset_collaborators}")
+        print(f"collaborators_ran = {collaborators_ran}")
         for collaborator_name in subset_collaborators:
             if collaborator_name not in collaborators_ran:
                 passed = False

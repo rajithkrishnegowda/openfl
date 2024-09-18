@@ -1,19 +1,23 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """TensorDB Module."""
-
 from threading import Lock
 from types import MethodType
-from typing import Dict, Iterator, Optional
+from typing import Dict
+from typing import Iterator
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-from openfl.databases.utilities import ROUND_PLACEHOLDER, _retrieve, _search, _store
+from openfl.databases.utilities import _retrieve
+from openfl.databases.utilities import _search
+from openfl.databases.utilities import _store
+from openfl.databases.utilities import ROUND_PLACEHOLDER
 from openfl.interface.aggregation_functions import AggregationFunction
-from openfl.utilities import LocalTensor, TensorKey, change_tags
+from openfl.utilities import change_tags
+from openfl.utilities import LocalTensor
+from openfl.utilities import TensorKey
 
 
 class TensorDB:
@@ -64,7 +68,9 @@ class TensorDB:
             content (str): The string representation of the TensorDB object.
         """
         with pd.option_context("display.max_rows", None):
-            content = self.tensor_db[["tensor_name", "origin", "round", "report", "tags"]]
+            content = self.tensor_db[
+                ["tensor_name", "origin", "round", "report", "tags"]
+            ]
             return f"TensorDB contents:\n{content}"
 
     def __str__(self) -> str:
@@ -88,13 +94,20 @@ class TensorDB:
             return
         current_round = self.tensor_db["round"].astype(int).max()
         if current_round == ROUND_PLACEHOLDER:
-            current_round = np.sort(self.tensor_db["round"].astype(int).unique())[-2]
+            current_round = np.sort(
+                self.tensor_db["round"].astype(int).unique()
+            )[-2]
         self.tensor_db = self.tensor_db[
-            (self.tensor_db["round"].astype(int) > current_round - remove_older_than)
+            (
+                self.tensor_db["round"].astype(int)
+                > current_round - remove_older_than
+            )
             | self.tensor_db["report"]
         ].reset_index(drop=True)
 
-    def cache_tensor(self, tensor_key_dict: Dict[TensorKey, np.ndarray]) -> None:
+    def cache_tensor(
+        self, tensor_key_dict: Dict[TensorKey, np.ndarray]
+    ) -> None:
         """Insert a tensor into TensorDB (dataframe).
 
         Args:
@@ -124,9 +137,13 @@ class TensorDB:
                     )
                 )
 
-            self.tensor_db = pd.concat([self.tensor_db, *entries_to_add], ignore_index=True)
+            self.tensor_db = pd.concat(
+                [self.tensor_db, *entries_to_add], ignore_index=True
+            )
 
-    def get_tensor_from_cache(self, tensor_key: TensorKey) -> Optional[np.ndarray]:
+    def get_tensor_from_cache(
+        self, tensor_key: TensorKey
+    ) -> Optional[np.ndarray]:
         """Perform a lookup of the tensor_key in the TensorDB.
 
         Args:
@@ -241,12 +258,16 @@ class TensorDB:
                 return np.array(agg_nparray)
 
         db_iterator = self._iterate()
-        agg_nparray = aggregation_function(local_tensors, db_iterator, tensor_name, fl_round, tags)
+        agg_nparray = aggregation_function(
+            local_tensors, db_iterator, tensor_name, fl_round, tags
+        )
         self.cache_tensor({tensor_key: agg_nparray})
 
         return np.array(agg_nparray)
 
-    def _iterate(self, order_by: str = "round", ascending: bool = False) -> Iterator[pd.Series]:
+    def _iterate(
+        self, order_by: str = "round", ascending: bool = False
+    ) -> Iterator[pd.Series]:
         """Returns an iterator over the rows of the TensorDB, sorted by a
         specified column.
 
@@ -260,6 +281,10 @@ class TensorDB:
             Iterator[pd.Series]: An iterator over the rows of the TensorDB.
         """
         columns = ["round", "nparray", "tensor_name", "tags"]
-        rows = self.tensor_db[columns].sort_values(by=order_by, ascending=ascending).iterrows()
+        rows = (
+            self.tensor_db[columns]
+            .sort_values(by=order_by, ascending=ascending)
+            .iterrows()
+        )
         for _, row in rows:
             yield row

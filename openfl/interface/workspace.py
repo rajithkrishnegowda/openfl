@@ -1,30 +1,48 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Workspace module."""
 import os
 import subprocess  # nosec
 import sys
 from hashlib import sha256
-from os import chdir, getcwd, makedirs
-from os.path import basename, isfile, join
+from os import chdir
+from os import getcwd
+from os import makedirs
+from os.path import basename
+from os.path import isfile
+from os.path import join
 from pathlib import Path
-from shutil import copy2, copyfile, copytree, ignore_patterns, make_archive, unpack_archive
+from shutil import copy2
+from shutil import copyfile
+from shutil import copytree
+from shutil import ignore_patterns
+from shutil import make_archive
+from shutil import unpack_archive
 from subprocess import check_call  # nosec
 from sys import executable
 from tempfile import mkdtemp
-from typing import Tuple, Union
+from typing import Tuple
+from typing import Union
 
 import docker
 from click import Choice
+from click import confirm
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, echo, group, option, pass_context
 from cryptography.hazmat.primitives import serialization
 
-from openfl.cryptography.ca import generate_root_cert, generate_signing_csr, sign_certificate
+from openfl.cryptography.ca import generate_root_cert
+from openfl.cryptography.ca import generate_signing_csr
+from openfl.cryptography.ca import sign_certificate
 from openfl.federated.plan import Plan
-from openfl.interface.cli_helper import CERT_DIR, OPENFL_USERDIR, SITEPACKS, WORKSPACE, print_tree
+from openfl.interface.cli_helper import CERT_DIR
+from openfl.interface.cli_helper import OPENFL_USERDIR
+from openfl.interface.cli_helper import print_tree
+from openfl.interface.cli_helper import SITEPACKS
+from openfl.interface.cli_helper import WORKSPACE
 from openfl.interface.plan import freeze_plan
 from openfl.utilities.utils import rmtree
 
@@ -68,7 +86,9 @@ def create_dirs(prefix):
     (prefix / "cert").mkdir(parents=True, exist_ok=True)  # certifications
     (prefix / "data").mkdir(parents=True, exist_ok=True)  # training data
     (prefix / "logs").mkdir(parents=True, exist_ok=True)  # training logs
-    (prefix / "save").mkdir(parents=True, exist_ok=True)  # model weight saves / initialization
+    (prefix / "save").mkdir(
+        parents=True, exist_ok=True
+    )  # model weight saves / initialization
     (prefix / "src").mkdir(parents=True, exist_ok=True)  # model code
 
     copyfile(WORKSPACE / "workspace" / ".workspace", prefix / ".workspace")
@@ -102,12 +122,15 @@ def get_templates():
     return [
         d.name
         for d in WORKSPACE.glob("*")
-        if d.is_dir() and d.name not in ["__pycache__", "workspace", "experimental"]
+        if d.is_dir()
+        and d.name not in ["__pycache__", "workspace", "experimental"]
     ]
 
 
 @workspace.command(name="create")
-@option("--prefix", required=True, help="Workspace name or path", type=ClickPath())
+@option(
+    "--prefix", required=True, help="Workspace name or path", type=ClickPath()
+)
 @option("--template", required=True, type=Choice(get_templates()))
 def create_(prefix, template):
     """Create the workspace.
@@ -152,7 +175,9 @@ def create(prefix, template):
             ],
             shell=False,
         )
-        echo(f"Successfully installed packages from {prefix}/requirements.txt.")
+        echo(
+            f"Successfully installed packages from {prefix}/requirements.txt."
+        )
     else:
         echo("No additional requirements for workspace defined. Skipping...")
     prefix_hash = _get_dir_hash(str(prefix.absolute()))
@@ -200,7 +225,9 @@ def export_(pip_install_options: Tuple[str]):
     # Aggregator workspace
     tmp_dir = join(mkdtemp(), "openfl", archive_name)
 
-    ignore = ignore_patterns("__pycache__", "*.crt", "*.key", "*.csr", "*.srl", "*.pem", "*.pbuf")
+    ignore = ignore_patterns(
+        "__pycache__", "*.crt", "*.key", "*.csr", "*.srl", "*.pem", "*.pbuf"
+    )
 
     # We only export the minimum required files to set up a collaborator
     makedirs(f"{tmp_dir}/save", exist_ok=True)
@@ -209,7 +236,9 @@ def export_(pip_install_options: Tuple[str]):
     copytree("./src", f"{tmp_dir}/src", ignore=ignore)  # code
     copytree("./plan", f"{tmp_dir}/plan", ignore=ignore)  # plan
     if isfile("./requirements.txt"):
-        copy2("./requirements.txt", f"{tmp_dir}/requirements.txt")  # requirements
+        copy2(
+            "./requirements.txt", f"{tmp_dir}/requirements.txt"
+        )  # requirements
     else:
         echo("No requirements.txt file found.")
 
@@ -220,7 +249,10 @@ def export_(pip_install_options: Tuple[str]):
         if confirm("Create a default '.workspace' file?"):
             copy2(WORKSPACE / "workspace" / ".workspace", tmp_dir)
         else:
-            echo("To proceed, you must have a '.workspace' " "file in the current directory.")
+            echo(
+                "To proceed, you must have a '.workspace' "
+                "file in the current directory."
+            )
             raise
 
     # Create Zip archive of directory
@@ -282,19 +314,29 @@ def certify():
     echo("1.  Create Root CA")
     echo("1.1 Create Directories")
 
-    (CERT_DIR / "ca/root-ca/private").mkdir(parents=True, exist_ok=True, mode=0o700)
+    (CERT_DIR / "ca/root-ca/private").mkdir(
+        parents=True, exist_ok=True, mode=0o700
+    )
     (CERT_DIR / "ca/root-ca/db").mkdir(parents=True, exist_ok=True)
 
     echo("1.2 Create Database")
 
-    with open(CERT_DIR / "ca/root-ca/db/root-ca.db", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/root-ca/db/root-ca.db", "w", encoding="utf-8"
+    ) as f:
         pass  # write empty file
-    with open(CERT_DIR / "ca/root-ca/db/root-ca.db.attr", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/root-ca/db/root-ca.db.attr", "w", encoding="utf-8"
+    ) as f:
         pass  # write empty file
 
-    with open(CERT_DIR / "ca/root-ca/db/root-ca.crt.srl", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/root-ca/db/root-ca.crt.srl", "w", encoding="utf-8"
+    ) as f:
         f.write("01")  # write file with '01'
-    with open(CERT_DIR / "ca/root-ca/db/root-ca.crl.srl", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/root-ca/db/root-ca.crl.srl", "w", encoding="utf-8"
+    ) as f:
         f.write("01")  # write file with '01'
 
     echo("1.3 Create CA Request and Certificate")
@@ -324,19 +366,29 @@ def certify():
     echo("2.  Create Signing Certificate")
     echo("2.1 Create Directories")
 
-    (CERT_DIR / "ca/signing-ca/private").mkdir(parents=True, exist_ok=True, mode=0o700)
+    (CERT_DIR / "ca/signing-ca/private").mkdir(
+        parents=True, exist_ok=True, mode=0o700
+    )
     (CERT_DIR / "ca/signing-ca/db").mkdir(parents=True, exist_ok=True)
 
     echo("2.2 Create Database")
 
-    with open(CERT_DIR / "ca/signing-ca/db/signing-ca.db", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/signing-ca/db/signing-ca.db", "w", encoding="utf-8"
+    ) as f:
         pass  # write empty file
-    with open(CERT_DIR / "ca/signing-ca/db/signing-ca.db.attr", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/signing-ca/db/signing-ca.db.attr", "w", encoding="utf-8"
+    ) as f:
         pass  # write empty file
 
-    with open(CERT_DIR / "ca/signing-ca/db/signing-ca.crt.srl", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/signing-ca/db/signing-ca.crt.srl", "w", encoding="utf-8"
+    ) as f:
         f.write("01")  # write file with '01'
-    with open(CERT_DIR / "ca/signing-ca/db/signing-ca.crl.srl", "w", encoding="utf-8") as f:
+    with open(
+        CERT_DIR / "ca/signing-ca/db/signing-ca.crl.srl", "w", encoding="utf-8"
+    ) as f:
         f.write("01")  # write file with '01'
 
     echo("2.3 Create Signing Certificate CSR")
@@ -366,7 +418,9 @@ def certify():
 
     echo("2.4 Sign Signing Certificate CSR")
 
-    signing_cert = sign_certificate(signing_csr, root_private_key, root_cert.subject, ca=True)
+    signing_cert = sign_certificate(
+        signing_csr, root_private_key, root_cert.subject, ca=True
+    )
 
     with open(CERT_DIR / signing_crt_path, "wb") as f:
         f.write(
@@ -505,7 +559,9 @@ def dockerize_(context, base_image, save):
         with open(workspace_image_tar, "wb") as f:
             for chunk in resp:
                 f.write(chunk)
-        echo(f"{workspace_name} image saved to {workspace_path}/{workspace_image_tar}")
+        echo(
+            f"{workspace_name} image saved to {workspace_path}/{workspace_image_tar}"
+        )
 
 
 @workspace.command(name="graminize")
@@ -604,7 +660,9 @@ def graminize_(
         )
         for line in process.stdout:
             echo(line)
-        _ = process.communicate()  # pipe is already empty, used to get `returncode`
+        _ = (
+            process.communicate()
+        )  # pipe is already empty, used to get `returncode`
         if process.returncode != 0:
             raise Exception("\n ❌ Execution failed\n")
 
@@ -634,10 +692,14 @@ def graminize_(
     context.invoke(export_, pip_install_options=pip_install_options)
     workspace_archive = workspace_path / f"{workspace_name}.zip"
 
-    grainized_ws_dockerfile = SITEPACKS / "openfl-gramine" / "Dockerfile.graminized.workspace"
+    grainized_ws_dockerfile = (
+        SITEPACKS / "openfl-gramine" / "Dockerfile.graminized.workspace"
+    )
 
     echo("\n 🐋 Building graminized workspace image...")
-    signing_key = f"--secret id=signer-key,src={signing_key} " if sgx_build else ""
+    signing_key = (
+        f"--secret id=signer-key,src={signing_key} " if sgx_build else ""
+    )
     graminized_build_command = (
         f"docker build -t {tag} {rebuild_option} "
         "--build-arg BASE_IMAGE=gramine_openfl "

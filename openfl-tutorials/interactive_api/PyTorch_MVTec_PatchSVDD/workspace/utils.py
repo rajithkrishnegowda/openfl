@@ -1,12 +1,10 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Utilities."""
-
+import _pickle as p
 import os
 from contextlib import contextmanager
 
-import _pickle as p
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -18,16 +16,18 @@ def to_device(obj, device, non_blocking=False):
         return obj.to(device, non_blocking=non_blocking)
 
     if isinstance(obj, dict):
-        return {k: to_device(v, device, non_blocking=non_blocking)
-                for k, v in obj.items()}
+        return {
+            k: to_device(v, device, non_blocking=non_blocking)
+            for k, v in obj.items()
+        }
 
     if isinstance(obj, list):
-        return [to_device(v, device, non_blocking=non_blocking)
-                for v in obj]
+        return [to_device(v, device, non_blocking=non_blocking) for v in obj]
 
     if isinstance(obj, tuple):
-        return tuple([to_device(v, device, non_blocking=non_blocking)
-                     for v in obj])
+        return tuple(
+            [to_device(v, device, non_blocking=non_blocking) for v in obj]
+        )
 
 
 @contextmanager
@@ -45,14 +45,13 @@ class DictionaryConcatDataset(Dataset):
         lengths = [len(d) for d in d_of_datasets.values()]
         self._length = min(lengths)
         self.keys = self.d_of_datasets.keys()
-        assert min(lengths) == max(lengths), 'Length of the datasets should be the same'
+        assert min(lengths) == max(
+            lengths
+        ), "Length of the datasets should be the same"
 
     def __getitem__(self, idx):
         """Get item."""
-        return {
-            key: self.d_of_datasets[key][idx]
-            for key in self.keys
-        }
+        return {key: self.d_of_datasets[key][idx] for key in self.keys}
 
     def __len__(self):
         """Get length."""
@@ -66,7 +65,7 @@ def crop_chw(image, i, j, k, s=1):
     else:
         h = s * i
         w = s * j
-    return image[:, h: h + k, w: w + k]
+    return image[:, h : h + k, w : w + k]
 
 
 def cnn_output_size(h, k, s=1, p=0) -> int:
@@ -85,18 +84,18 @@ def cnn_output_size(h, k, s=1, p=0) -> int:
 def crop_image_chw(image, coord, k):
     """Crop func."""
     h, w = coord
-    return image[:, h: h + k, w: w + k]
+    return image[:, h : h + k, w : w + k]
 
 
-def load_binary(fpath, encoding='ASCII'):
+def load_binary(fpath, encoding="ASCII"):
     """Load binaries."""
-    with open(fpath, 'rb') as f:
+    with open(fpath, "rb") as f:
         return p.load(f, encoding=encoding)
 
 
 def save_binary(d, fpath):
     """Save binary."""
-    with open(fpath, 'wb') as f:
+    with open(fpath, "wb") as f:
         p.dump(d, f)
 
 
@@ -110,7 +109,10 @@ def makedirpath(fpath: str):
 def distribute_scores(score_masks, output_shape, k: int, s: int) -> np.ndarray:
     """Distribute scores."""
     n_all = score_masks.shape[0]
-    results = [distribute_score(score_masks[n], output_shape, k, s) for n in range(n_all)]
+    results = [
+        distribute_score(score_masks[n], output_shape, k, s)
+        for n in range(n_all)
+    ]
     return np.asarray(results)
 
 
@@ -125,8 +127,8 @@ def distribute_score(score_mask, output_shape, k: int, s: int) -> np.ndarray:
         for j_ in range(j):
             h_, w_ = i_ * s, j_ * s
 
-            mask[h_: h_ + k, w_: w_ + k] += score_mask[i_, j_]
-            cnt[h_: h_ + k, w_: w_ + k] += 1
+            mask[h_ : h_ + k, w_ : w_ + k] += score_mask[i_, j_]
+            cnt[h_ : h_ + k, w_ : w_ + k] += 1
 
     cnt[cnt == 0] = 1
 

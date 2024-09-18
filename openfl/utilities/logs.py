@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Logs utilities."""
-
 import logging
 
 from rich.console import Console
@@ -37,7 +34,9 @@ def write_metric(node_name, task_name, metric_name, metric, round_number):
         round_number (int): The current round number.
     """
     get_writer()
-    writer.add_scalar(f"{node_name}/{task_name}/{metric_name}", metric, round_number)
+    writer.add_scalar(
+        f"{node_name}/{task_name}/{metric_name}", metric, round_number
+    )
 
 
 def setup_loggers(log_level=logging.INFO):
@@ -54,6 +53,8 @@ def setup_loggers(log_level=logging.INFO):
     root.setLevel(log_level)
     console = Console(width=160)
     handler = RichHandler(console=console)
-    formatter = logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s] - %(message)s")
+    formatter = logging.Formatter(
+        "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
+    )
     handler.setFormatter(formatter)
     root.addHandler(handler)

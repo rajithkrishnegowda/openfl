@@ -1,7 +1,8 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-import torch
 from copy import deepcopy
+
+import torch
 import torchvision
 
 train_dataset = torchvision.datasets.MNIST(
@@ -29,14 +30,15 @@ test_dataset = torchvision.datasets.MNIST(
 )
 
 
-def collaborator_private_attrs(index, n_collaborators, train_dataset,
-                               test_dataset, batch_size_train):
+def collaborator_private_attrs(
+    index, n_collaborators, train_dataset, test_dataset, batch_size_train
+):
     local_train = deepcopy(train_dataset)
     local_test = deepcopy(test_dataset)
-    local_train.data = train_dataset.data[index:: n_collaborators]
-    local_train.targets = train_dataset.targets[index:: n_collaborators]
-    local_test.data = test_dataset.data[index:: n_collaborators]
-    local_test.targets = test_dataset.targets[index:: n_collaborators]
+    local_train.data = train_dataset.data[index::n_collaborators]
+    local_train.targets = train_dataset.targets[index::n_collaborators]
+    local_test.data = test_dataset.data[index::n_collaborators]
+    local_test.targets = test_dataset.targets[index::n_collaborators]
     return {
         "train_loader": torch.utils.data.DataLoader(
             local_train, batch_size=batch_size_train, shuffle=True

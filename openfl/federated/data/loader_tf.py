@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """TensorflowDataLoader module."""
-
 import numpy as np
 
 from openfl.federated.data.loader import DataLoader
@@ -57,7 +54,9 @@ class TensorFlowDataLoader(DataLoader):
         Returns:
             DataLoader: The DataLoader object for the training data.
         """
-        return self._get_batch_generator(X=self.X_train, y=self.y_train, batch_size=batch_size)
+        return self._get_batch_generator(
+            X=self.X_train, y=self.y_train, batch_size=batch_size
+        )
 
     def get_valid_loader(self, batch_size=None):
         """Returns the data loader for the validation data.
@@ -69,7 +68,9 @@ class TensorFlowDataLoader(DataLoader):
         Returns:
             DataLoader: The DataLoader object for the validation data.
         """
-        return self._get_batch_generator(X=self.X_valid, y=self.y_valid, batch_size=batch_size)
+        return self._get_batch_generator(
+            X=self.X_valid, y=self.y_valid, batch_size=batch_size
+        )
 
     def get_train_data_size(self):
         """Returns the total number of training samples.

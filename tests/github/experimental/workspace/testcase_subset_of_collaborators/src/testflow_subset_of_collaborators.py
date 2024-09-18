@@ -3,7 +3,8 @@
 from metaflow import Flow
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.placement.placement import aggregator, collaborator
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 
 
 class bcolors:  # NOQA: N801
@@ -52,8 +53,10 @@ class TestFlowSubsetCollaborators(FLSpec):
         """
         set the collaborator name
         """
-        print("executing collaborator step test_valid_collaborators for "
-              + f"collaborator {self.name}.")
+        print(
+            "executing collaborator step test_valid_collaborators for "
+            + f"collaborator {self.name}."
+        )
         self.collaborator_ran = self.name
         self.next(self.join)
 
@@ -71,14 +74,14 @@ class TestFlowSubsetCollaborators(FLSpec):
         """
         End of the flow
         """
-        print(f"End of the test case {TestFlowSubsetCollaborators.__name__} reached.")
+        print(
+            f"End of the test case {TestFlowSubsetCollaborators.__name__} reached."
+        )
         testcase()
 
 
 def testcase():
-    tc_pass_fail = {
-        "passed": [], "failed": []
-    }
+    tc_pass_fail = {"passed": [], "failed": []}
     subset_collaborators = ["col1", "col2"]
     f = Flow("TestFlowSubsetCollaborators/")
     r = f.latest_run

@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 import os
 import sys
@@ -30,19 +29,27 @@ def get_args():
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Your script description here.")
+    parser = argparse.ArgumentParser(
+        description="Your script description here."
+    )
     parser.add_argument(
         "--data_path", type=str, help="Path to the data.", required=True
     )
-    parser.add_argument("--out_path", type=str, help="Path to the data.", required=True)
+    parser.add_argument(
+        "--out_path", type=str, help="Path to the data.", required=True
+    )
     parser.add_argument(
         "--state_path", type=str, help="Path to the model.", required=True
     )
     parser.add_argument(
         "--batch_size", type=int, help="Path to the model.", required=True
     )
-    parser.add_argument("--kwargs", type=str, help="Path to the model.", required=True)
-    parser.add_argument("--func", type=str, help="Path to the model.", required=True)
+    parser.add_argument(
+        "--kwargs", type=str, help="Path to the model.", required=True
+    )
+    parser.add_argument(
+        "--func", type=str, help="Path to the model.", required=True
+    )
 
     args = parser.parse_args()
     return args
@@ -54,7 +61,9 @@ def main():
     try:
         logger.info("starting horovod")
         hvd.init()
-        logger.info(f"started global node:local node, {hvd.rank()}, {hvd.local_rank()}")
+        logger.info(
+            f"started global node:local node, {hvd.rank()}, {hvd.local_rank()}"
+        )
         logger.info("getting arguments")
         args = get_args()
         logger.info("loading data")

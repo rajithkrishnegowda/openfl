@@ -1,13 +1,13 @@
 # Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
+from logging import getLogger
 
-from openfl.federated import PyTorchDataLoader
+import numpy as np
 from torchvision import datasets
 from torchvision import transforms
-import numpy as np
-from logging import getLogger
+
+from openfl.federated import PyTorchDataLoader
 
 logger = getLogger(__name__)
 
@@ -42,7 +42,11 @@ class PyTorchMNISTInMemory(PyTorchDataLoader):
 
 
 def load_mnist_shard(
-    shard_num, collaborator_count, categorical=False, channels_last=True, **kwargs
+    shard_num,
+    collaborator_count,
+    categorical=False,
+    channels_last=True,
+    **kwargs,
 ):
     """
     Load the MNIST dataset.

@@ -1,10 +1,10 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.experimental.interface.participants module."""
-
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Optional
 
 
 class Participant:
@@ -115,7 +115,9 @@ class Collaborator(Participant):
             self.private_attributes_callable = private_attributes_callable
         else:
             if not callable(private_attributes_callable):
-                raise Exception("private_attributes_callable  parameter must be a callable")
+                raise Exception(
+                    "private_attributes_callable  parameter must be a callable"
+                )
             else:
                 self.private_attributes_callable = private_attributes_callable
 
@@ -127,11 +129,15 @@ class Collaborator(Participant):
         """
         return self._name
 
-    def initialize_private_attributes(self, private_attrs: Dict[Any, Any] = None) -> None:
+    def initialize_private_attributes(
+        self, private_attrs: Dict[Any, Any] = None
+    ) -> None:
         """Initialize private attributes of Collaborator object by invoking the
         callable specified by user."""
         if self.private_attributes_callable is not None:
-            self.private_attributes = self.private_attributes_callable(**self.kwargs)
+            self.private_attributes = self.private_attributes_callable(
+                **self.kwargs
+            )
         elif private_attrs:
             self.private_attributes = private_attrs
 
@@ -158,7 +164,9 @@ class Collaborator(Participant):
         # parameters from clone, then delete attributes from clone.
         for attr_name in self.private_attributes:
             if hasattr(clone, attr_name):
-                self.private_attributes.update({attr_name: getattr(clone, attr_name)})
+                self.private_attributes.update(
+                    {attr_name: getattr(clone, attr_name)}
+                )
                 delattr(clone, attr_name)
 
     def execute_func(self, ctx: Any, f_name: str, callback: Callable) -> Any:
@@ -223,7 +231,9 @@ class Aggregator(Participant):
             self.private_attributes_callable = private_attributes_callable
         else:
             if not callable(private_attributes_callable):
-                raise Exception("private_attributes_callable parameter must be a callable")
+                raise Exception(
+                    "private_attributes_callable parameter must be a callable"
+                )
             else:
                 self.private_attributes_callable = private_attributes_callable
 
@@ -235,11 +245,15 @@ class Aggregator(Participant):
         """
         return self.name
 
-    def initialize_private_attributes(self, private_attrs: Dict[Any, Any] = None) -> None:
+    def initialize_private_attributes(
+        self, private_attrs: Dict[Any, Any] = None
+    ) -> None:
         """Initialize private attributes of Aggregator object by invoking the
         callable specified by user."""
         if self.private_attributes_callable is not None:
-            self.private_attributes = self.private_attributes_callable(**self.kwargs)
+            self.private_attributes = self.private_attributes_callable(
+                **self.kwargs
+            )
         elif private_attrs:
             self.private_attributes = private_attrs
 
@@ -266,11 +280,17 @@ class Aggregator(Participant):
         # parameters from clone, then delete attributes from clone.
         for attr_name in self.private_attributes:
             if hasattr(clone, attr_name):
-                self.private_attributes.update({attr_name: getattr(clone, attr_name)})
+                self.private_attributes.update(
+                    {attr_name: getattr(clone, attr_name)}
+                )
                 delattr(clone, attr_name)
 
     def execute_func(
-        self, ctx: Any, f_name: str, callback: Callable, clones: Optional[Any] = None
+        self,
+        ctx: Any,
+        f_name: str,
+        callback: Callable,
+        clones: Optional[Any] = None,
     ) -> Any:
         """Executes remote function f.
 
