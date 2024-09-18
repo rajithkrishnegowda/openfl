@@ -29,6 +29,7 @@ jobs:
       run: bash shell/lint.sh
     - name: Precommit stage
       run: |
+        python -m venv venv
         source venv/bin/activate
         pip install pre-commit==3.3.3
         pre-commit install --install-hooks
