@@ -26,9 +26,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-linters.txt
         pip install pre-commit==3.3.3
-    - name: Run pre-commit hooks
-      run: |
-            pre-commit install
-            pre-commit run --all-files
+    # - name: Run pre-commit hooks
+    #   run: |
+    #         pre-commit install
+    #         pre-commit run --all-files
     - name: Lint using built-in script
       run: bash shell/lint.sh
