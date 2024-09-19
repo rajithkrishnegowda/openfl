@@ -1,21 +1,23 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import os
 import sys
-from typing import Any, Mapping
+from typing import Any
+from typing import Mapping
 
+import datasets
 import horovod.torch as hvd
 import numpy as np
 import torch
 import torch as pt
 import torch.nn as nn
 import tqdm
-import datasets
-from peft.utils import get_peft_model_state_dict, set_peft_model_state_dict
-from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+from peft.utils import get_peft_model_state_dict
+from peft.utils import set_peft_model_state_dict
+from torch.nn import BCEWithLogitsLoss
+from torch.nn import CrossEntropyLoss
+from torch.nn import MSELoss
 
 from openfl.utilities import Metric
 

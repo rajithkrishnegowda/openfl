@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Percentage based Straggler Handling function."""
 from openfl.component.straggler_handling_functions.straggler_handling_function import (
     StragglerHandlingFunction,

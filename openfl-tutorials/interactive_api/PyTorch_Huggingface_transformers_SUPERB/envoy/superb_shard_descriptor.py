@@ -1,8 +1,6 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Superb Shard Descriptor."""
-
 from typing import Any
 from typing import Dict
 from typing import List

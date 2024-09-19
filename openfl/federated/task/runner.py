@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """
 Mixin class for FL models. No default implementation.
 
@@ -11,7 +9,6 @@ TensorflowTaskRunner) that uses this mixin.
 You may copy use this file or the appropriate framework-specific base-class to
 port your own models.
 """
-
 from logging import getLogger
 
 

@@ -1,9 +1,11 @@
 import os
-from skimage import io
-import numpy as np
-from openfl.utilities import validate_file_hash
-import requests
 from zipfile import ZipFile
+
+import numpy as np
+import requests
+from skimage import io
+
+from openfl.utilities import validate_file_hash
 
 
 def load_data():

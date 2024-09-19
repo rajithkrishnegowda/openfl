@@ -1,10 +1,8 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """NoCompressionPipeline module."""
-
-from openfl.pipelines.pipeline import Float32NumpyArrayToBytes, TransformationPipeline
+from openfl.pipelines.pipeline import Float32NumpyArrayToBytes
+from openfl.pipelines.pipeline import TransformationPipeline
 
 
 class NoCompressionPipeline(TransformationPipeline):

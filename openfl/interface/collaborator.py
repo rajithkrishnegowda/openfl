@@ -1,24 +1,42 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Collaborator module."""
 import os
 import sys
 from glob import glob
 from logging import getLogger
 from os import remove
-from os.path import basename, isfile, join, splitext
+from os.path import basename
+from os.path import isfile
+from os.path import join
+from os.path import splitext
 from pathlib import Path
-from shutil import copy, copytree, ignore_patterns, make_archive, unpack_archive
+from shutil import copy
+from shutil import copytree
+from shutil import ignore_patterns
+from shutil import make_archive
+from shutil import unpack_archive
 from tempfile import mkdtemp
 
+from click import confirm
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, echo, group, option, pass_context, prompt, style
-from yaml import FullLoader, dump, load
+from click import prompt
+from click import style
+from yaml import dump
+from yaml import FullLoader
+from yaml import load
 
 from openfl.cryptography.ca import sign_certificate
-from openfl.cryptography.io import get_csr_hash, read_crt, read_csr, read_key, write_crt, write_key
+from openfl.cryptography.io import get_csr_hash
+from openfl.cryptography.io import read_crt
+from openfl.cryptography.io import read_csr
+from openfl.cryptography.io import read_key
+from openfl.cryptography.io import write_crt
+from openfl.cryptography.io import write_key
 from openfl.cryptography.participant import generate_csr
 from openfl.federated import Plan
 from openfl.interface.cli_helper import CERT_DIR

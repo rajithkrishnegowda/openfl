@@ -1,10 +1,8 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Shard descriptor."""
-
-from typing import Iterable, List
+from typing import Iterable
+from typing import List
 
 import numpy as np
 

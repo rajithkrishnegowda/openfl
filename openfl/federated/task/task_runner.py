@@ -1,14 +1,12 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Interactive API package."""
-
 from logging import getLogger
 
 import numpy as np
 
-from openfl.utilities import TensorKey, change_tags
+from openfl.utilities import change_tags
+from openfl.utilities import TensorKey
 from openfl.utilities.split import split_tensor_dict_for_holdouts
 
 

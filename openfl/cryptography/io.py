@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Cryptography IO utilities."""
-
 import os
 from hashlib import sha384
 from pathlib import Path
@@ -14,7 +11,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from cryptography.x509.base import Certificate, CertificateSigningRequest
+from cryptography.x509.base import Certificate
+from cryptography.x509.base import CertificateSigningRequest
 
 
 def read_key(path: Path) -> RSAPrivateKey:

@@ -1,7 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 # -*- coding: utf-8 -*-
 # File    batchnorm.py
 # Author  Jiayuan Mao
@@ -11,13 +9,11 @@
 # This file is part of Synchronized-BatchNorm-PyTorch.
 # https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
 # Distributed under MIT License.
-
 import collections
 import contextlib
 
 import torch
 import torch.nn.functional as F
-
 from torch.nn.modules.batchnorm import _BatchNorm
 
 try:

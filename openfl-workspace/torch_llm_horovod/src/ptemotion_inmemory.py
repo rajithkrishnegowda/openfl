@@ -1,16 +1,14 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-
 import os
 import sys
 from logging import getLogger
 
 import horovod.torch as hvd
 import torch
-from datasets import Dataset, load_from_disk
+from datasets import Dataset
+from datasets import load_from_disk
 from torch.utils.data import DataLoader
 
 from openfl.utilities.data_splitters import EqualNumPyDataSplitter

@@ -1,15 +1,18 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import os
+import random
+import shutil
+import sys
+
+from metaflow import Step
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.interface.participants import Aggregator, Collaborator
+from openfl.experimental.interface.participants import Aggregator
+from openfl.experimental.interface.participants import Collaborator
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement.placement import aggregator, collaborator
-from metaflow import Step
-import random
-import sys
-import os
-import shutil
 
 
 class bcolors:  # NOQA: N801

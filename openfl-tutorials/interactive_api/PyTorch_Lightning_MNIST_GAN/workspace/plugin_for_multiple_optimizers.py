@@ -1,9 +1,6 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Pytorch Framework Adapter plugin for multiple optimizers."""
-
-
 from openfl.plugins.frameworks_adapters.pytorch_adapter import _get_optimizer_state
 from openfl.plugins.frameworks_adapters.pytorch_adapter import FrameworkAdapterPlugin
 from openfl.plugins.frameworks_adapters.pytorch_adapter import to_cpu_numpy

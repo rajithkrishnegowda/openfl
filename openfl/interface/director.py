@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Director CLI."""
 import logging
 import shutil
@@ -9,8 +7,10 @@ import sys
 from pathlib import Path
 
 import click
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import group, option, pass_context
 from dynaconf import Validator
 
 from openfl.component.director import Director

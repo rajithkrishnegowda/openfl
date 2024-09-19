@@ -1,8 +1,6 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Layers for Unet model."""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

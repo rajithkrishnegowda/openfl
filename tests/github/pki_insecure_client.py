@@ -1,15 +1,15 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-from pathlib import Path
-import time
-import sys
 import shutil
-import subprocess
 import signal
-from openfl.interface.pki import run as run_pki
-
-from openfl.utilities.workspace import set_directory
+import subprocess
+import sys
+import time
+from pathlib import Path
 from threading import Thread
+
+from openfl.interface.pki import run as run_pki
+from openfl.utilities.workspace import set_directory
 
 
 CA_PATH = Path('~/.local/ca').expanduser()

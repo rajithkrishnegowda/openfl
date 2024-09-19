@@ -1,13 +1,12 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Model interface tests module."""
-
+from pathlib import Path
 from unittest import mock
 from unittest import TestCase
-from pathlib import Path
 
-from openfl.interface.model import save_
 from openfl.federated.task import TaskRunner
+from openfl.interface.model import save_
 
 
 @mock.patch('openfl.interface.model.get_model')

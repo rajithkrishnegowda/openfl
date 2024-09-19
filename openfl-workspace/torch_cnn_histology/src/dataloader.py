@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 from collections.abc import Iterable
 from logging import getLogger
 from os import makedirs
@@ -10,7 +8,6 @@ from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
-from openfl.federated import PyTorchDataLoader
 import numpy as np
 import torch
 from torch.utils.data import random_split
@@ -18,6 +15,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import ToTensor
 from tqdm import tqdm
 
+from openfl.federated import PyTorchDataLoader
 from openfl.utilities import validate_file_hash
 
 logger = getLogger(__name__)

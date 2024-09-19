@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """This package includes dependencies of the openfl project."""
-
 from setuptools import Command
 from setuptools import setup
 from setuptools.command.build_py import build_py

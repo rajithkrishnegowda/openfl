@@ -1,23 +1,28 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import collections
+import warnings
 from itertools import repeat
-from typing import Callable, List, Optional, Union, Tuple, Sequence, Any
 from types import FunctionType
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Union
 
 import numpy as np
-import tqdm
-import warnings
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import tqdm
 from torch import Tensor
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

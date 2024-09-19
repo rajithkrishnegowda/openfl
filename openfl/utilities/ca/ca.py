@@ -1,6 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """CA module."""
 import base64
 import json
@@ -16,7 +15,8 @@ from subprocess import check_call  # nosec
 
 from click import confirm
 
-from openfl.utilities.ca.downloader import download_step_bin, download_step_ca_bin
+from openfl.utilities.ca.downloader import download_step_bin
+from openfl.utilities.ca.downloader import download_step_ca_bin
 
 logger = getLogger(__name__)
 

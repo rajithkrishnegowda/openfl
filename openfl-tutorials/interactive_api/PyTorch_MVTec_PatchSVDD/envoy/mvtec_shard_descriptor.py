@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """MVTec shard descriptor."""
-
 import os
 from glob import glob
 from pathlib import Path

@@ -1,25 +1,22 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.experimental.interface.flspec module."""
-
 from __future__ import annotations
 
 import inspect
 from copy import deepcopy
-from typing import Callable, List, Type
+from typing import Callable
+from typing import List
+from typing import Type
 
-from openfl.experimental.utilities import (
-    MetaflowInterface,
-    SerializationError,
-    aggregator_to_collaborator,
-    checkpoint,
-    collaborator_to_aggregator,
-    filter_attributes,
-    generate_artifacts,
-    should_transfer,
-)
+from openfl.experimental.utilities import aggregator_to_collaborator
+from openfl.experimental.utilities import checkpoint
+from openfl.experimental.utilities import collaborator_to_aggregator
+from openfl.experimental.utilities import filter_attributes
+from openfl.experimental.utilities import generate_artifacts
+from openfl.experimental.utilities import MetaflowInterface
+from openfl.experimental.utilities import SerializationError
+from openfl.experimental.utilities import should_transfer
 
 
 class FLSpec:

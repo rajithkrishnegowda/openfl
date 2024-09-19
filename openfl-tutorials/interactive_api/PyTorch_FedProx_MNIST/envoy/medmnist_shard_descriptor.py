@@ -1,14 +1,15 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """MedMNIST Shard Descriptor."""
-
 import logging
 import os
-from typing import Any, List, Tuple
-from medmnist.info import INFO, HOMEPAGE
+from typing import Any
+from typing import List
+from typing import Tuple
 
 import numpy as np
+from medmnist.info import HOMEPAGE
+from medmnist.info import INFO
 
 from openfl.interface.interactive_api.shard_descriptor import ShardDataset
 from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor

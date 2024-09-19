@@ -1,16 +1,15 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """AggregatorGRPCClient module."""
-
 import time
 from logging import getLogger
-from typing import Optional, Tuple
+from typing import Optional
+from typing import Tuple
 
 import grpc
 
-from openfl.experimental.protocols import aggregator_pb2, aggregator_pb2_grpc
+from openfl.experimental.protocols import aggregator_pb2
+from openfl.experimental.protocols import aggregator_pb2_grpc
 from openfl.experimental.transport.grpc.grpc_channel_options import channel_options
 from openfl.utilities import check_equal
 

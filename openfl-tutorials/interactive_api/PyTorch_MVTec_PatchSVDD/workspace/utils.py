@@ -1,12 +1,10 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Utilities."""
-
+import _pickle as p
 import os
 from contextlib import contextmanager
 
-import _pickle as p
 import numpy as np
 import torch
 from torch.utils.data import Dataset

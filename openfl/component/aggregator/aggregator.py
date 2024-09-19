@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Aggregator module."""
 import queue
 import time
@@ -10,9 +8,13 @@ from logging import getLogger
 from openfl.component.straggler_handling_functions import CutoffTimeBasedStragglerHandling
 from openfl.databases import TensorDB
 from openfl.interface.aggregation_functions import WeightedAverage
-from openfl.pipelines import NoCompressionPipeline, TensorCodec
-from openfl.protocols import base_pb2, utils
-from openfl.utilities import TaskResultKey, TensorKey, change_tags
+from openfl.pipelines import NoCompressionPipeline
+from openfl.pipelines import TensorCodec
+from openfl.protocols import base_pb2
+from openfl.protocols import utils
+from openfl.utilities import change_tags
+from openfl.utilities import TaskResultKey
+from openfl.utilities import TensorKey
 from openfl.utilities.logs import write_metric
 
 

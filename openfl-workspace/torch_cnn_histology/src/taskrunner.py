@@ -1,13 +1,14 @@
 # Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
+from typing import Iterator
+from typing import Tuple
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from typing import Iterator, Tuple
 
 from openfl.federated import PyTorchTaskRunner
 from openfl.utilities import Metric

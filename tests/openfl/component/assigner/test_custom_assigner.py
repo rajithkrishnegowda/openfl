@@ -1,16 +1,15 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """CustomAssigner tests."""
-
 from unittest import mock
 
 import pytest
 
-from openfl.interface.aggregation_functions import GeometricMedian
-from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.assigner.custom_assigner import Assigner
 from openfl.component.assigner.tasks import TrainTask
 from openfl.component.assigner.tasks import ValidateTask
+from openfl.interface.aggregation_functions import GeometricMedian
+from openfl.interface.aggregation_functions import WeightedAverage
 
 
 default_tasks = [

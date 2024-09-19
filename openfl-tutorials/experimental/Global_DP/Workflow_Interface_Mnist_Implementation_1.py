@@ -1,31 +1,31 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # Co-authored-by: Anindya S. Paul <anindya.s.paul@intel.com>
 # Co-authored-by: Brandon Edwards <brandon.edwards@intel.com>
 # Co-authored-by: Mansi Sharma <mansi.sharma@intel.com>
-
-from clip_optimizer import ClipOptimizer
+import argparse
+import warnings
 from copy import deepcopy
+
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
 import torchvision
-import numpy as np
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-
-from torch.distributions.normal import Normal
+import yaml
+from clip_optimizer import ClipOptimizer
 from opacus.accountants.rdp import RDPAccountant
 from opacus.data_loader import DPDataLoader
+from torch.distributions.normal import Normal
 from torch.utils.data import DataLoader
 
-import argparse
-import yaml
-
-import warnings
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 warnings.filterwarnings("ignore")
 

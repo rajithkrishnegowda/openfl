@@ -1,22 +1,24 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import json
 import os
 import subprocess
 import sys
 from logging import getLogger
-from typing import Any, Mapping
+from typing import Any
+from typing import Mapping
 
 import numpy as np
 import torch
 import torch as pt
-from peft.utils import get_peft_model_state_dict, set_peft_model_state_dict
+from peft.utils import get_peft_model_state_dict
+from peft.utils import set_peft_model_state_dict
 
 from openfl.federated import PyTorchTaskRunner
 from openfl.federated.task.runner_pt import change_tags
-from openfl.utilities import Metric, TensorKey
+from openfl.utilities import Metric
+from openfl.utilities import TensorKey
 from openfl.utilities.split import split_tensor_dict_for_holdouts
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

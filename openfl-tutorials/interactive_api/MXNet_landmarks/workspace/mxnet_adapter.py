@@ -1,7 +1,6 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """MXNet Framework Adapter plugin."""
-
 from pickle import dumps
 from pickle import loads
 from typing import Dict

@@ -1,10 +1,8 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Adagrad optimizer module."""
-
-from typing import Dict, Optional
+from typing import Dict
+from typing import Optional
 
 import numpy as np
 

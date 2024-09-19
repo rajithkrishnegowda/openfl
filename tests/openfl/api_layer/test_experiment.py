@@ -1,11 +1,10 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Experiment API tests module."""
-
 import pytest
 
-from openfl.interface.interactive_api.experiment import FLExperiment
 from .test_federation import federation_object  # NOQA
+from openfl.interface.interactive_api.experiment import FLExperiment
 # TaskInterface, DataInterface, ModelInterface,
 
 EXPERIMENT_MAME = 'test experiment'

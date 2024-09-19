@@ -1,12 +1,11 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """RandomShiftPipeline module."""
-
 import numpy as np
 
-from openfl.pipelines.pipeline import Float32NumpyArrayToBytes, TransformationPipeline, Transformer
+from openfl.pipelines.pipeline import Float32NumpyArrayToBytes
+from openfl.pipelines.pipeline import TransformationPipeline
+from openfl.pipelines.pipeline import Transformer
 
 
 class RandomShiftTransformer(Transformer):

@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Tools for metric computation and Dataloader."""
-
 import copy
 import random
 from collections import defaultdict

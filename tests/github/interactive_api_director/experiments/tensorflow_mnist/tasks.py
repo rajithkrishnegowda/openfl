@@ -1,6 +1,7 @@
 from openfl.interface.interactive_api.experiment import TaskInterface
-from tests.github.interactive_api.experiments.tensorflow_mnist.settings import loss_fn, \
-    train_acc_metric, val_acc_metric
+from tests.github.interactive_api.experiments.tensorflow_mnist.settings import loss_fn
+from tests.github.interactive_api.experiments.tensorflow_mnist.settings import train_acc_metric
+from tests.github.interactive_api.experiments.tensorflow_mnist.settings import val_acc_metric
 
 task_interface = TaskInterface()
 

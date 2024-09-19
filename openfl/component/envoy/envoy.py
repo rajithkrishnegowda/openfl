@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Envoy module."""
-
 import logging
 import sys
 import time
@@ -11,7 +8,10 @@ import traceback
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Callable, Optional, Type, Union
+from typing import Callable
+from typing import Optional
+from typing import Type
+from typing import Union
 
 from openfl.federated import Plan
 from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor

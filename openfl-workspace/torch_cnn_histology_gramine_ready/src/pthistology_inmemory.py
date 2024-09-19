@@ -1,10 +1,8 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-from openfl.federated import PyTorchDataLoader
 from .histology_utils import load_histology_shard
+from openfl.federated import PyTorchDataLoader
 
 
 class PyTorchHistologyInMemory(PyTorchDataLoader):

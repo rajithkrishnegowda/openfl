@@ -1,17 +1,19 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Collaborator tests module."""
-
 import numpy as np
 import pytest
 from pandas.testing import assert_frame_equal
 
+from openfl.databases.tensor_db import TensorDB
+from openfl.databases.utilities import _retrieve
+from openfl.databases.utilities import _search
+from openfl.databases.utilities import _store
+from openfl.databases.utilities import ROUND_PLACEHOLDER
 from openfl.interface.aggregation_functions import AggregationFunction
 from openfl.interface.aggregation_functions import WeightedAverage
-from openfl.databases.tensor_db import TensorDB
 from openfl.protocols import base_pb2
 from openfl.utilities.types import TensorKey
-from openfl.databases.utilities import ROUND_PLACEHOLDER, _retrieve, _search, _store
 
 
 @pytest.fixture

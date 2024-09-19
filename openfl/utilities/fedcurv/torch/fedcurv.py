@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Implementation of FedCurv algorithm."""
-
 from copy import deepcopy
 
 import torch

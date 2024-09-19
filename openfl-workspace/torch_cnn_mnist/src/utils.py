@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own utilities."""
-
 from torch.utils.tensorboard import SummaryWriter
 
 writer = None

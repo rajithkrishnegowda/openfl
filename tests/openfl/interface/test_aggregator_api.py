@@ -1,13 +1,16 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Aggregator interface tests module."""
-import pytest
+from pathlib import Path
 from unittest import mock
 from unittest import TestCase
-from pathlib import Path
 
-from openfl.interface.aggregator import start_, _generate_cert_request
-from openfl.interface.aggregator import find_certificate_name, _certify
+import pytest
+
+from openfl.interface.aggregator import _certify
+from openfl.interface.aggregator import _generate_cert_request
+from openfl.interface.aggregator import find_certificate_name
+from openfl.interface.aggregator import start_
 
 
 @mock.patch('openfl.federated.Plan.parse')

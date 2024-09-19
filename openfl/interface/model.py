@@ -1,13 +1,15 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Model CLI module."""
 from logging import getLogger
 from pathlib import Path
 
+from click import confirm
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, group, option, pass_context, style
+from click import style
 
 from openfl.federated import Plan
 from openfl.pipelines import NoCompressionPipeline

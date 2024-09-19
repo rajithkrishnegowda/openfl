@@ -1,16 +1,16 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import os
 import glob
+import os
 import shutil
+from copy import deepcopy
+from pathlib import Path
+
 import torch
 import torchvision.transforms as T
-
-from pathlib import Path
-from copy import deepcopy
 from PIL import Image
-from torch.utils.data import Dataset, random_split
+from torch.utils.data import Dataset
+from torch.utils.data import random_split
 
 
 common_data_folder = os.path.join(os.getcwd(), 'data')

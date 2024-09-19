@@ -1,39 +1,38 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # -----------------------------------------------------------
 # Primary author: Hongyan Chang <hongyan.chang@intel.com>
 # Co-authored-by: Anindya S. Paul <anindya.s.paul@intel.com>
 # Co-authored-by: Brandon Edwards <brandon.edwards@intel.com>
 # ------------------------------------------------------------
-
-from copy import deepcopy
-import torch.nn as nn
-import torch.optim as optim
-import torch
-import numpy as np
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-import torchvision.transforms as transforms
+import argparse
+import copy
+import os
 import pickle
+import time
+import warnings
+from copy import deepcopy
 from pathlib import Path
 
-from privacy_meter.model import PytorchModelTensor
-import copy
-from auditor import (
-    PopulationAuditor,
-    plot_auc_history,
-    plot_tpr_history,
-    plot_roc_history,
-    PM_report,
-)
-
-import time
-import os
-import argparse
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.transforms as transforms
+from auditor import plot_auc_history
+from auditor import plot_roc_history
+from auditor import plot_tpr_history
+from auditor import PM_report
+from auditor import PopulationAuditor
 from cifar10_loader import CIFAR10
-import warnings
+from privacy_meter.model import PytorchModelTensor
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 warnings.filterwarnings("ignore")
 

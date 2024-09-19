@@ -1,12 +1,11 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 import os
 import webbrowser
 from pathlib import Path
 
-from openfl.experimental.utilities.metaflow_utils import DefaultCard, FlowGraph
+from openfl.experimental.utilities.metaflow_utils import DefaultCard
+from openfl.experimental.utilities.metaflow_utils import FlowGraph
 
 
 class InspectFlow:

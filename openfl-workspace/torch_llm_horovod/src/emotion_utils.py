@@ -1,13 +1,13 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 from logging import getLogger
 
-from datasets import Dataset, load_dataset
+from datasets import Dataset
+from datasets import load_dataset
 from torch.utils.tensorboard import SummaryWriter
-from transformers import AutoTokenizer, DataCollatorWithPadding
+from transformers import AutoTokenizer
+from transformers import DataCollatorWithPadding
 
 logger = getLogger(__name__)
 

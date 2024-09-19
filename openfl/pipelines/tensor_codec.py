@@ -1,13 +1,11 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """TensorCodec module."""
-
 import numpy as np
 
 from openfl.pipelines import NoCompressionPipeline
-from openfl.utilities import TensorKey, change_tags
+from openfl.utilities import change_tags
+from openfl.utilities import TensorKey
 
 
 class TensorCodec:

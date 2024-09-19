@@ -1,30 +1,48 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Workspace module."""
 import os
 import subprocess  # nosec
 import sys
 from hashlib import sha256
-from os import chdir, getcwd, makedirs
-from os.path import basename, isfile, join
+from os import chdir
+from os import getcwd
+from os import makedirs
+from os.path import basename
+from os.path import isfile
+from os.path import join
 from pathlib import Path
-from shutil import copy2, copyfile, copytree, ignore_patterns, make_archive, unpack_archive
+from shutil import copy2
+from shutil import copyfile
+from shutil import copytree
+from shutil import ignore_patterns
+from shutil import make_archive
+from shutil import unpack_archive
 from subprocess import check_call  # nosec
 from sys import executable
 from tempfile import mkdtemp
-from typing import Tuple, Union
+from typing import Tuple
+from typing import Union
 
 import docker
 from click import Choice
+from click import confirm
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, echo, group, option, pass_context
 from cryptography.hazmat.primitives import serialization
 
-from openfl.cryptography.ca import generate_root_cert, generate_signing_csr, sign_certificate
+from openfl.cryptography.ca import generate_root_cert
+from openfl.cryptography.ca import generate_signing_csr
+from openfl.cryptography.ca import sign_certificate
 from openfl.federated.plan import Plan
-from openfl.interface.cli_helper import CERT_DIR, OPENFL_USERDIR, SITEPACKS, WORKSPACE, print_tree
+from openfl.interface.cli_helper import CERT_DIR
+from openfl.interface.cli_helper import OPENFL_USERDIR
+from openfl.interface.cli_helper import print_tree
+from openfl.interface.cli_helper import SITEPACKS
+from openfl.interface.cli_helper import WORKSPACE
 from openfl.interface.plan import freeze_plan
 from openfl.utilities.utils import rmtree
 

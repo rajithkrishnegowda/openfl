@@ -1,10 +1,12 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 from copy import deepcopy
-from torch import nn, optim
-from torchvision import datasets, transforms
+
 import torch
+from torch import nn
+from torch import optim
+from torchvision import datasets
+from torchvision import transforms
 
 input_size = 784
 hidden_sizes = [128, 640]

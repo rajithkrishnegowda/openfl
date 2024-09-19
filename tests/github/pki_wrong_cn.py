@@ -1,12 +1,13 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-import grpc
-import subprocess
+import importlib
 import os
+import subprocess
+import sys
 import time
 from multiprocessing import Process
-import sys
-import importlib
+
+import grpc
 
 import openfl
 import openfl.native as fx

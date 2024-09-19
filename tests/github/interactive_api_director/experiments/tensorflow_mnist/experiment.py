@@ -1,14 +1,18 @@
 import tensorflow as tf
-# Create a federation
+
+from openfl.interface.interactive_api.experiment import DataInterface
+from openfl.interface.interactive_api.experiment import FLExperiment
+from openfl.interface.interactive_api.experiment import ModelInterface
+from openfl.interface.interactive_api.experiment import TaskInterface
 from openfl.interface.interactive_api.federation import Federation
-from openfl.interface.interactive_api.experiment import TaskInterface, DataInterface, ModelInterface, FLExperiment
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.dataset import FedDataset
+from tests.github.interactive_api_director.experiments.tensorflow_mnist.envoy.shard_descriptor import MNISTShardDescriptor
+from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import loss_fn
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import model
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import optimizer
-from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import loss_fn
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import train_acc_metric
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import val_acc_metric
-from tests.github.interactive_api_director.experiments.tensorflow_mnist.envoy.shard_descriptor import MNISTShardDescriptor
+# Create a federation
 
 
 def run():

@@ -1,13 +1,12 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """ openfl.experimental.runtime module Runtime class."""
-
-from typing import Callable, List
+from typing import Callable
+from typing import List
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.interface.participants import Aggregator, Collaborator
+from openfl.experimental.interface.participants import Aggregator
+from openfl.experimental.interface.participants import Collaborator
 
 
 class Runtime:

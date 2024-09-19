@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Experimental Aggregator module."""
 import inspect
 import pickle
@@ -9,11 +7,16 @@ import queue
 import time
 from logging import getLogger
 from threading import Event
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 from openfl.experimental.interface import FLSpec
 from openfl.experimental.runtime import FederatedRuntime
-from openfl.experimental.utilities import aggregator_to_collaborator, checkpoint
+from openfl.experimental.utilities import aggregator_to_collaborator
+from openfl.experimental.utilities import checkpoint
 from openfl.experimental.utilities.metaflow_utils import MetaflowInterface
 
 

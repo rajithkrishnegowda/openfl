@@ -1,12 +1,13 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Experimental Collaborator module."""
 import pickle
 import time
 from logging import getLogger
-from typing import Any, Callable, Dict, Tuple
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Tuple
 
 
 class Collaborator:

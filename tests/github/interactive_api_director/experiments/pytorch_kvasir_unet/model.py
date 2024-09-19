@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
 
-from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import DoubleConv, Down, Up
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import DoubleConv
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import Down
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import Up
 
 """
 UNet model definition

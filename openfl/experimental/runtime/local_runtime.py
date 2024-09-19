@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """ openfl.experimental.runtime package LocalRuntime class."""
 from __future__ import annotations
 
@@ -11,22 +9,26 @@ import math
 import os
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Type
 
 import ray
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.interface.participants import Aggregator, Collaborator
+from openfl.experimental.interface.participants import Aggregator
+from openfl.experimental.interface.participants import Collaborator
 from openfl.experimental.runtime.runtime import Runtime
-from openfl.experimental.utilities import (
-    ResourcesNotAvailableError,
-    aggregator_to_collaborator,
-    check_resource_allocation,
-    checkpoint,
-    filter_attributes,
-    generate_artifacts,
-    get_number_of_gpus,
-)
+from openfl.experimental.utilities import aggregator_to_collaborator
+from openfl.experimental.utilities import check_resource_allocation
+from openfl.experimental.utilities import checkpoint
+from openfl.experimental.utilities import filter_attributes
+from openfl.experimental.utilities import generate_artifacts
+from openfl.experimental.utilities import get_number_of_gpus
+from openfl.experimental.utilities import ResourcesNotAvailableError
 
 
 class RayExecutor:

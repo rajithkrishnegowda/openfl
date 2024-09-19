@@ -1,18 +1,22 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Plan module."""
 import sys
 from logging import getLogger
 from os import makedirs
 from os.path import isfile
 from pathlib import Path
-from shutil import copyfile, rmtree
+from shutil import copyfile
+from shutil import rmtree
 
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import echo, group, option, pass_context
-from yaml import FullLoader, dump, load
+from yaml import dump
+from yaml import FullLoader
+from yaml import load
 
 from openfl.federated import Plan
 from openfl.interface.cli_helper import get_workspace_parameter

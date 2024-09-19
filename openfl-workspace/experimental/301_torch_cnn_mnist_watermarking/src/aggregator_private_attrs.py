@@ -1,16 +1,16 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import torch
-import torchvision
-import numpy as np
-import pathlib
 import os
+import pathlib
+
+import imagen as ig
 import matplotlib
 import matplotlib.pyplot as plt
-import PIL.Image as Image
-import imagen as ig
 import numbergen as ng
+import numpy as np
+import PIL.Image as Image
+import torch
+import torchvision
 
 
 watermark_dir = "./files/watermark-dataset/MWAFFLE/"

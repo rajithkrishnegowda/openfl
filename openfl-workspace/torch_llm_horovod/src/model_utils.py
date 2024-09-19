@@ -1,15 +1,17 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import os
 import sys
 from logging import getLogger
 
 import torch.nn as nn
-from peft import LoraConfig, TaskType, get_peft_model
+from peft import get_peft_model
+from peft import LoraConfig
+from peft import TaskType
 from torch.optim import AdamW
-from transformers import AutoModelForSequenceClassification, get_scheduler
+from transformers import AutoModelForSequenceClassification
+from transformers import get_scheduler
 from transformers.trainer_pt_utils import get_parameter_names
 
 logger = getLogger(__name__)

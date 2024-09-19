@@ -1,15 +1,13 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
 import tensorflow as tf
 
-from openfl.federated import KerasTaskRunner
 from .define_model import build_model
 from .define_model import dice_coef
 from .define_model import dice_loss
 from .define_model import soft_dice_coef
+from openfl.federated import KerasTaskRunner
 
 
 class TensorFlow3dUNet(KerasTaskRunner):

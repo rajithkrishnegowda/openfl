@@ -1,11 +1,11 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-import shutil
-from subprocess import check_call
 import os
-from pathlib import Path
 import re
+import shutil
 import tarfile
+from pathlib import Path
+from subprocess import check_call
 
 
 def create_collaborator(col, workspace_root, data_path, archive_name, fed_workspace):

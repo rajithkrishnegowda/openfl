@@ -1,19 +1,17 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Kvasir shard descriptor."""
-
 import os
 from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
+import requests
 from PIL import Image
 
 from openfl.interface.interactive_api.shard_descriptor import ShardDataset
 from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 from openfl.utilities import validate_file_hash
-from zipfile import ZipFile
-import requests
 
 
 class KvasirShardDataset(ShardDataset):

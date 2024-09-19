@@ -1,13 +1,10 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
-
-
 import os
 
-from openfl.federated import TensorFlowDataLoader
 from .dataloader import DatasetGenerator
+from openfl.federated import TensorFlowDataLoader
 
 
 class TensorFlowBratsDataLoader(TensorFlowDataLoader):

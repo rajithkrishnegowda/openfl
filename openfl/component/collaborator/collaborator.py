@@ -1,16 +1,14 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Collaborator module."""
-
 from enum import Enum
 from logging import getLogger
 from time import sleep
 from typing import Tuple
 
 from openfl.databases import TensorDB
-from openfl.pipelines import NoCompressionPipeline, TensorCodec
+from openfl.pipelines import NoCompressionPipeline
+from openfl.pipelines import TensorCodec
 from openfl.protocols import utils
 from openfl.utilities import TensorKey
 

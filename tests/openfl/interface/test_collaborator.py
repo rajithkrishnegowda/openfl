@@ -1,12 +1,12 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Collaborator interface tests module."""
-
+from pathlib import Path
 from unittest import mock
 from unittest import TestCase
-from pathlib import Path
 
-from openfl.interface.collaborator import start_, register_data_path
+from openfl.interface.collaborator import register_data_path
+from openfl.interface.collaborator import start_
 
 
 @mock.patch('openfl.federated.Plan.parse')

@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """OpenFL Native functions module.
 
 This file defines openfl entrypoints to be used directly through python (not
@@ -12,7 +10,8 @@ import json
 import logging
 import os
 from copy import copy
-from logging import basicConfig, getLogger
+from logging import basicConfig
+from logging import getLogger
 from pathlib import Path
 from sys import path
 

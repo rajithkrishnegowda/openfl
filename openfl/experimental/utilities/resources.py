@@ -1,11 +1,9 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.experimental.utilities.resources module."""
-
 from logging import getLogger
-from subprocess import PIPE, run
+from subprocess import PIPE
+from subprocess import run
 
 logger = getLogger(__name__)
 

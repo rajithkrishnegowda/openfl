@@ -3,9 +3,6 @@ from copy import deepcopy
 import numpy as np
 import PIL
 import torch.optim as optim
-from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.model import UNet
-from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.tasks import task_interface
-from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.tasks import validate
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 from torch.utils.data import SubsetRandomSampler
@@ -15,6 +12,9 @@ from openfl.interface.interactive_api.experiment import DataInterface
 from openfl.interface.interactive_api.experiment import FLExperiment
 from openfl.interface.interactive_api.experiment import ModelInterface
 from openfl.interface.interactive_api.federation import Federation
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.model import UNet
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.tasks import task_interface
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.tasks import validate
 
 
 def run():

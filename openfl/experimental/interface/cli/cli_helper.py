@@ -1,18 +1,19 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Module with auxiliary CLI helper functions."""
 import os
 import re
 import shutil
 from itertools import islice
-from os import environ, stat
+from os import environ
+from os import stat
 from pathlib import Path
 from sys import argv
 
-from click import echo, style
-from yaml import FullLoader, load
+from click import echo
+from click import style
+from yaml import FullLoader
+from yaml import load
 
 FX = argv[0]
 

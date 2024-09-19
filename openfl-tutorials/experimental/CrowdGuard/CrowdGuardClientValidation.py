@@ -1,17 +1,19 @@
 # Copyright (C) 2022-2024 TU Darmstadt
 # SPDX-License-Identifier: Apache-2.0
-
 # -----------------------------------------------------------
 # Primary author: Phillip Rieger <phillip.rieger@trust.tu-darmstadt.de>
 # Co-authored-by: Torsten Krauss <torsten.krauss@uni-wuerzburg.de>
 # ------------------------------------------------------------
-from enum import Enum
 import math
 from copy import deepcopy
+from enum import Enum
+
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-from scipy.stats import kstest, levene, ttest_ind
+from scipy.stats import kstest
+from scipy.stats import levene
+from scipy.stats import ttest_ind
 from sklearn import preprocessing
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.decomposition import PCA

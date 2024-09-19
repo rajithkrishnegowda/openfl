@@ -1,14 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+import numpy as np
 import torch
 from torch import nn
-from torch.nn import functional as F
 from torch import optim
-from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from torch.nn import functional as F
 
-import numpy as np
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 learning_rate = 0.01

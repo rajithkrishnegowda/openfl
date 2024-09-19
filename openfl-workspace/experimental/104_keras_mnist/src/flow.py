@@ -1,11 +1,16 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import numpy as np
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import MaxPool2D
+from tensorflow.keras.models import Sequential
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
-from tensorflow.keras.layers import Flatten, Dense, Dropout, Conv2D, MaxPool2D
-from tensorflow.keras.models import Sequential
-import numpy as np
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 nb_classes = 10

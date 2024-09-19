@@ -37,13 +37,14 @@ compression_pipeline :
     dim_threshold: 1000 #EDEN compresses layers that their dimension is above
         the dim_threshold, use 1000 as default
 """
-
 import copy as co
 
 import numpy as np
 import torch
 
-from openfl.pipelines.pipeline import Float32NumpyArrayToBytes, TransformationPipeline, Transformer
+from openfl.pipelines.pipeline import Float32NumpyArrayToBytes
+from openfl.pipelines.pipeline import TransformationPipeline
+from openfl.pipelines.pipeline import Transformer
 
 
 class Eden:

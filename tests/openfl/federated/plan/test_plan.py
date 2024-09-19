@@ -1,15 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Plan API's tests module."""
-
+from pathlib import Path
 from unittest import mock
 
 import pytest
-from pathlib import Path
 
-from openfl.federated.plan.plan import Plan
-from openfl.component.assigner import RandomGroupedAssigner
 from openfl.component.aggregator import Aggregator
+from openfl.component.assigner import RandomGroupedAssigner
+from openfl.federated.plan.plan import Plan
 
 
 @pytest.fixture

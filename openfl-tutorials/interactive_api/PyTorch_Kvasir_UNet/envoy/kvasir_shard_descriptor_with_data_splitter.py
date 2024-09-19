@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Kvasir shard descriptor."""
-
-
 import os
 from pathlib import Path
 

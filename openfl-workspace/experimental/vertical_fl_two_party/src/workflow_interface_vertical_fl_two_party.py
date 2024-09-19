@@ -1,9 +1,11 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+from torch import nn
+from torch import optim
 
 from openfl.experimental.interface import FLSpec
-from openfl.experimental.placement import aggregator, collaborator
-from torch import nn, optim
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 
 
 class VerticalTwoPartyFlow(FLSpec):

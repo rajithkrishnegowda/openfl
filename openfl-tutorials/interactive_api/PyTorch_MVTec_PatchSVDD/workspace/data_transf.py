@@ -1,8 +1,6 @@
 # Copyright (C) 2021-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Data transform functions."""
-
 import numpy as np
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import precision_recall_curve

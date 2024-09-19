@@ -1,14 +1,15 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Plan module."""
 import sys
 from logging import getLogger
 from pathlib import Path
 
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import echo, group, option, pass_context
 
 from openfl.experimental.federated import Plan
 from openfl.utilities.path_check import is_directory_traversal

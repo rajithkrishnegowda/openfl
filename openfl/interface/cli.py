@@ -10,20 +10,19 @@ import warnings
 from importlib import import_module
 from logging import basicConfig
 from pathlib import Path
-from sys import argv, path
+from sys import argv
+from sys import path
 
-from click import (
-    Group,
-    argument,
-    command,
-    confirm,
-    echo,
-    group,
-    open_file,
-    option,
-    pass_context,
-    style,
-)
+from click import argument
+from click import command
+from click import confirm
+from click import echo
+from click import Group
+from click import group
+from click import open_file
+from click import option
+from click import pass_context
+from click import style
 from rich.console import Console
 from rich.logging import RichHandler
 

@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Envoy CLI."""
 import logging
 import shutil
@@ -10,14 +8,17 @@ from importlib import import_module
 from pathlib import Path
 
 import click
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import group, option, pass_context
 from dynaconf import Validator
 
 from openfl.component.envoy.envoy import Envoy
 from openfl.interface.cli import review_plan_callback
 from openfl.interface.cli_helper import WORKSPACE
-from openfl.utilities import click_types, merge_configs
+from openfl.utilities import click_types
+from openfl.utilities import merge_configs
 from openfl.utilities.path_check import is_directory_traversal
 
 logger = logging.getLogger(__name__)

@@ -1,14 +1,16 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 import os.path
 import pickle
-from typing import Any, Callable, Optional, Tuple
+from typing import Any
+from typing import Callable
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 from PIL import Image
-
-from torchvision.datasets.utils import check_integrity, download_and_extract_archive
+from torchvision.datasets.utils import check_integrity
+from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.datasets.vision import VisionDataset
 
 

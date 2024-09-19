@@ -5,7 +5,6 @@ Shard Descriptor template.
 
 It is recommended to perform tensor manipulations using numpy.
 """
-
 from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 
 

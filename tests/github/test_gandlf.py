@@ -1,17 +1,17 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import os
-import time
 import argparse
-from pathlib import Path
+import os
 import re
 import shutil
-from subprocess import check_call
+import time
 from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+from subprocess import check_call
 
-from tests.github.utils import create_collaborator, certify_aggregator
 from openfl.utilities.utils import getfqdn_env
+from tests.github.utils import certify_aggregator
+from tests.github.utils import create_collaborator
 
 def exec(command, directory):
     os.chdir(directory)

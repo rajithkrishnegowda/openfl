@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Tensor codec tests module."""
-
-
 from unittest import mock
 
 import numpy as np

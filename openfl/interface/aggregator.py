@@ -1,17 +1,25 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Aggregator module."""
 import sys
 from logging import getLogger
 from pathlib import Path
 
+from click import confirm
+from click import echo
+from click import group
+from click import option
+from click import pass_context
 from click import Path as ClickPath
-from click import confirm, echo, group, option, pass_context, style
+from click import style
 
 from openfl.cryptography.ca import sign_certificate
-from openfl.cryptography.io import get_csr_hash, read_crt, read_csr, read_key, write_crt, write_key
+from openfl.cryptography.io import get_csr_hash
+from openfl.cryptography.io import read_crt
+from openfl.cryptography.io import read_csr
+from openfl.cryptography.io import read_key
+from openfl.cryptography.io import write_crt
+from openfl.cryptography.io import write_key
 from openfl.cryptography.participant import generate_csr
 from openfl.federated import Plan
 from openfl.interface.cli_helper import CERT_DIR

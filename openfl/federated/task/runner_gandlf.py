@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """GaNDLFTaskRunner module."""
-
 import os
 from copy import deepcopy
 from typing import Union

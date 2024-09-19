@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # -*- coding: utf-8 -*-
 # File    comm.py
 # Author  Jiayuan Mao
@@ -10,9 +9,8 @@
 # This file is part of Synchronized-BatchNorm-PyTorch.
 # https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
 # Distributed under MIT License.
-
-import queue
 import collections
+import queue
 import threading
 
 __all__ = ['FutureResult', 'SlavePipe', 'SyncMaster']

@@ -1,9 +1,10 @@
-import tqdm
-import torch
 import numpy as np
+import torch
+import tqdm
 
 from openfl.interface.interactive_api.experiment import TaskInterface
-from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import soft_dice_loss, soft_dice_coef
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import soft_dice_coef
+from tests.github.interactive_api_director.experiments.pytorch_kvasir_unet.layers import soft_dice_loss
 
 
 task_interface = TaskInterface()

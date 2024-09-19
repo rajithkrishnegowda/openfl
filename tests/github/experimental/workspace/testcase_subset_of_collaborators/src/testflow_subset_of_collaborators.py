@@ -3,7 +3,8 @@
 from metaflow import Flow
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.placement.placement import aggregator, collaborator
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 
 
 class bcolors:  # NOQA: N801

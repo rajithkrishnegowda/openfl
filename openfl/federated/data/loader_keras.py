@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """KerasDataLoader module."""
-
 import numpy as np
 
 from openfl.federated.data.loader import DataLoader

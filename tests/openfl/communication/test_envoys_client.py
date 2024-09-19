@@ -1,7 +1,6 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Derector Envoy's client tests module."""
-
 import sys
 from unittest import mock
 

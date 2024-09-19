@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Compute ArcFace loss and Triplet loss."""
-
 import math
 
 import torch

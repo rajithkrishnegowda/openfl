@@ -1,11 +1,10 @@
 # Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import xml.etree.ElementTree as ETree
-import json
-import os
-import math
 import hashlib
+import json
+import math
+import os
+import xml.etree.ElementTree as ETree
 
 
 def xml_to_json(input_base_folder, subfolders, output_folder, verify_hash=1):

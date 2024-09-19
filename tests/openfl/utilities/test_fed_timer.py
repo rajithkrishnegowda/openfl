@@ -1,14 +1,14 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Federation Components Timeout tests module."""
-
 import asyncio
 import os
-import pytest
 import time
+from unittest import mock
+
+import pytest
 
 from openfl.utilities.fed_timer import fedtiming
-from unittest import mock
 
 
 @pytest.mark.parametrize(

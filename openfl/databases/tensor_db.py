@@ -1,19 +1,23 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """TensorDB Module."""
-
 from threading import Lock
 from types import MethodType
-from typing import Dict, Iterator, Optional
+from typing import Dict
+from typing import Iterator
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-from openfl.databases.utilities import ROUND_PLACEHOLDER, _retrieve, _search, _store
+from openfl.databases.utilities import _retrieve
+from openfl.databases.utilities import _search
+from openfl.databases.utilities import _store
+from openfl.databases.utilities import ROUND_PLACEHOLDER
 from openfl.interface.aggregation_functions import AggregationFunction
-from openfl.utilities import LocalTensor, TensorKey, change_tags
+from openfl.utilities import change_tags
+from openfl.utilities import LocalTensor
+from openfl.utilities import TensorKey
 
 
 class TensorDB:

@@ -1,9 +1,9 @@
 # Copyright (C) 2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """CIFAR10 Shard Descriptor (using `tf.data.Dataset` API)"""
 import logging
-from typing import List, Tuple
+from typing import List
+from typing import Tuple
 
 import tensorflow as tf
 

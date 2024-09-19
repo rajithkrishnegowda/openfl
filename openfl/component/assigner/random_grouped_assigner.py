@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Random grouped assigner module."""
-
 import numpy as np
 
 from openfl.component.assigner.assigner import Assigner

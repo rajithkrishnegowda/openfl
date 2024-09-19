@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl common object types."""
-
 from abc import ABCMeta
 from collections import namedtuple
 

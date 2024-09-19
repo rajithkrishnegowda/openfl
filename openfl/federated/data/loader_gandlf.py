@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """PyTorchDataLoader module."""
 from openfl.federated.data.loader import DataLoader
 

@@ -1,10 +1,11 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.utilities.data_splitters.data_splitter module."""
-from abc import ABC, abstractmethod
-from typing import Iterable, List, TypeVar
+from abc import ABC
+from abc import abstractmethod
+from typing import Iterable
+from typing import List
+from typing import TypeVar
 
 T = TypeVar("T")
 

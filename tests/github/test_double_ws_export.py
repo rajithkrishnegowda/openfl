@@ -1,17 +1,19 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import os
-import time
 import argparse
-from pathlib import Path
+import os
 import shutil
-from subprocess import check_call
+import time
 from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+from subprocess import check_call
+
 import psutil
 
-from tests.github.utils import create_certified_workspace, certify_aggregator, create_collaborator
 from openfl.utilities.utils import getfqdn_env
+from tests.github.utils import certify_aggregator
+from tests.github.utils import create_certified_workspace
+from tests.github.utils import create_collaborator
 
 if __name__ == '__main__':
     # Test the pipeline

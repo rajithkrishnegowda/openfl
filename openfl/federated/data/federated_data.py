@@ -1,13 +1,11 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """FederatedDataset module."""
-
 import numpy as np
 
 from openfl.federated.data.loader_pt import PyTorchDataLoader
-from openfl.utilities.data_splitters import EqualNumPyDataSplitter, NumPyDataSplitter
+from openfl.utilities.data_splitters import EqualNumPyDataSplitter
+from openfl.utilities.data_splitters import NumPyDataSplitter
 
 
 class FederatedDataSet(PyTorchDataLoader):

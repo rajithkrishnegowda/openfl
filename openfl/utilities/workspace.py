@@ -1,6 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Workspace utils module."""
 import logging
 import os
@@ -11,7 +10,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from subprocess import check_call  # nosec
 from sys import executable
-from typing import Optional, Tuple, Union
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from pip._internal.operations import freeze
 

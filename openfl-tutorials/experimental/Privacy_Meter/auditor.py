@@ -1,21 +1,19 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+import time
 from bisect import bisect
 
 import matplotlib.pyplot as plt
 import numpy as np
+import privacy_meter.hypothesis_test as prtest
 import torch
-
 from privacy_meter.audit import Audit
 from privacy_meter.constants import InferenceGame
 from privacy_meter.dataset import Dataset
 from privacy_meter.information_source import InformationSource
-
-import time
+from privacy_meter.information_source_signal import ModelGradientNorm
+from privacy_meter.information_source_signal import ModelLoss
 from privacy_meter.metric import PopulationMetric
-from privacy_meter.information_source_signal import ModelLoss, ModelGradientNorm
-import privacy_meter.hypothesis_test as prtest
 
 
 class PM_report:  # NOQA: N801

@@ -1,18 +1,21 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
-from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
-
-import sys
+import inspect
 import io
-import math
 import logging
+import math
+import sys
+from types import MethodType
+
 import torch.nn as nn
 import torch.optim as optim
-import inspect
-from types import MethodType
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
+from openfl.experimental.runtime import LocalRuntime
 
 
 class bcolors:  # NOQA: N801

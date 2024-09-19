@@ -1,9 +1,10 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import numpy as np
 
 from openfl.experimental.interface.fl_spec import FLSpec
-from openfl.experimental.placement.placement import aggregator, collaborator
-import numpy as np
+from openfl.experimental.placement.placement import aggregator
+from openfl.experimental.placement.placement import collaborator
 
 
 class bcolors:  # NOQA: N801

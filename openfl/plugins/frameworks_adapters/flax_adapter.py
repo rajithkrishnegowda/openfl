@@ -1,7 +1,5 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Custom model DeviceArray - JAX Numpy adapter."""
 import jax
 import jax.numpy as jnp

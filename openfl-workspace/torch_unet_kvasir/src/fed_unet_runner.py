@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """You may copy this file as the starting point of your own model."""
 import numpy as np
 import torch
@@ -8,13 +7,13 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 
-from openfl.federated import PyTorchTaskRunner
-from openfl.utilities import TensorKey
 from .pt_unet_parts import DoubleConv
 from .pt_unet_parts import Down
 from .pt_unet_parts import soft_dice_coef
 from .pt_unet_parts import soft_dice_loss
 from .pt_unet_parts import Up
+from openfl.federated import PyTorchTaskRunner
+from openfl.utilities import TensorKey
 
 
 class PyTorchFederatedUnet(PyTorchTaskRunner):

@@ -1,13 +1,14 @@
 # Copyright (C) 2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """CIFAR10 Shard Descriptor (using `TFDS` API)"""
-import jax.numpy as jnp
 import logging
+from typing import List
+from typing import Tuple
+
+import jax.numpy as jnp
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
-from typing import List, Tuple
 from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 
 logger = logging.getLogger(__name__)

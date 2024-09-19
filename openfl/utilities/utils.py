@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Utilities module."""
-
 import hashlib
 import ipaddress
 import logging
@@ -14,7 +11,9 @@ import stat
 from collections.abc import Callable
 from functools import partial
 from socket import getfqdn
-from typing import List, Optional, Tuple
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 from dynaconf import Dynaconf
 from tqdm import tqdm

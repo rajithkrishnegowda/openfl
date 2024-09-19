@@ -1,8 +1,6 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Histology Shard Descriptor."""
-
 import logging
 import os
 from pathlib import Path

@@ -1,6 +1,5 @@
 # Copyright (C) 2020-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # -*- coding: utf-8 -*-
 # File    replicate.py
 # Author  Jiayuan Mao
@@ -10,7 +9,6 @@
 # This file is part of Synchronized-BatchNorm-PyTorch.
 # https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
 # Distributed under MIT License.
-
 import functools
 
 from torch.nn.parallel.data_parallel import DataParallel

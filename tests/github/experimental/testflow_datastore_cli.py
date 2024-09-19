@@ -1,17 +1,19 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+from copy import deepcopy
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch
 import torchvision
 
-from copy import deepcopy
-
-from openfl.experimental.interface import FLSpec, Aggregator, Collaborator
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from openfl.experimental.placement import aggregator, collaborator
 
 batch_size_train = 64
 learning_rate = 0.01

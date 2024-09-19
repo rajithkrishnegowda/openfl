@@ -1,8 +1,9 @@
 # Copyright (C) 2020-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 """Update plan test module."""
-import pytest
 from pathlib import Path
+
+import pytest
 
 from openfl.federated import Plan
 from openfl.native import update_plan

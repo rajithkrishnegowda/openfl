@@ -1,32 +1,34 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 # Copyright (C) 2022-2024 TU Darmstadt
 # SPDX-License-Identifier: Apache-2.0
-
 # -----------------------------------------------------------
 # Primary author: Phillip Rieger <phillip.rieger@trust.tu-darmstadt.de>
 # Co-authored-by: Torsten Krauss <torsten.krauss@uni-wuerzburg.de>
 # ------------------------------------------------------------
-
 import argparse
 import random
 import time
 import warnings
+from urllib.request import urlretrieve
 
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import TensorDataset
 import torch.optim as optim
-from torchvision import transforms, datasets
-from sklearn.cluster import AgglomerativeClustering, DBSCAN
-
 from CrowdGuardClientValidation import CrowdGuardClientValidation
-from openfl.experimental.interface import Aggregator, Collaborator, FLSpec
-from openfl.experimental.placement import aggregator, collaborator
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import DBSCAN
+from torch.utils.data import TensorDataset
+from torchvision import datasets
+from torchvision import transforms
+
+from openfl.experimental.interface import Aggregator
+from openfl.experimental.interface import Collaborator
+from openfl.experimental.interface import FLSpec
+from openfl.experimental.placement import aggregator
+from openfl.experimental.placement import collaborator
 from openfl.experimental.runtime import LocalRuntime
-from urllib.request import urlretrieve
 
 warnings.filterwarnings("ignore")
 

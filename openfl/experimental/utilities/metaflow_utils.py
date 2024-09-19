@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """openfl.experimental.utilities.metaflow_utils module."""
-
 from __future__ import annotations
 
 import ast
@@ -11,22 +8,30 @@ import fcntl
 import hashlib
 from datetime import datetime
 from pathlib import Path
-
-# getsource only used to determine structure of FlowGraph
 from typing import TYPE_CHECKING
 
 import cloudpickle as pickle
 import ray
 from dill.source import getsource  # nosec
-from metaflow.datastore import DATASTORES, FlowDataStore
-from metaflow.datastore.exceptions import DataException, UnpicklableArtifactException
-from metaflow.datastore.task_datastore import TaskDataStore, only_if_not_done, require_mode
-from metaflow.graph import DAGNode, FlowGraph, StepVisitor, deindent_docstring
+from metaflow.datastore import DATASTORES
+from metaflow.datastore import FlowDataStore
+from metaflow.datastore.exceptions import DataException
+from metaflow.datastore.exceptions import UnpicklableArtifactException
+from metaflow.datastore.task_datastore import only_if_not_done
+from metaflow.datastore.task_datastore import require_mode
+from metaflow.datastore.task_datastore import TaskDataStore
+from metaflow.graph import DAGNode
+from metaflow.graph import deindent_docstring
+from metaflow.graph import FlowGraph
+from metaflow.graph import StepVisitor
 from metaflow.metaflow_environment import MetaflowEnvironment
 from metaflow.mflog import RUNTIME_LOG_SOURCE
 from metaflow.plugins import LocalMetadataProvider
-from metaflow.runtime import MAX_LOG_SIZE, TruncatedBuffer, mflog_msg
+from metaflow.runtime import MAX_LOG_SIZE
+from metaflow.runtime import mflog_msg
+from metaflow.runtime import TruncatedBuffer
 from metaflow.task import MetaDatum
+# getsource only used to determine structure of FlowGraph
 
 if TYPE_CHECKING:
     from openfl.experimental.interface import FLSpec

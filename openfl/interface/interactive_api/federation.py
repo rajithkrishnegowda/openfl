@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Federation API module."""
-
 from openfl.interface.interactive_api.shard_descriptor import DummyShardDescriptor
 from openfl.transport.grpc.director_client import DirectorClient
 from openfl.utilities.utils import getfqdn_env

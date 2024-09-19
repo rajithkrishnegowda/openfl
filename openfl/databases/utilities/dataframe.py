@@ -1,9 +1,6 @@
 # Copyright 2020-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-
 """Convenience Utilities for DataFrame."""
-
 from typing import Optional
 
 import numpy as np

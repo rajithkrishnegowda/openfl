@@ -1,6 +1,6 @@
 import subprocess
-import time
 import sys
+import time
 
 
 def start_director(cwd):

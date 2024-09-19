@@ -1,9 +1,7 @@
 # Copyright (C) 2020-2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 # This file overrides the step method of PyTorch Optimizer
 # Adopts fix clipping from https://arxiv.org/abs/1710.06963
-
 import torch
 from torch.optim import Optimizer
 
