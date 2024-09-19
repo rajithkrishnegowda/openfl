@@ -123,9 +123,7 @@ def import_raw_data_(data_path="", num_samples=0):
         dtype="float32",
     )
 
-    for i, (input_text, target_text) in enumerate(
-        zip(input_texts, target_texts)
-    ):
+    for i, (input_text, target_text) in enumerate(zip(input_texts, target_texts)):
         for t, char in enumerate(input_text):
             encoder_input_data[i, t, input_token_index[char]] = 1.0
         encoder_input_data[i, t + 1 :, input_token_index[" "]] = 1.0
@@ -139,36 +137,21 @@ def import_raw_data_(data_path="", num_samples=0):
         decoder_input_data[i, t + 1 :, target_token_index[" "]] = 1.0
         decoder_target_data[i, t:, target_token_index[" "]] = 1.0
 
+    logger.info(f"[DL]-import_raw_data: Number of samples = {len(input_texts)}")
+    logger.info(f"[DL]-import_raw_data: Number of unique input tokens = {num_encoder_tokens}")
+    logger.info(f"[DL]-import_raw_data: " f"Number of unique decoder tokens = {num_decoder_tokens}")
+
     logger.info(
-        f"[DL]-import_raw_data: Number of samples = {len(input_texts)}"
-    )
-    logger.info(
-        f"[DL]-import_raw_data: Number of unique input tokens = {num_encoder_tokens}"
-    )
-    logger.info(
-        f"[DL]-import_raw_data: "
-        f"Number of unique decoder tokens = {num_decoder_tokens}"
+        f"[DL]-import_raw_data: " f"Max sequence length for inputs = {max_encoder_seq_length}"
     )
 
     logger.info(
-        f"[DL]-import_raw_data: "
-        f"Max sequence length for inputs = {max_encoder_seq_length}"
+        f"[DL]-import_raw_data: " f"Max sequence length for outputs = {max_decoder_seq_length}"
     )
 
-    logger.info(
-        f"[DL]-import_raw_data: "
-        f"Max sequence length for outputs = {max_decoder_seq_length}"
-    )
-
-    logger.info(
-        f"[DL]-import_raw_data: encoder_input_data = {encoder_input_data.shape}"
-    )
-    logger.info(
-        f"[DL]-import_raw_data: decoder_input_data = {decoder_input_data.shape}"
-    )
-    logger.info(
-        f"[DL]-import_raw_data: decoder_target_data = {decoder_target_data.shape}"
-    )
+    logger.info(f"[DL]-import_raw_data: encoder_input_data = {encoder_input_data.shape}")
+    logger.info(f"[DL]-import_raw_data: decoder_input_data = {decoder_input_data.shape}")
+    logger.info(f"[DL]-import_raw_data: decoder_target_data = {decoder_target_data.shape}")
 
     return details, encoder_input_data, decoder_input_data, decoder_target_data
 
@@ -188,9 +171,7 @@ def get_datasets_(
     import random
 
     random.seed(42)
-    train_indexes = random.sample(
-        range(num_samples), int(num_samples * (1 - split_ratio))
-    )
+    train_indexes = random.sample(range(num_samples), int(num_samples * (1 - split_ratio)))
     valid_indexes = np.delete(range(num_samples), train_indexes)
 
     # Dataset creation (2 inputs <encoder,decoder>, 1 output <decoder_target>)
@@ -211,19 +192,13 @@ def get_datasets_(
         "decoder_valid_labels": decoder_valid_labels,
     }
 
-    logger.info(
-        f"[DL]get_datasets: encoder_train_input = {encoder_train_input.shape}"
-    )
-    logger.info(
-        f"[DL]get_datasets: decoder_train_labels= {decoder_train_labels.shape}"
-    )
+    logger.info(f"[DL]get_datasets: encoder_train_input = {encoder_train_input.shape}")
+    logger.info(f"[DL]get_datasets: decoder_train_labels= {decoder_train_labels.shape}")
 
     return results
 
 
-def load_shard(
-    collaborator_count, shard_num, data_path, num_samples, split_ratio
-):
+def load_shard(collaborator_count, shard_num, data_path, num_samples, split_ratio):
     """Load data-shards.
 
     Returns:
@@ -251,25 +226,13 @@ def load_shard(
     )
     # Get the data shards
     shard_num = int(shard_num)
-    X_train_encoder = train_val_dataset["encoder_train_input"][
-        shard_num::collaborator_count
-    ]
-    X_train_decoder = train_val_dataset["decoder_train_input"][
-        shard_num::collaborator_count
-    ]
-    y_train = train_val_dataset["decoder_train_labels"][
-        shard_num::collaborator_count
-    ]
+    X_train_encoder = train_val_dataset["encoder_train_input"][shard_num::collaborator_count]
+    X_train_decoder = train_val_dataset["decoder_train_input"][shard_num::collaborator_count]
+    y_train = train_val_dataset["decoder_train_labels"][shard_num::collaborator_count]
 
-    X_valid_encoder = train_val_dataset["encoder_valid_input"][
-        shard_num::collaborator_count
-    ]
-    X_valid_decoder = train_val_dataset["decoder_valid_input"][
-        shard_num::collaborator_count
-    ]
-    y_valid = train_val_dataset["decoder_valid_labels"][
-        shard_num::collaborator_count
-    ]
+    X_valid_encoder = train_val_dataset["encoder_valid_input"][shard_num::collaborator_count]
+    X_valid_decoder = train_val_dataset["decoder_valid_input"][shard_num::collaborator_count]
+    y_valid = train_val_dataset["decoder_valid_labels"][shard_num::collaborator_count]
 
     logger.info(f"[DL]load_shard: X_train_encoder = {X_train_encoder.shape}")
     logger.info(f"[DL]load_shard: y_train = {y_train.shape}")

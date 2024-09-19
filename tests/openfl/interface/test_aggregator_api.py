@@ -28,9 +28,7 @@ def test_aggregator_start(mock_parse):
 
 @mock.patch("openfl.interface.aggregator.is_directory_traversal")
 @mock.patch("openfl.federated.Plan.parse")
-def test_aggregator_start_illegal_plan(
-    mock_parse, mock_is_directory_traversal
-):
+def test_aggregator_start_illegal_plan(mock_parse, mock_is_directory_traversal):
     current_path = Path(__file__).resolve()
     plan_path = current_path.parent.joinpath("plan")
     plan_config = plan_path.joinpath("plan.yaml")
@@ -45,9 +43,7 @@ def test_aggregator_start_illegal_plan(
 
 @mock.patch("openfl.interface.aggregator.is_directory_traversal")
 @mock.patch("openfl.federated.Plan.parse")
-def test_aggregator_start_illegal_cols(
-    mock_parse, mock_is_directory_traversal
-):
+def test_aggregator_start_illegal_cols(mock_parse, mock_is_directory_traversal):
     current_path = Path(__file__).resolve()
     plan_path = current_path.parent.joinpath("plan")
     plan_config = plan_path.joinpath("plan.yaml")

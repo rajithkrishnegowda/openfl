@@ -49,8 +49,5 @@ def test_report_shard_info(director_client):
         resp = director_client.stub.UpdateShardInfo.call_args[0][0]
     else:
         resp = director_client.stub.UpdateShardInfo.call_args.args[0]
-    assert (
-        resp.shard_info.shard_description
-        == shard_descriptor.dataset_description
-    )
+    assert resp.shard_info.shard_description == shard_descriptor.dataset_description
     assert resp.shard_info.sample_shape == shard_descriptor.sample_shape

@@ -38,9 +38,7 @@ class KvasirDataset(Dataset):
 
         assert len(self.images_names) > 2, "Too few images"
 
-        validation_size = max(
-            1, int(len(self.images_names) * validation_fraction)
-        )
+        validation_size = max(1, int(len(self.images_names) * validation_fraction))
 
         if is_validation:
             self.images_names = self.images_names[-validation_size:]
@@ -80,9 +78,7 @@ class FedDataset(DataInterface):
         # With the next command the local dataset will be loaded on the collaborator node
         # For this example we have the same dataset on the same path, and we will shard it
         # So we use `data_path` information for this purpose.
-        self.rank, self.world_size = [
-            int(part) for part in data_path.split(",")
-        ]
+        self.rank, self.world_size = [int(part) for part in data_path.split(",")]
 
         validation_fraction = 1 / 8
         self.train_set = self.UserDatasetClass(
@@ -98,9 +94,7 @@ class FedDataset(DataInterface):
     def _do_sharding(self, rank, world_size):
         # This method relies on the dataset's implementation
         # i.e. coupled in a bad way
-        self.train_set.images_names = self.train_set.images_names[
-            rank - 1 :: world_size
-        ]
+        self.train_set.images_names = self.train_set.images_names[rank - 1 :: world_size]
 
     def get_train_loader(self, **kwargs):
         """
@@ -117,9 +111,7 @@ class FedDataset(DataInterface):
         """
         Output of this method will be provided to tasks without optimizer in contract
         """
-        return DataLoader(
-            self.valid_set, num_workers=8, batch_size=self.kwargs["valid_bs"]
-        )
+        return DataLoader(self.valid_set, num_workers=8, batch_size=self.kwargs["valid_bs"])
 
     def get_train_data_size(self):
         """

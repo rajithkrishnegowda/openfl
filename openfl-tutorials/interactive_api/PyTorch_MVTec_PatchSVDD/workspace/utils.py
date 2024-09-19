@@ -16,18 +16,13 @@ def to_device(obj, device, non_blocking=False):
         return obj.to(device, non_blocking=non_blocking)
 
     if isinstance(obj, dict):
-        return {
-            k: to_device(v, device, non_blocking=non_blocking)
-            for k, v in obj.items()
-        }
+        return {k: to_device(v, device, non_blocking=non_blocking) for k, v in obj.items()}
 
     if isinstance(obj, list):
         return [to_device(v, device, non_blocking=non_blocking) for v in obj]
 
     if isinstance(obj, tuple):
-        return tuple(
-            [to_device(v, device, non_blocking=non_blocking) for v in obj]
-        )
+        return tuple([to_device(v, device, non_blocking=non_blocking) for v in obj])
 
 
 @contextmanager
@@ -45,9 +40,7 @@ class DictionaryConcatDataset(Dataset):
         lengths = [len(d) for d in d_of_datasets.values()]
         self._length = min(lengths)
         self.keys = self.d_of_datasets.keys()
-        assert min(lengths) == max(
-            lengths
-        ), "Length of the datasets should be the same"
+        assert min(lengths) == max(lengths), "Length of the datasets should be the same"
 
     def __getitem__(self, idx):
         """Get item."""
@@ -109,10 +102,7 @@ def makedirpath(fpath: str):
 def distribute_scores(score_masks, output_shape, k: int, s: int) -> np.ndarray:
     """Distribute scores."""
     n_all = score_masks.shape[0]
-    results = [
-        distribute_score(score_masks[n], output_shape, k, s)
-        for n in range(n_all)
-    ]
+    results = [distribute_score(score_masks[n], output_shape, k, s) for n in range(n_all)]
     return np.asarray(results)
 
 

@@ -92,9 +92,7 @@ def default_optimizer(model, optimizer_type=None, optimizer_like=None):
         optimizer_like: "torch.optim.SGD" or "torch.optim.Adam" optimizer
     """
     if optimizer_type == "SGD" or isinstance(optimizer_like, optim.SGD):
-        return optim.SGD(
-            model.parameters(), lr=learning_rate, momentum=momentum
-        )
+        return optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
     elif optimizer_type == "Adam" or isinstance(optimizer_like, optim.Adam):
         return optim.Adam(model.parameters())
 
@@ -113,9 +111,7 @@ def FedAvg(models):  # NOQA: N802
         state_dicts = [model.state_dict() for model in models]
         state_dict = new_model.state_dict()
         for key in models[1].state_dict():
-            state_dict[key] = np.sum(
-                [state[key] for state in state_dicts], axis=0
-            ) / len(models)
+            state_dict[key] = np.sum([state[key] for state in state_dicts], axis=0) / len(models)
         new_model.load_state_dict(state_dict)
     return new_model
 
@@ -192,9 +188,7 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
     print(f"Loading model and optimizer state dict for round {round_num-1}")
     model_prevround = Net()  # instanciate a new model
     model_prevround = model_prevround.to(device)
-    optimizer_prevround = default_optimizer(
-        model_prevround, optimizer_like=optimizer
-    )
+    optimizer_prevround = default_optimizer(model_prevround, optimizer_like=optimizer)
     if os.path.isfile(
         f"Collaborator_{collaborator_name}_model_config_roundnumber_{round_num-1}.pickle"
     ):
@@ -203,22 +197,15 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
             "rb",
         ) as f:
             model_prevround_config = pickle.load(f)
-            model_prevround.load_state_dict(
-                model_prevround_config["model_state_dict"]
-            )
-            optimizer_prevround.load_state_dict(
-                model_prevround_config["optim_state_dict"]
-            )
+            model_prevround.load_state_dict(model_prevround_config["model_state_dict"])
+            optimizer_prevround.load_state_dict(model_prevround_config["optim_state_dict"])
 
             for param_tensor in model.state_dict():
                 for tensor_1, tensor_2 in zip(
                     model.state_dict()[param_tensor],
                     global_model.state_dict()[param_tensor],
                 ):
-                    if (
-                        torch.equal(tensor_1.to(device), tensor_2.to(device))
-                        is not True
-                    ):
+                    if torch.equal(tensor_1.to(device), tensor_2.to(device)) is not True:
                         raise (
                             ValueError(
                                 (
@@ -230,16 +217,12 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
 
                 if isinstance(optimizer, optim.SGD):
                     if optimizer.state_dict()["state"] != {}:
-                        for param_idx in optimizer.state_dict()[
-                            "param_groups"
-                        ][0]["params"]:
+                        for param_idx in optimizer.state_dict()["param_groups"][0]["params"]:
                             for tensor_1, tensor_2 in zip(
-                                optimizer.state_dict()["state"][param_idx][
+                                optimizer.state_dict()["state"][param_idx]["momentum_buffer"],
+                                optimizer_prevround.state_dict()["state"][param_idx][
                                     "momentum_buffer"
                                 ],
-                                optimizer_prevround.state_dict()["state"][
-                                    param_idx
-                                ]["momentum_buffer"],
                             ):
                                 if (
                                     torch.equal(
@@ -260,21 +243,11 @@ def load_previous_round_model_and_optimizer_and_perform_testing(
                         raise (ValueError("Current optimizer state is empty"))
 
                 model_params = [
-                    model.state_dict()[param_tensor]
-                    for param_tensor in model.state_dict()
+                    model.state_dict()[param_tensor] for param_tensor in model.state_dict()
                 ]
-                for idx, param in enumerate(
-                    optimizer.param_groups[0]["params"]
-                ):
-                    for tensor_1, tensor_2 in zip(
-                        param.data, model_params[idx]
-                    ):
-                        if (
-                            torch.equal(
-                                tensor_1.to(device), tensor_2.to(device)
-                            )
-                            is not True
-                        ):
+                for idx, param in enumerate(optimizer.param_groups[0]["params"]):
+                    for tensor_1, tensor_2 in zip(param.data, model_params[idx]):
+                        if torch.equal(tensor_1.to(device), tensor_2.to(device)) is not True:
                             raise (
                                 ValueError(
                                     (
@@ -364,9 +337,7 @@ class FederatedFlow(FLSpec):
                 f"{self.input} in round {self.round_num}"
             )
         )
-        self.agg_validation_score = inference(
-            self.model, self.test_loader, self.device
-        )
+        self.agg_validation_score = inference(self.model, self.test_loader, self.device)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.collaborator_name = self.input
         self.next(self.train)
@@ -374,19 +345,13 @@ class FederatedFlow(FLSpec):
     @collaborator
     def train(self):
         print(20 * "#")
-        print(
-            f"Performing model training for collaborator {self.input} in round {self.round_num}"
-        )
+        print(f"Performing model training for collaborator {self.input} in round {self.round_num}")
 
         self.model.to(self.device)
-        self.optimizer = default_optimizer(
-            self.model, optimizer_like=self.optimizers[self.input]
-        )
+        self.optimizer = default_optimizer(self.model, optimizer_like=self.optimizers[self.input])
 
         if self.round_num > 0:
-            self.optimizer.load_state_dict(
-                deepcopy(self.optimizers[self.input].state_dict())
-            )
+            self.optimizer.load_state_dict(deepcopy(self.optimizers[self.input].state_dict()))
             optimizer_to_device(optimizer=self.optimizer, device=self.device)
 
             if self.flow_internal_loop_test:
@@ -443,13 +408,9 @@ class FederatedFlow(FLSpec):
         start_time = time.time()
 
         print("Test dataset performance")
-        self.local_validation_score = inference(
-            self.model, self.test_loader, self.device
-        )
+        self.local_validation_score = inference(self.model, self.test_loader, self.device)
         print("Train dataset performance")
-        self.local_validation_score_train = inference(
-            self.model, self.train_loader, self.device
-        )
+        self.local_validation_score_train = inference(self.model, self.train_loader, self.device)
 
         print(
             (
@@ -494,15 +455,11 @@ class FederatedFlow(FLSpec):
         target_model = PytorchModelTensor(
             copy.deepcopy(self.model), nn.CrossEntropyLoss(), self.device
         )
-        self.local_pm_info = PopulationAuditor(
-            target_model, datasets, self.local_pm_info
-        )
+        self.local_pm_info = PopulationAuditor(target_model, datasets, self.local_pm_info)
         target_model.model_obj.to("cpu")
         self.local_pm_info.update_history("round", self.round_num)
 
-        print(
-            f"population attack for the local model uses {time.time() - start_time}"
-        )
+        print(f"population attack for the local model uses {time.time() - start_time}")
 
         start_time = time.time()
         target_model = PytorchModelTensor(
@@ -510,14 +467,10 @@ class FederatedFlow(FLSpec):
             nn.CrossEntropyLoss(),
             self.device,
         )
-        self.global_pm_info = PopulationAuditor(
-            target_model, datasets, self.global_pm_info
-        )
+        self.global_pm_info = PopulationAuditor(target_model, datasets, self.global_pm_info)
         self.global_pm_info.update_history("round", self.round_num)
         target_model.model_obj.to("cpu")
-        print(
-            f"population attack for the global model uses {time.time() - start_time}"
-        )
+        print(f"population attack for the global model uses {time.time() - start_time}")
 
         start_time = time.time()
 
@@ -527,9 +480,7 @@ class FederatedFlow(FLSpec):
         }
 
         # # generate the plot for the privacy loss
-        plot_tpr_history(
-            history_dict, self.input, self.local_pm_info.fpr_tolerance
-        )
+        plot_tpr_history(history_dict, self.input, self.local_pm_info.fpr_tolerance)
         plot_auc_history(history_dict, self.input)
         plot_roc_history(history_dict, self.input)
 
@@ -551,25 +502,19 @@ class FederatedFlow(FLSpec):
     @aggregator
     def join(self, inputs):
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
-        print(
-            f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
         )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
+        print(f"Average aggregated model validation values = {self.aggregated_model_accuracy}")
         print(f"Average training loss = {self.average_loss}")
-        print(
-            f"Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"Average local model validation values = {self.local_model_accuracy}")
 
         self.model = FedAvg([input.model.cpu() for input in inputs])
         self.global_model.load_state_dict(deepcopy(self.model.state_dict()))
-        self.optimizers.update(
-            {input.collaborator_name: input.optimizer for input in inputs}
-        )
+        self.optimizers.update({input.collaborator_name: input.optimizer for input in inputs})
 
         del inputs
         self.next(self.check_round_completion)
@@ -700,13 +645,9 @@ if __name__ == "__main__":
     # Download and setup the train, and test dataset
     transform = transforms.Compose([transforms.ToTensor()])
 
-    cifar_train = CIFAR10(
-        root="./data", train=True, download=True, transform=transform
-    )
+    cifar_train = CIFAR10(root="./data", train=True, download=True, transform=transform)
 
-    cifar_test = CIFAR10(
-        root="./data", train=False, download=True, transform=transform
-    )
+    cifar_test = CIFAR10(root="./data", train=False, download=True, transform=transform)
 
     # Split the dataset in train, test, and population dataset
     N_total_samples = len(cifar_test) + len(cifar_train)
@@ -725,12 +666,8 @@ if __name__ == "__main__":
     train_dataset.targets = Y[:train_dataset_size]
 
     test_dataset = deepcopy(cifar_test)
-    test_dataset.data = X[
-        train_dataset_size : train_dataset_size + test_dataset_size
-    ]
-    test_dataset.targets = Y[
-        train_dataset_size : train_dataset_size + test_dataset_size
-    ]
+    test_dataset.data = X[train_dataset_size : train_dataset_size + test_dataset_size]
+    test_dataset.targets = Y[train_dataset_size : train_dataset_size + test_dataset_size]
 
     population_dataset = deepcopy(cifar_test)
     population_dataset.data = X[-audit_dataset_size:]
@@ -763,9 +700,7 @@ if __name__ == "__main__":
         local_test.targets = test_ds.targets[index::n_collaborators]
 
         local_population.data = population_ds.data[index::n_collaborators]
-        local_population.targets = population_ds.targets[
-            index::n_collaborators
-        ]
+        local_population.targets = population_ds.targets[index::n_collaborators]
 
         # initialize pm report to track the privacy loss during the training
         local_pm_info = PM_report(
@@ -843,9 +778,7 @@ if __name__ == "__main__":
     model = Net()
     top_model_accuracy = 0
     optimizers = {
-        collaborator.name: default_optimizer(
-            model, optimizer_type=args.optimizer_type
-        )
+        collaborator.name: default_optimizer(model, optimizer_type=args.optimizer_type)
         for collaborator in collaborators
     }
     flflow = FederatedFlow(

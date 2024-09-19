@@ -16,9 +16,7 @@ CA_PATH = Path("~/.local/ca").expanduser()
 CA_URL = "localhost:9123"
 CA_PASSWORD = "qwerty"
 DIRECTOR_SUBJECT_NAME = "localhost"
-WORKSPACE_PATH = Path(
-    "tests/github/interactive_api_director/experiments/pytorch_kvasir_unet/"
-)
+WORKSPACE_PATH = Path("tests/github/interactive_api_director/experiments/pytorch_kvasir_unet/")
 EXPECTED_ERROR = "Handshake failed with fatal error"
 
 
@@ -27,9 +25,7 @@ def start_ca_server():
         try:
             run_pki(str(CA_PATH))
         except subprocess.CalledProcessError as e:
-            if (
-                signal.Signals(-e.returncode) is signal.SIGKILL
-            ):  # intended stop signal
+            if signal.Signals(-e.returncode) is signal.SIGKILL:  # intended stop signal
                 pass
             else:
                 raise
@@ -111,9 +107,7 @@ def start_director(tls=True):
     ]
     if not tls:
         params.append("--disable-tls")
-    director = subprocess.Popen(
-        ["fx", "director", "start", *params], stderr=subprocess.PIPE
-    )
+    director = subprocess.Popen(["fx", "director", "start", *params], stderr=subprocess.PIPE)
     return director
 
 
@@ -169,9 +163,7 @@ if __name__ == "__main__":
             while True:
                 tmp = director.stderr.readline().decode("utf-8")
                 if EXPECTED_ERROR in tmp:
-                    print(
-                        "Handshake failed for insecure connections as expected."
-                    )
+                    print("Handshake failed for insecure connections as expected.")
                     break
         finally:
             director.kill()

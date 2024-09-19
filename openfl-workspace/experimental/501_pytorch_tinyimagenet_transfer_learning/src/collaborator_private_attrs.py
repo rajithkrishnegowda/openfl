@@ -17,8 +17,7 @@ common_data_folder = os.path.join(os.getcwd(), "data")
 zip_file_path = os.path.join(common_data_folder, "tiny-imagenet-200.zip")
 os.makedirs(common_data_folder, exist_ok=True)
 os.system(
-    f"wget --no-clobber http://cs231n.stanford.edu/tiny-imagenet-200.zip"
-    f" -O {zip_file_path}"
+    f"wget --no-clobber http://cs231n.stanford.edu/tiny-imagenet-200.zip" f" -O {zip_file_path}"
 )
 print("Unpacking tiny-imagenet-200.zip")
 shutil.unpack_archive(str(zip_file_path), str(common_data_folder))
@@ -39,9 +38,7 @@ training_transform = T.Compose(
     ]
 )
 
-valid_transform = T.Compose(
-    [T.Lambda(lambda x: x.convert("RGB")), T.ToTensor(), normalize]
-)
+valid_transform = T.Compose([T.Lambda(lambda x: x.convert("RGB")), T.ToTensor(), normalize])
 
 
 class TinyImageNetDataset(Dataset):
@@ -57,19 +54,11 @@ class TinyImageNetDataset(Dataset):
         self._data_folder = os.path.join(data_folder, data_type)
         self.labels = {}  # fname - label number mapping
         self.image_paths = sorted(
-            glob.iglob(
-                os.path.join(self._data_folder, "**", "*.JPEG"), recursive=True
-            )
+            glob.iglob(os.path.join(self._data_folder, "**", "*.JPEG"), recursive=True)
         )
-        with open(
-            os.path.join(self._common_data_folder, "wnids.txt"), "r"
-        ) as fp:
-            self.label_texts = sorted(
-                [text.strip() for text in fp.readlines()]
-            )
-        self.label_text_to_number = {
-            text: i for i, text in enumerate(self.label_texts)
-        }
+        with open(os.path.join(self._common_data_folder, "wnids.txt"), "r") as fp:
+            self.label_texts = sorted([text.strip() for text in fp.readlines()])
+        self.label_text_to_number = {text: i for i, text in enumerate(self.label_texts)}
         self.fill_labels()
         self.transform = transform
 
@@ -98,15 +87,11 @@ class TinyImageNetDataset(Dataset):
                 for cnt in range(self.NUM_IMAGES_PER_CLASS):
                     self.labels[f"{label_text}_{cnt}.JPEG"] = i
         elif self.data_type == "val":
-            with open(
-                os.path.join(self._data_folder, "val_annotations.txt"), "r"
-            ) as fp:
+            with open(os.path.join(self._data_folder, "val_annotations.txt"), "r") as fp:
                 for line in fp.readlines():
                     terms = line.split("\t")
                     file_name, label_text = terms[0], terms[1]
-                    self.labels[file_name] = self.label_text_to_number[
-                        label_text
-                    ]
+                    self.labels[file_name] = self.label_text_to_number[label_text]
 
 
 train_dataset = TinyImageNetDataset(
@@ -120,23 +105,15 @@ test_dataset = TinyImageNetDataset(
 )
 
 
-def collaborator_private_attrs(
-    index, n_collaborators, batch_size, train_dataset, test_dataset
-):
+def collaborator_private_attrs(index, n_collaborators, batch_size, train_dataset, test_dataset):
     train = deepcopy(train_dataset)
     test = deepcopy(test_dataset)
 
-    train = random_split(
-        train, [len(train) // n_collaborators] * n_collaborators
-    )[index]
-    test = random_split(
-        test, [len(test) // n_collaborators] * n_collaborators
-    )[index]
+    train = random_split(train, [len(train) // n_collaborators] * n_collaborators)[index]
+    test = random_split(test, [len(test) // n_collaborators] * n_collaborators)[index]
 
     return {
-        "train_loader": torch.utils.data.DataLoader(
-            train, batch_size=batch_size, shuffle=True
-        ),
+        "train_loader": torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=True),
         "test_loader": torch.utils.data.DataLoader(
             test,
             batch_size=batch_size,

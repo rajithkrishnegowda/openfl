@@ -40,9 +40,7 @@ async def test_review_experiment(
     review_callback = mock.Mock()
     review_callback.return_value = review_result
 
-    result = await experiment_rep.review_experiment(
-        review_plan_callback=review_callback
-    )
+    result = await experiment_rep.review_experiment(review_plan_callback=review_callback)
 
     assert result is review_callback.return_value
     ExperimentWorkspace.assert_called_once_with(
@@ -51,8 +49,5 @@ async def test_review_experiment(
         is_install_requirements=False,
         remove_archive=False,
     )
-    assert (
-        experiment_rep.archive_path.unlink.call_count
-        == archive_unlink_call_count
-    )
+    assert experiment_rep.archive_path.unlink.call_count == archive_unlink_call_count
     assert experiment_rep.status == experiment_status

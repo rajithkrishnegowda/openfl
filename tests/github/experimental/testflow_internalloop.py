@@ -53,9 +53,7 @@ class TestFlowInternalLoop(FLSpec):
         """
 
         self.agg_mean_value = np.mean(self.model)
-        print(
-            f"<Collab>: {self.input} Mean of Agg model: {self.agg_mean_value} "
-        )
+        print(f"<Collab>: {self.input} Mean of Agg model: {self.agg_mean_value} ")
         self.next(self.collab_model_update)
 
     @collaborator
@@ -81,9 +79,7 @@ class TestFlowInternalLoop(FLSpec):
         """
         Joining inputs from collaborators
         """
-        self.agg_mean = sum(input.local_mean_value for input in inputs) / len(
-            inputs
-        )
+        self.agg_mean = sum(input.local_mean_value for input in inputs) / len(inputs)
         print(f"Aggregated mean : {self.agg_mean}")
         self.next(self.internal_loop)
 
@@ -160,15 +156,9 @@ def validate_flow(flow_obj, expected_flow_steps):
                 + f"Actual: {task_count}{bcolors.ENDC} \n"
             )
 
-    steps_present_in_cli = [
-        step for step in expected_flow_steps if step in cli_step_names
-    ]
-    missing_steps_in_cli = [
-        step for step in expected_flow_steps if step not in cli_step_names
-    ]
-    extra_steps_in_cli = [
-        step for step in cli_step_names if step not in expected_flow_steps
-    ]
+    steps_present_in_cli = [step for step in expected_flow_steps if step in cli_step_names]
+    missing_steps_in_cli = [step for step in expected_flow_steps if step not in cli_step_names]
+    extra_steps_in_cli = [step for step in cli_step_names if step not in expected_flow_steps]
 
     if len(steps_present_in_cli) != len(expected_flow_steps):
         validate_flow_error.append(
@@ -233,9 +223,7 @@ if __name__ == "__main__":
     for collaborator_name in collaborator_names:
         collaborators.append(Collaborator(name=collaborator_name))
 
-    local_runtime = LocalRuntime(
-        aggregator=aggregator, collaborators=collaborators
-    )
+    local_runtime = LocalRuntime(aggregator=aggregator, collaborators=collaborators)
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "ray":
@@ -267,9 +255,7 @@ if __name__ == "__main__":
         "end",
     ]  # List to verify expected steps
     try:
-        validate_flow(
-            flflow, expected_flow_steps
-        )  # Function to validate the internal flow
+        validate_flow(flflow, expected_flow_steps)  # Function to validate the internal flow
     except Exception as e:
         raise e
     # Flow Test Ends

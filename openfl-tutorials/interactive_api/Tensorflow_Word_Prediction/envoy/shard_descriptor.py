@@ -56,8 +56,7 @@ class NextWordShardDescriptor(ShardDescriptor):
             y = self.y[train_size:]
         else:
             raise Exception(
-                f"Wrong dataset type: {dataset_type}."
-                f"Choose from the list: [train, val]"
+                f"Wrong dataset type: {dataset_type}." f"Choose from the list: [train, val]"
             )
         return NextWordShardDataset(X, y)
 
@@ -101,9 +100,7 @@ class NextWordShardDescriptor(ShardDescriptor):
         for i in range(len(data) - 3):
             x = data[i : i + 3]  # make 3-grams
             y = data[i + 3]
-            cur_x = [
-                vectors.vector[word] for word in x if word in vectors.index
-            ]
+            cur_x = [vectors.vector[word] for word in x if word in vectors.index]
             if len(cur_x) == 3 and y in vectors.index:
                 x_seq.append(cur_x)
                 y_seq.append(vectors.index.get_loc(y))

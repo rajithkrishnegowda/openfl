@@ -16,9 +16,7 @@ from openfl.utilities.data_splitters import RandomNumPyDataSplitter
 class KvasirShardDataset(ShardDataset):
     """Kvasir Shard dataset class."""
 
-    def __init__(
-        self, dataset_dir: Path, rank=1, worldsize=1, enforce_image_hw=None
-    ):
+    def __init__(self, dataset_dir: Path, rank=1, worldsize=1, enforce_image_hw=None):
         """Initialize KvasirShardDataset."""
         self.rank = rank
         self.worldsize = worldsize
@@ -35,9 +33,7 @@ class KvasirShardDataset(ShardDataset):
         ]
         # Sharding
         data_splitter = RandomNumPyDataSplitter()
-        shard_idx = data_splitter.split(self.images_names, self.worldsize)[
-            self.rank
-        ]
+        shard_idx = data_splitter.split(self.images_names, self.worldsize)[self.rank]
         self.images_names = [self.images_names[i] for i in shard_idx]
 
     def __getitem__(self, index):
@@ -74,9 +70,7 @@ class KvasirShardDescriptor(ShardDescriptor):
         """Initialize KvasirShardDescriptor."""
         super().__init__()
         # Settings for sharding the dataset
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
 
         self.data_folder = Path.cwd() / data_folder
         self.download_data(self.data_folder)
@@ -84,9 +78,7 @@ class KvasirShardDescriptor(ShardDescriptor):
         # Settings for resizing data
         self.enforce_image_hw = None
         if enforce_image_hw is not None:
-            self.enforce_image_hw = tuple(
-                int(size) for size in enforce_image_hw.split(",")
-            )
+            self.enforce_image_hw = tuple(int(size) for size in enforce_image_hw.split(","))
 
     def get_dataset(self, dataset_type="train"):
         """Return a shard dataset by type."""
@@ -131,6 +123,4 @@ class KvasirShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"Kvasir dataset, shard number {self.rank} out of {self.worldsize}"
-        )
+        return f"Kvasir dataset, shard number {self.rank} out of {self.worldsize}"

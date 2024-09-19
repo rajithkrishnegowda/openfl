@@ -27,9 +27,7 @@ def test_collaborator_start(mock_parse):
 
 @mock.patch("openfl.interface.collaborator.is_directory_traversal")
 @mock.patch("openfl.federated.Plan.parse")
-def test_collaborator_start_illegal_plan(
-    mock_parse, mock_is_directory_traversal
-):
+def test_collaborator_start_illegal_plan(mock_parse, mock_is_directory_traversal):
     current_path = Path(__file__).resolve()
     plan_path = current_path.parent.joinpath("plan")
     plan_config = plan_path.joinpath("plan.yaml")
@@ -38,9 +36,7 @@ def test_collaborator_start_illegal_plan(
     mock_parse.return_value = mock.Mock()
     mock_is_directory_traversal.side_effect = [True, False]
 
-    with TestCase.assertRaises(
-        test_collaborator_start_illegal_plan, SystemExit
-    ):
+    with TestCase.assertRaises(test_collaborator_start_illegal_plan, SystemExit):
         start_(
             ["-p", plan_config, "-d", data_config, "-n", "one"],
             standalone_mode=False,
@@ -49,9 +45,7 @@ def test_collaborator_start_illegal_plan(
 
 @mock.patch("openfl.interface.collaborator.is_directory_traversal")
 @mock.patch("openfl.federated.Plan.parse")
-def test_collaborator_start_illegal_data(
-    mock_parse, mock_is_directory_traversal
-):
+def test_collaborator_start_illegal_data(mock_parse, mock_is_directory_traversal):
     current_path = Path(__file__).resolve()
     plan_path = current_path.parent.joinpath("plan")
     plan_config = plan_path.joinpath("plan.yaml")
@@ -60,9 +54,7 @@ def test_collaborator_start_illegal_data(
     mock_parse.return_value = mock.Mock()
     mock_is_directory_traversal.side_effect = [False, True]
 
-    with TestCase.assertRaises(
-        test_collaborator_start_illegal_plan, SystemExit
-    ):
+    with TestCase.assertRaises(test_collaborator_start_illegal_plan, SystemExit):
         start_(
             ["-p", plan_config, "-d", data_config, "-n", "one"],
             standalone_mode=False,

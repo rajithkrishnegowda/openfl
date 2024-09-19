@@ -50,9 +50,7 @@ class PyTorchCNN(PyTorchTaskRunner):
             **kwargs: Additional arguments to pass to the function
 
         """
-        channel = self.data_loader.get_feature_shape()[
-            0
-        ]  # (channel, dim1, dim2)
+        channel = self.data_loader.get_feature_shape()[0]  # (channel, dim1, dim2)
         conv_kwargs = {"kernel_size": 3, "stride": 1, "padding": 1}
         self.conv1 = nn.Conv2d(channel, 16, **conv_kwargs)
         self.conv2 = nn.Conv2d(16, 32, **conv_kwargs)
@@ -98,9 +96,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         x = self.fc2(x)
         return x
 
-    def validate_task(
-        self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs
-    ):
+    def validate_task(self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs):
         """Validate.
 
         Run validation of the model on the local data.
@@ -149,9 +145,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         # TODO figure out a better way to pass in metric for
         #  this pytorch validate function
         output_tensor_dict = {
-            TensorKey("acc", origin, round_num, True, tags): np.array(
-                val_score / total_samples
-            )
+            TensorKey("acc", origin, round_num, True, tags): np.array(val_score / total_samples)
         }
 
         # empty list represents metrics that should only be stored locally

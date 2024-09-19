@@ -69,9 +69,7 @@ class NLPDataLoader(KerasDataLoader):
         """Get the shape of an example feature array."""
         return self.X_train[0].shape
 
-    def get_train_loader(
-        self, batch_size: Optional[int] = None
-    ) -> Iterator[List[np.ndarray]]:
+    def get_train_loader(self, batch_size: Optional[int] = None) -> Iterator[List[np.ndarray]]:
         """
         Get training data loader.
 
@@ -86,9 +84,7 @@ class NLPDataLoader(KerasDataLoader):
             batch_size=batch_size,
         )
 
-    def get_valid_loader(
-        self, batch_size: Optional[int] = None
-    ) -> Iterator[List[np.ndarray]]:
+    def get_valid_loader(self, batch_size: Optional[int] = None) -> Iterator[List[np.ndarray]]:
         """
         Get validation data loader.
 

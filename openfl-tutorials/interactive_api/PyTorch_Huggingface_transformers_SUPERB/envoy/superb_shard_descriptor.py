@@ -38,9 +38,7 @@ class SuperbShardDescriptor(ShardDescriptor):
 
     def __init__(self, rank_worldsize: str = "1, 1", **kwargs) -> None:
         """Initialize SuperbShardDescriptor."""
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
         print("rank and worldsize", self.rank, self.worldsize)
         train_set, val_set, test_set = self.download_data()
         self.data_by_type = {
@@ -76,10 +74,7 @@ class SuperbShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"Superb dataset, shard number {self.rank}"
-            f" out of {self.worldsize}"
-        )
+        return f"Superb dataset, shard number {self.rank}" f" out of {self.worldsize}"
 
     def download_data(
         self,

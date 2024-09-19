@@ -85,9 +85,7 @@ def _set_optimizer_state(optimizer, device, derived_opt_state_dict):
     Returns:
         None
     """
-    temp_state_dict = expand_derived_opt_state_dict(
-        derived_opt_state_dict, device
-    )
+    temp_state_dict = expand_derived_opt_state_dict(derived_opt_state_dict, device)
 
     # Setting other items from the param_groups
     # getting them from the local optimizer
@@ -150,9 +148,7 @@ def _derive_opt_state_dict(opt_state_dict):
     # Using one example state key, we collect keys for the corresponding
     # dictionary value.
     example_state_key = opt_state_dict["param_groups"][0]["params"][0]
-    example_state_subkeys = set(
-        opt_state_dict["state"][example_state_key].keys()
-    )
+    example_state_subkeys = set(opt_state_dict["state"][example_state_key].keys())
 
     # We assume that the state collected for all params in all param groups is
     # the same.
@@ -161,16 +157,12 @@ def _derive_opt_state_dict(opt_state_dict):
     # Using assert statements to break the routine if these assumptions are
     # incorrect.
     for state_key in opt_state_dict["state"].keys():
-        assert example_state_subkeys == set(
-            opt_state_dict["state"][state_key].keys()
-        )
+        assert example_state_subkeys == set(opt_state_dict["state"][state_key].keys())
         for state_subkey in example_state_subkeys:
             assert isinstance(
                 opt_state_dict["state"][example_state_key][state_subkey],
                 pt.Tensor,
-            ) == isinstance(
-                opt_state_dict["state"][state_key][state_subkey], pt.Tensor
-            )
+            ) == isinstance(opt_state_dict["state"][state_key][state_subkey], pt.Tensor)
 
     state_subkeys = list(opt_state_dict["state"][example_state_key].keys())
 
@@ -178,9 +170,7 @@ def _derive_opt_state_dict(opt_state_dict):
     # tensor or not.
     state_subkey_tags = []
     for state_subkey in state_subkeys:
-        if isinstance(
-            opt_state_dict["state"][example_state_key][state_subkey], pt.Tensor
-        ):
+        if isinstance(opt_state_dict["state"][example_state_key][state_subkey], pt.Tensor):
             state_subkey_tags.append("istensor")
         else:
             state_subkey_tags.append("")
@@ -194,22 +184,14 @@ def _derive_opt_state_dict(opt_state_dict):
         for idx, param_id in enumerate(group["params"]):
             for subkey, tag in state_subkeys_and_tags:
                 if tag == "istensor":
-                    new_v = (
-                        opt_state_dict["state"][param_id][subkey].cpu().numpy()
-                    )
+                    new_v = opt_state_dict["state"][param_id][subkey].cpu().numpy()
                 else:
-                    new_v = np.array(
-                        [opt_state_dict["state"][param_id][subkey]]
-                    )
-                derived_opt_state_dict[
-                    f"__opt_state_{group_idx}_{idx}_{tag}_{subkey}"
-                ] = new_v
+                    new_v = np.array([opt_state_dict["state"][param_id][subkey]])
+                derived_opt_state_dict[f"__opt_state_{group_idx}_{idx}_{tag}_{subkey}"] = new_v
         nb_params_per_group.append(idx + 1)
     # group lengths are also helpful for reconstructing
     # original opt_state_dict structure
-    derived_opt_state_dict["__opt_group_lengths"] = np.array(
-        nb_params_per_group
-    )
+    derived_opt_state_dict["__opt_group_lengths"] = np.array(nb_params_per_group)
 
     return derived_opt_state_dict
 
@@ -243,9 +225,7 @@ def expand_derived_opt_state_dict(derived_opt_state_dict, device):
             state_subkeys_and_tags.append((subkey, this_tag))
 
     opt_state_dict = {"param_groups": [], "state": {}}
-    nb_params_per_group = list(
-        derived_opt_state_dict.pop("__opt_group_lengths").astype(np.int32)
-    )
+    nb_params_per_group = list(derived_opt_state_dict.pop("__opt_group_lengths").astype(np.int32))
 
     # Construct the expanded dict.
     for group_idx, nb_params in enumerate(nb_params_per_group):
@@ -287,8 +267,7 @@ def to_cpu_numpy(state):
         # When restoring, we currently assume all values are tensors.
         if not pt.is_tensor(v):
             raise ValueError(
-                "We do not currently support non-tensors "
-                "coming from model.state_dict()"
+                "We do not currently support non-tensors " "coming from model.state_dict()"
             )
         # get as a numpy array, making sure is on cpu
         state[k] = v.cpu().numpy()

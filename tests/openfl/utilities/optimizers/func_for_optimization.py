@@ -15,14 +15,10 @@ def rosenbrock_func(point: Dict[str, np.ndarray]) -> float:
     return (1 - point["x"]) ** 2 + 100 * (point["y"] - point["x"] ** 2) ** 2
 
 
-def _get_rosenbrock_grads(
-    point: Dict[str, np.ndarray]
-) -> Dict[str, np.ndarray]:
+def _get_rosenbrock_grads(point: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
     """Calculate gradients for Rosenbrock function."""
     grads = {"x": np.array([0]), "y": np.array([0])}
-    grads["x"] = -2 * (1 - point["x"]) - 400 * point["x"] * (
-        point["y"] - point["x"] ** 2
-    )
+    grads["x"] = -2 * (1 - point["x"]) - 400 * point["x"] * (point["y"] - point["x"] ** 2)
     grads["y"] = grads["y"] + 200 * (point["y"] - point["x"] ** 2)
     return grads
 
@@ -42,17 +38,11 @@ def mc_cormick_func(point: Dict[str, np.ndarray]) -> float:
     )
 
 
-def _get_mc_cormick_grads(
-    point: Dict[str, np.ndarray]
-) -> Dict[str, np.ndarray]:
+def _get_mc_cormick_grads(point: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
     """Calculate gradients for McCormick function."""
     grads = {"x": np.array([0]), "y": np.array([0])}
-    grads["x"] = (
-        np.cos(point["x"] + point["y"]) + 2 * (point["x"] - point["y"]) - 1.5
-    )
-    grads["y"] = (
-        np.cos(point["x"] + point["y"]) - 2 * (point["x"] - point["y"]) + 2.5
-    )
+    grads["x"] = np.cos(point["x"] + point["y"]) + 2 * (point["x"] - point["y"]) - 1.5
+    grads["y"] = np.cos(point["x"] + point["y"]) - 2 * (point["x"] - point["y"]) + 2.5
     return grads
 
 

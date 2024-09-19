@@ -61,9 +61,7 @@ class TestFlowInclude(FLSpec):
                 + f"{bcolors.ENDC}"
             )
         else:
-            TestFlowInclude.include_error_list.append(
-                "test_include_agg_to_agg"
-            )
+            TestFlowInclude.include_error_list.append("test_include_agg_to_agg")
             print(
                 f"{bcolors.FAIL} ... Include test failed in test_include_agg_to_agg {bcolors.ENDC}"
             )
@@ -92,9 +90,7 @@ class TestFlowInclude(FLSpec):
                 + f"{bcolors.ENDC}"
             )
         else:
-            TestFlowInclude.include_error_list.append(
-                "test_include_agg_to_collab"
-            )
+            TestFlowInclude.include_error_list.append("test_include_agg_to_collab")
             print(
                 f"{bcolors.FAIL} ... Include test failed in test_include_agg_to_collab "
                 + f"{bcolors.ENDC}"
@@ -124,9 +120,7 @@ class TestFlowInclude(FLSpec):
                 + f"{bcolors.ENDC}"
             )
         else:
-            TestFlowInclude.include_error_list.append(
-                "test_include_collab_to_collab"
-            )
+            TestFlowInclude.include_error_list.append("test_include_collab_to_collab")
             print(
                 f"{bcolors.FAIL} ... Include test failed in test_include_collab_to_collab "
                 + f"{bcolors.ENDC}"
@@ -159,23 +153,15 @@ class TestFlowInclude(FLSpec):
             )
 
         if validation:
-            print(
-                f"{bcolors.OKGREEN} ... Include test passed in join {bcolors.ENDC}"
-            )
+            print(f"{bcolors.OKGREEN} ... Include test passed in join {bcolors.ENDC}")
         else:
             TestFlowInclude.include_error_list.append("join")
-            print(
-                f"{bcolors.FAIL} ... Include test failed in join {bcolors.ENDC}"
-            )
+            print(f"{bcolors.FAIL} ... Include test failed in join {bcolors.ENDC}")
 
-        print(
-            f"\n{bcolors.UNDERLINE}Include attribute test summary: {bcolors.ENDC}\n"
-        )
+        print(f"\n{bcolors.UNDERLINE}Include attribute test summary: {bcolors.ENDC}\n")
 
         if TestFlowInclude.include_error_list:
-            validated_include_variables = ",".join(
-                TestFlowInclude.include_error_list
-            )
+            validated_include_variables = ",".join(TestFlowInclude.include_error_list)
             print(
                 f"{bcolors.FAIL} ...Test case failed for {validated_include_variables} "
                 + f"{bcolors.ENDC}"
@@ -194,11 +180,7 @@ class TestFlowInclude(FLSpec):
             + f"{bcolors.ENDC}"
         )
         if TestFlowInclude.include_error_list:
-            raise (
-                AssertionError(
-                    f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"
-                )
-            )
+            raise (AssertionError(f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"))
 
 
 if __name__ == "__main__":

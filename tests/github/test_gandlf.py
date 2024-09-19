@@ -106,24 +106,14 @@ if __name__ == "__main__":
                     shutil.copy(entry.path, ".")
 
     workspace_root = Path().resolve()
-    create_collaborator(
-        col1, workspace_root, col1_data_path, archive_name, fed_workspace
-    )
-    create_collaborator(
-        col2, workspace_root, col2_data_path, archive_name, fed_workspace
-    )
+    create_collaborator(col1, workspace_root, col1_data_path, archive_name, fed_workspace)
+    create_collaborator(col2, workspace_root, col2_data_path, archive_name, fed_workspace)
 
-    Path(workspace_root / col1 / fed_workspace / "data" / col1).mkdir(
-        exist_ok=True
-    )
-    Path(workspace_root / col2 / fed_workspace / "data" / col2).mkdir(
-        exist_ok=True
-    )
+    Path(workspace_root / col1 / fed_workspace / "data" / col1).mkdir(exist_ok=True)
+    Path(workspace_root / col2 / fed_workspace / "data" / col2).mkdir(exist_ok=True)
 
     if args.ujjwal:
-        with os.scandir(
-            "/media/ujjwal/SSD4TB/sbutil/DatasetForTraining_Horizontal/"
-        ) as iterator:
+        with os.scandir("/media/ujjwal/SSD4TB/sbutil/DatasetForTraining_Horizontal/") as iterator:
             for entry in iterator:
                 if re.match(r"^Site1_.*\.csv$", entry.name):
                     shutil.copy(entry.path, workspace_root / col1)
@@ -156,12 +146,8 @@ if __name__ == "__main__":
         time.sleep(5)
 
         dir1 = workspace_root / col1 / fed_workspace
-        executor.submit(
-            exec, ["fx", "collaborator", "start", "-n", col1], dir1
-        )
+        executor.submit(exec, ["fx", "collaborator", "start", "-n", col1], dir1)
 
         dir2 = workspace_root / col2 / fed_workspace
-        executor.submit(
-            exec, ["fx", "collaborator", "start", "-n", col2], dir2
-        )
+        executor.submit(exec, ["fx", "collaborator", "start", "-n", col2], dir2)
     shutil.rmtree(workspace_root)

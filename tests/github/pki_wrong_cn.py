@@ -21,9 +21,7 @@ def prepare_workspace():
     subprocess.check_call(["fx", "aggregator", "generate-cert-request"])
     subprocess.check_call(["fx", "aggregator", "certify", "-s"])
     for col in ["one", "two"]:
-        subprocess.check_call(
-            ["fx", "collaborator", "create", "-n", col, "-d", "1", "-s"]
-        )
+        subprocess.check_call(["fx", "collaborator", "create", "-n", col, "-d", "1", "-s"])
         subprocess.check_call(
             [
                 "fx",
@@ -35,9 +33,7 @@ def prepare_workspace():
                 "-x",
             ]
         )
-        subprocess.check_call(
-            ["fx", "collaborator", "certify", "-n", col, "-s"]
-        )
+        subprocess.check_call(["fx", "collaborator", "certify", "-n", col, "-s"])
 
     sys.path.append(os.getcwd())
 
@@ -60,9 +56,7 @@ def start_invalid_collaborator():
 
 
 def start_aggregator():
-    agg = Process(
-        target=subprocess.check_call, args=[["fx", "aggregator", "start"]]
-    )
+    agg = Process(target=subprocess.check_call, args=[["fx", "aggregator", "start"]])
     agg.start()
     time.sleep(3)  # wait for initialization
     return agg

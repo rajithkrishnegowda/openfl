@@ -49,9 +49,7 @@ class Plan:
         if freeze:
             plan = Plan()
             plan.config = config
-            frozen_yaml_path = Path(
-                f"{yaml_path.parent}/{yaml_path.stem}_{plan.hash[:8]}.yaml"
-            )
+            frozen_yaml_path = Path(f"{yaml_path.parent}/{yaml_path.stem}_{plan.hash[:8]}.yaml")
             if frozen_yaml_path.exists():
                 Plan.logger.info(f"{yaml_path.name} is already frozen")
                 return
@@ -83,9 +81,7 @@ class Plan:
         """
         try:
             plan = Plan()
-            plan.config = Plan.load(
-                plan_config_path
-            )  # load plan configuration
+            plan.config = Plan.load(plan_config_path)  # load plan configuration
             plan.name = plan_config_path.name
             plan.files = [plan_config_path]  # collect all the plan files
 
@@ -114,18 +110,14 @@ class Plan:
 
                     if SETTINGS in defaults:
                         # override defaults with section settings
-                        defaults[SETTINGS].update(
-                            plan.config[section][SETTINGS]
-                        )
+                        defaults[SETTINGS].update(plan.config[section][SETTINGS])
                         plan.config[section][SETTINGS] = defaults[SETTINGS]
 
                     defaults.update(plan.config[section])
 
                     plan.config[section] = defaults
 
-            plan.authorized_cols = Plan.load(cols_config_path).get(
-                "collaborators", []
-            )
+            plan.authorized_cols = Plan.load(cols_config_path).get("collaborators", [])
 
             if resolve:
                 plan.resolve()
@@ -244,9 +236,7 @@ class Plan:
         self.federation_uuid = f"{self.name}_{self.hash[:8]}"
         self.aggregator_uuid = f"aggregator_{self.federation_uuid}"
 
-        self.rounds_to_train = self.config["aggregator"][SETTINGS][
-            "rounds_to_train"
-        ]
+        self.rounds_to_train = self.config["aggregator"][SETTINGS]["rounds_to_train"]
 
         if self.config["network"][SETTINGS]["agg_addr"] == AUTO:
             self.config["network"][SETTINGS]["agg_addr"] = getfqdn_env()
@@ -272,9 +262,7 @@ class Plan:
             private_attrs_kwargs,
             private_attributes,
         ) = self.get_private_attr("aggregator")
-        defaults[SETTINGS][
-            "private_attributes_callable"
-        ] = private_attrs_callable
+        defaults[SETTINGS]["private_attributes_callable"] = private_attrs_callable
         defaults[SETTINGS]["private_attributes_kwargs"] = private_attrs_kwargs
         defaults[SETTINGS]["private_attributes"] = private_attributes
 
@@ -323,9 +311,7 @@ class Plan:
             private_attrs_kwargs,
             private_attributes,
         ) = self.get_private_attr(collaborator_name)
-        defaults[SETTINGS][
-            "private_attributes_callable"
-        ] = private_attrs_callable
+        defaults[SETTINGS]["private_attributes_callable"] = private_attrs_callable
         defaults[SETTINGS]["private_attributes_kwargs"] = private_attrs_kwargs
         defaults[SETTINGS]["private_attributes"] = private_attributes
 
@@ -444,9 +430,7 @@ class Plan:
                                 if not inspect.isclass(attr):
                                     settings[key] = attr
                                 else:
-                                    settings = Plan.build(
-                                        **value_defaults_data
-                                    )
+                                    settings = Plan.build(**value_defaults_data)
                         except ImportError:
                             raise ImportError(f"Cannot import {value}.")
             return settings
@@ -465,12 +449,8 @@ class Plan:
             d = Plan.load(Path(data_yaml).absolute())
 
             if d.get(private_attr_name, None):
-                callable_func = d.get(private_attr_name, {}).get(
-                    "callable_func"
-                )
-                private_attributes = d.get(private_attr_name, {}).get(
-                    "private_attributes"
-                )
+                callable_func = d.get(private_attr_name, {}).get("callable_func")
+                private_attributes = d.get(private_attr_name, {}).get("private_attributes")
                 if callable_func and private_attributes:
                     logger = getLogger(__name__)
                     logger.warning(
@@ -482,9 +462,7 @@ class Plan:
 
                 if callable_func is not None:
                     private_attrs_callable = {
-                        "template": d.get(private_attr_name)["callable_func"][
-                            "template"
-                        ]
+                        "template": d.get(private_attr_name)["callable_func"]["template"]
                     }
 
                     private_attrs_kwargs = self.import_kwargs_modules(
@@ -492,9 +470,7 @@ class Plan:
                     )["settings"]
 
                     if isinstance(private_attrs_callable, dict):
-                        private_attrs_callable = Plan.import_(
-                            **private_attrs_callable
-                        )
+                        private_attrs_callable = Plan.import_(**private_attrs_callable)
                 elif private_attributes:
                     private_attributes = Plan.import_(
                         d.get(private_attr_name)["private_attributes"]

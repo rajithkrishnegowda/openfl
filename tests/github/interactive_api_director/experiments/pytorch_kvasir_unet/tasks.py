@@ -63,9 +63,7 @@ def train(
     }
 
 
-@task_interface.register_fl_task(
-    model="unet_model", data_loader="val_loader", device="device"
-)
+@task_interface.register_fl_task(model="unet_model", data_loader="val_loader", device="device")
 def validate(unet_model, val_loader, device):
     unet_model.eval()
     unet_model.to(device)
@@ -79,9 +77,9 @@ def validate(unet_model, val_loader, device):
         for data, target in val_loader:
             samples = target.shape[0]
             total_samples += samples
-            data, target = torch.tensor(data).to(device), torch.tensor(
-                target
-            ).to(device, dtype=torch.int64)
+            data, target = torch.tensor(data).to(device), torch.tensor(target).to(
+                device, dtype=torch.int64
+            )
             output = unet_model(data)
             val = soft_dice_coef(output, target)
             val_score += val.sum().cpu().numpy()

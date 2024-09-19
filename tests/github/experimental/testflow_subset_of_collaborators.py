@@ -50,9 +50,7 @@ class TestFlowSubsetCollaborators(FLSpec):
         self.collaborators = self.runtime.collaborators
 
         # select subset of collaborators
-        self.subset_collabrators = self.collaborators[
-            : random.choice(self.random_ints)
-        ]
+        self.subset_collabrators = self.collaborators[: random.choice(self.random_ints)]
 
         print(
             f"... Executing flow for {len(self.subset_collabrators)} collaborators out of Total: "
@@ -87,9 +85,7 @@ class TestFlowSubsetCollaborators(FLSpec):
         End of the flow
 
         """
-        print(
-            f"End of the test case {TestFlowSubsetCollaborators.__name__} reached."
-        )
+        print(f"End of the test case {TestFlowSubsetCollaborators.__name__} reached.")
 
 
 if __name__ == "__main__":
@@ -133,9 +129,7 @@ if __name__ == "__main__":
                 backend="ray",
             )
 
-    random_ints = random.sample(
-        range(1, len(collaborators) + 1), len(collaborators)
-    )
+    random_ints = random.sample(range(1, len(collaborators) + 1), len(collaborators))
     tc_pass_fail = {"passed": [], "failed": []}
     for round_num in range(len(collaborators)):
         print(f"{bcolors.OKBLUE}Starting round {round_num}...{bcolors.ENDC}")
@@ -149,9 +143,7 @@ if __name__ == "__main__":
         testflow_subset_collaborators.runtime = local_runtime
         testflow_subset_collaborators.run()
 
-        subset_collaborators = (
-            testflow_subset_collaborators.subset_collabrators
-        )
+        subset_collaborators = testflow_subset_collaborators.subset_collabrators
         collaborators_ran = testflow_subset_collaborators.collaborators_ran
         # We now convert names to lowercase
         random_ints = testflow_subset_collaborators.random_ints
@@ -201,6 +193,5 @@ if __name__ == "__main__":
     if tc_pass_fail.get("failed"):
         tc_pass_fail_len = len(tc_pass_fail.get("failed"))
         raise AssertionError(
-            f"{bcolors.FAIL}\n {tc_pass_fail_len} Test "
-            + f"case(s) failed ... {bcolors.ENDC}"
+            f"{bcolors.FAIL}\n {tc_pass_fail_len} Test " + f"case(s) failed ... {bcolors.ENDC}"
         )

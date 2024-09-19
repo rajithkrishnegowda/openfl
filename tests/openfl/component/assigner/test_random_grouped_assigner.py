@@ -51,20 +51,14 @@ def test_define_task_assignments(assigner):
 
 
 @pytest.mark.parametrize("round_number", range(ROUNDS_TO_TRAIN))
-def test_get_tasks_for_collaborator(
-    assigner, task_groups, authorized_cols, round_number
-):
+def test_get_tasks_for_collaborator(assigner, task_groups, authorized_cols, round_number):
     """Test that assigner tasks correspond to task groups defined."""
-    tasks = assigner.get_tasks_for_collaborator(
-        authorized_cols[0], round_number
-    )
+    tasks = assigner.get_tasks_for_collaborator(authorized_cols[0], round_number)
     assert tasks == task_groups[0]["tasks"]
 
 
 @pytest.mark.parametrize("round_number", range(ROUNDS_TO_TRAIN))
-def test_get_collaborators_for_task(
-    assigner, task_groups, round_number, authorized_cols
-):
+def test_get_collaborators_for_task(assigner, task_groups, round_number, authorized_cols):
     """Check that assigner collaborators set is equal to authorized collaborators set."""
     for task_name in task_groups[0]["tasks"]:
         cols = assigner.get_collaborators_for_task(task_name, round_number)

@@ -23,9 +23,7 @@ class TaskRunner:
         opt_treatment (str): Treatment of current instance optimizer.
     """
 
-    def __init__(
-        self, data_loader, tensor_dict_split_fn_kwargs: dict = None, **kwargs
-    ):
+    def __init__(self, data_loader, tensor_dict_split_fn_kwargs: dict = None, **kwargs):
         """Intializes the TaskRunner object.
 
         Args:
@@ -93,13 +91,8 @@ class TaskRunner:
         Returns:
             None
         """
-        if (
-            data_loader.get_feature_shape()
-            != self.data_loader.get_feature_shape()
-        ):
-            raise ValueError(
-                "The data_loader feature shape is not compatible with model."
-            )
+        if data_loader.get_feature_shape() != self.data_loader.get_feature_shape():
+            raise ValueError("The data_loader feature shape is not compatible with model.")
 
         self.data_loader = data_loader
 

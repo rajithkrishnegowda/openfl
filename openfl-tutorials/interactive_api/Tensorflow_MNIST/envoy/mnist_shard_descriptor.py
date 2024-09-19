@@ -39,9 +39,7 @@ class MnistShardDescriptor(ShardDescriptor):
 
     def __init__(self, rank_worldsize: str = "1, 1", **kwargs):
         """Initialize MnistShardDescriptor."""
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
         (x_train, y_train), (x_test, y_test) = self.download_data()
         self.data_by_type = {
             "train": (x_train, y_train),
@@ -76,10 +74,7 @@ class MnistShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"Mnist dataset, shard number {self.rank}"
-            f" out of {self.worldsize}"
-        )
+        return f"Mnist dataset, shard number {self.rank}" f" out of {self.worldsize}"
 
     def download_data(self):
         """Download prepared dataset."""

@@ -34,13 +34,9 @@ def all_registered_tasks():
 def test_define_task_assigner_all_tasks(all_registered_tasks):
     """Test define_task_assigner if all task types are registered."""
     task_keeper = TaskKeeper()
-    task_keeper.get_registered_tasks = mock.Mock(
-        return_value=all_registered_tasks
-    )
+    task_keeper.get_registered_tasks = mock.Mock(return_value=all_registered_tasks)
     rounds_to_train = 10
-    task_assigner_fn = FLExperiment(None).define_task_assigner(
-        task_keeper, rounds_to_train
-    )
+    task_assigner_fn = FLExperiment(None).define_task_assigner(task_keeper, rounds_to_train)
     tasks_by_collaborator = task_assigner_fn(["one", "two"], 1)
     assert tasks_by_collaborator["one"] == list(all_registered_tasks.values())
 
@@ -56,9 +52,7 @@ def test_define_task_assigner_val_tasks():
         return_value={"aggregated_model_validate": agg_task}
     )
     rounds_to_train = 1
-    task_assigner_fn = FLExperiment(None).define_task_assigner(
-        task_keeper, rounds_to_train
-    )
+    task_assigner_fn = FLExperiment(None).define_task_assigner(task_keeper, rounds_to_train)
     tasks_by_collaborator = task_assigner_fn(["one", "two"], 1)
     assert tasks_by_collaborator["one"] == [agg_task]
 
@@ -85,9 +79,7 @@ def test_define_task_assigner_exception_only_train():
         name="train",
         function_name="train",
     )
-    task_keeper.get_registered_tasks = mock.Mock(
-        return_value={"train": train_task}
-    )
+    task_keeper.get_registered_tasks = mock.Mock(return_value={"train": train_task})
     rounds_to_train = 10
     with pytest.raises(Exception):
         FLExperiment(None).define_task_assigner(task_keeper, rounds_to_train)

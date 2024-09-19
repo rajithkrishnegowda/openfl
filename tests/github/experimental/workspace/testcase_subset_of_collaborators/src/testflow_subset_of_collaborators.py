@@ -74,9 +74,7 @@ class TestFlowSubsetCollaborators(FLSpec):
         """
         End of the flow
         """
-        print(
-            f"End of the test case {TestFlowSubsetCollaborators.__name__} reached."
-        )
+        print(f"End of the test case {TestFlowSubsetCollaborators.__name__} reached.")
         testcase()
 
 
@@ -130,6 +128,5 @@ def testcase():
     if tc_pass_fail.get("failed"):
         tc_pass_fail_len = len(tc_pass_fail.get("failed"))
         raise AssertionError(
-            f"{bcolors.FAIL}\n {tc_pass_fail_len} Test "
-            + f"case(s) failed ... {bcolors.ENDC}"
+            f"{bcolors.FAIL}\n {tc_pass_fail_len} Test " + f"case(s) failed ... {bcolors.ENDC}"
         )

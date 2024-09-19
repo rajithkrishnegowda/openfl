@@ -65,9 +65,7 @@ class LLMTaskRunner(PyTorchTaskRunner):
     def state_dict(self):
         return get_peft_model_state_dict(self.model)
 
-    def load_state_dict(
-        self, state_dict: Mapping[str, Any], strict: bool = True
-    ):
+    def load_state_dict(self, state_dict: Mapping[str, Any], strict: bool = True):
         return set_peft_model_state_dict(self.model, state_dict)
 
     def save_modelstate(self, col_name, round_num, func_name, kwargs):
@@ -87,9 +85,7 @@ class LLMTaskRunner(PyTorchTaskRunner):
         )
         return state_path, out_path, data_path
 
-    def launch_horovod(
-        self, data_path, state_path, out_path, function_name, horovod_kwags
-    ):
+    def launch_horovod(self, data_path, state_path, out_path, function_name, horovod_kwags):
         arg_list = [
             "horovodrun",
             "-np",
@@ -121,9 +117,7 @@ class LLMTaskRunner(PyTorchTaskRunner):
         )
         return result
 
-    def validate_task(
-        self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs
-    ):
+    def validate_task(self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs):
         """Validate.
 
         Run validation of the model on the local data.
@@ -177,11 +171,7 @@ class LLMTaskRunner(PyTorchTaskRunner):
         tags = change_tags(tags, add_field=suffix)
         # TODO figure out a better way to pass in metric for this pytorch
         #  validate function
-        output_tensor_dict = {
-            TensorKey("acc", origin, round_num, True, tags): np.array(
-                val_score
-            )
-        }
+        output_tensor_dict = {TensorKey("acc", origin, round_num, True, tags): np.array(val_score)}
 
         # Empty list represents metrics that should only be stored locally
         return output_tensor_dict, {}
@@ -238,9 +228,7 @@ class LLMTaskRunner(PyTorchTaskRunner):
         origin = col_name
         tags = ("trained",)
         output_metric_dict = {
-            TensorKey(
-                metric.name, origin, round_num, True, ("metric",)
-            ): metric.value
+            TensorKey(metric.name, origin, round_num, True, ("metric",)): metric.value
         }
 
         # output model tensors (Doesn't include TensorKey)
@@ -263,9 +251,7 @@ class LLMTaskRunner(PyTorchTaskRunner):
         # for the updated model parameters.
         # This ensures they will be resolved locally
         next_local_tensorkey_model_dict = {
-            TensorKey(
-                tensor_name, origin, round_num + 1, False, ("model",)
-            ): nparray
+            TensorKey(tensor_name, origin, round_num + 1, False, ("model",)): nparray
             for tensor_name, nparray in local_model_dict.items()
         }
 

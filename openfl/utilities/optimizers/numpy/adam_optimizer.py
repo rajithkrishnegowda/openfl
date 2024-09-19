@@ -69,31 +69,21 @@ class NumPyAdam(Optimizer):
         super().__init__()
 
         if model_interface is None and params is None:
-            raise ValueError(
-                "Should provide one of the params or model_interface"
-            )
+            raise ValueError("Should provide one of the params or model_interface")
 
         if learning_rate < 0:
-            raise ValueError(
-                f"Invalid learning rate: {learning_rate}. Learning rate must be >= 0."
-            )
+            raise ValueError(f"Invalid learning rate: {learning_rate}. Learning rate must be >= 0.")
         if not 0.0 <= betas[0] < 1:
-            raise ValueError(
-                f"Invalid betas[0] value: {betas[0]}. betas[0] must be in [0, 1)."
-            )
+            raise ValueError(f"Invalid betas[0] value: {betas[0]}. betas[0] must be in [0, 1).")
         if not 0.0 <= betas[1] < 1:
-            raise ValueError(
-                f"Invalid betas[1] value: {betas[1]}. betas[1] must be in [0, 1)."
-            )
+            raise ValueError(f"Invalid betas[1] value: {betas[1]}. betas[1] must be in [0, 1).")
         if initial_accumulator_value < 0:
             raise ValueError(
                 f"Invalid initial_accumulator_value value: {initial_accumulator_value}. \
                 Initial accumulator value must be >= 0."
             )
         if epsilon <= 0:
-            raise ValueError(
-                f"Invalid epsilon value: {epsilon}. Epsilon avalue must be > 0."
-            )
+            raise ValueError(f"Invalid epsilon value: {epsilon}. Epsilon avalue must be > 0.")
 
         self.params = params
 
@@ -124,9 +114,7 @@ class NumPyAdam(Optimizer):
             grad_name (str): The name of the gradient.
             grad (np.ndarray): The gradient values.
         """
-        self.grads_first_moment[
-            grad_name
-        ] = self.beta_1 * self.grads_first_moment[grad_name] + (
+        self.grads_first_moment[grad_name] = self.beta_1 * self.grads_first_moment[grad_name] + (
             (1.0 - self.beta_1) * grad
         )
 
@@ -138,9 +126,7 @@ class NumPyAdam(Optimizer):
             grad_name (str): The name of the gradient.
             grad (np.ndarray): The gradient values.
         """
-        self.grads_second_moment[
-            grad_name
-        ] = self.beta_2 * self.grads_second_moment[grad_name] + (
+        self.grads_second_moment[grad_name] = self.beta_2 * self.grads_second_moment[grad_name] + (
             (1.0 - self.beta_2) * grad**2
         )
 
@@ -159,9 +145,7 @@ class NumPyAdam(Optimizer):
         """
         for grad_name in gradients:
             if grad_name not in self.grads_first_moment:
-                raise KeyError(
-                    f"Key {grad_name} doesn't exist in optimized parameters"
-                )
+                raise KeyError(f"Key {grad_name} doesn't exist in optimized parameters")
 
             grad = gradients[grad_name]
 

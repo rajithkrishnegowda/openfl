@@ -55,9 +55,7 @@ class TestFlowPrivateAttributes(FLSpec):
         Testing whether Agg private attributes are accessible in next agg step.
         Collab private attributes should not be accessible here
         """
-        validate_collab_private_attr(
-            self, "test_loader_via_callable", "aggregator_step"
-        )
+        validate_collab_private_attr(self, "test_loader_via_callable", "aggregator_step")
 
         self.include_agg_to_collab = 42
         self.exclude_agg_to_collab = 40
@@ -82,9 +80,7 @@ class TestFlowPrivateAttributes(FLSpec):
 
         self.exclude_collab_to_collab = 2
         self.include_collab_to_collab = 22
-        self.next(
-            self.collaborator_step_b, exclude=["exclude_collab_to_collab"]
-        )
+        self.next(self.collaborator_step_b, exclude=["exclude_collab_to_collab"])
 
     @collaborator
     def collaborator_step_b(self):
@@ -124,9 +120,7 @@ class TestFlowPrivateAttributes(FLSpec):
                 or hasattr(collab, "test_loader_via_callable") is True
             ):
                 # Error - we are able to access collaborator attributes
-                TestFlowPrivateAttributes.error_list.append(
-                    "join_collaborator_attributes_found"
-                )
+                TestFlowPrivateAttributes.error_list.append("join_collaborator_attributes_found")
                 print(
                     f"{bcolors.FAIL} ... Attribute test failed in Join - Collaborator: {collab}"
                     + f" private attributes accessible {bcolors.ENDC}"
@@ -147,15 +141,9 @@ class TestFlowPrivateAttributes(FLSpec):
         )
 
         if TestFlowPrivateAttributes.error_list:
-            raise (
-                AssertionError(
-                    f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"
-                )
-            )
+            raise (AssertionError(f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"))
         else:
-            print(
-                f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}"
-            )
+            print(f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}")
 
         TestFlowPrivateAttributes.error_list = []
 
@@ -163,9 +151,7 @@ class TestFlowPrivateAttributes(FLSpec):
 def validate_collab_private_attr(self, private_attr, step_name):
     # Aggregator should only be able to access its own attributes
     if hasattr(self, private_attr) is False:
-        TestFlowPrivateAttributes.error_list.append(
-            step_name + "_aggregator_attributes_missing"
-        )
+        TestFlowPrivateAttributes.error_list.append(step_name + "_aggregator_attributes_missing")
         print(
             f"{bcolors.FAIL} ...Failed in {step_name} - aggregator private attributes not "
             + f"accessible {bcolors.ENDC}"
@@ -188,17 +174,10 @@ def validate_collab_private_attr(self, private_attr, step_name):
             )
 
 
-def validate_agg_private_attrs(
-    self, private_attr_1, private_attr_2, step_name
-):
+def validate_agg_private_attrs(self, private_attr_1, private_attr_2, step_name):
     # Collaborator should only be able to access its own attributes
-    if (
-        hasattr(self, private_attr_1) is False
-        or hasattr(self, private_attr_2) is False
-    ):
-        TestFlowPrivateAttributes.error_list.append(
-            step_name + "collab_attributes_not_found"
-        )
+    if hasattr(self, private_attr_1) is False or hasattr(self, private_attr_2) is False:
+        TestFlowPrivateAttributes.error_list.append(step_name + "collab_attributes_not_found")
         print(
             f"{bcolors.FAIL} ... Attribute test failed in {step_name} - Collab "
             + f"private attributes not accessible {bcolors.ENDC}"
@@ -206,9 +185,7 @@ def validate_agg_private_attrs(
 
     if hasattr(self.runtime, "_aggregator") is True:
         # Error - we are able to access aggregator attributes
-        TestFlowPrivateAttributes.error_list.append(
-            step_name + "_aggregator_attributes_found"
-        )
+        TestFlowPrivateAttributes.error_list.append(step_name + "_aggregator_attributes_found")
         print(
             f"{bcolors.FAIL} ... Attribute test failed in {step_name} - Aggregator"
             + f" private attributes accessible {bcolors.ENDC}"
@@ -218,9 +195,7 @@ def validate_agg_private_attrs(
 if __name__ == "__main__":
     # Setup Aggregator with private attributes via callable function
     def callable_to_initialize_aggregator_private_attributes():
-        return {
-            "test_loader_via_callable": np.random.rand(10, 28, 28)
-        }  # Random data
+        return {"test_loader_via_callable": np.random.rand(10, 28, 28)}  # Random data
 
     aggregator = Aggregator(
         name="agg",

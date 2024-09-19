@@ -40,9 +40,7 @@ class DogsCatsShardDataset(ShardDataset):
         self.img_path = self.dataset_dir / data_type
 
         self.img_names = [
-            img.name
-            for img in sorted(self.img_path.iterdir())
-            if img.suffix == ".jpg"
+            img.name for img in sorted(self.img_path.iterdir()) if img.suffix == ".jpg"
         ]
 
         # Sharding
@@ -94,9 +92,7 @@ class DogsCatsShardDescriptor(ShardDescriptor):
         # Settings for resizing data
         self.enforce_image_hw = None
         if enforce_image_hw is not None:
-            self.enforce_image_hw = tuple(
-                map(int, enforce_image_hw.split(","))
-            )
+            self.enforce_image_hw = tuple(map(int, enforce_image_hw.split(",")))
 
         # Calculating data and target shapes
         ds = self.get_dataset()
@@ -197,7 +193,4 @@ class DogsCatsShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"Dogs and Cats dataset, shard number {self.rank} "
-            f"out of {self.worldsize}"
-        )
+        return f"Dogs and Cats dataset, shard number {self.rank} " f"out of {self.worldsize}"

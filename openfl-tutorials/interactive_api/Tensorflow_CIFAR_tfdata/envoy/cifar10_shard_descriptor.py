@@ -24,9 +24,7 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
 
     def __init__(self, rank_worldsize: str = "1, 1", **kwargs):
         """Download/Prepare CIFAR10 dataset"""
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
 
         # Load dataset
         train_ds, valid_ds = self._download_and_prepare_dataset(
@@ -40,9 +38,7 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
         self.splits = {"train": train_ds, "valid": valid_ds}
 
     @staticmethod
-    def _download_and_prepare_dataset(
-        rank: int, worldsize: int
-    ) -> Tuple[tf.data.Dataset]:
+    def _download_and_prepare_dataset(rank: int, worldsize: int) -> Tuple[tf.data.Dataset]:
         """
         Load CIFAR10 as `tf.data.Dataset`.
 
@@ -76,8 +72,7 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
         """Return a shard dataset by type."""
         if name not in self.splits:
             raise Exception(
-                f"Split name `{name}` not found."
-                f" Expected one of {list(self.splits.keys())}"
+                f"Split name `{name}` not found." f" Expected one of {list(self.splits.keys())}"
             )
         return self.splits[name]
 

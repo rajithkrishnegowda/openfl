@@ -114,9 +114,7 @@ and located in data directory for this collaborator.
         )
         # the needed files where not present if a tuple of None is returned
         if these_imgs is None:
-            logger.debug(
-                f"Brain subdirectory: {brain_path} did not contain the needed files."
-            )
+            logger.debug(f"Brain subdirectory: {brain_path} did not contain the needed files.")
         else:
             imgs_all.append(these_imgs)
             msks_all.append(these_msks)

@@ -100,9 +100,7 @@ if __name__ == "__main__":
     from openfl.federated import FederatedModel
     from tensorflow.python.keras.utils.data_utils import get_file
 
-    origin_folder = (
-        "https://storage.googleapis.com/tensorflow/tf-keras-datasets/"
-    )
+    origin_folder = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/"
     path = get_file(
         "mnist.npz",
         origin=origin_folder + "mnist.npz",
@@ -163,7 +161,5 @@ if __name__ == "__main__":
     )
 
     print(fx.get_plan())
-    final_fl_model = fx.run_experiment(
-        collaborators, {"aggregator.settings.rounds_to_train": 5}
-    )
+    final_fl_model = fx.run_experiment(collaborators, {"aggregator.settings.rounds_to_train": 5})
     final_fl_model.save_native("final_pytorch_model.h5")

@@ -105,25 +105,15 @@ def load_histology_shard(
     img_cols = 150
     channels = 3
 
-    (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(
-        shard_num, collaborator_count
-    )
+    (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(shard_num, collaborator_count)
 
     if channels_last:
-        X_train = X_train.reshape(
-            X_train.shape[0], img_rows, img_cols, channels
-        )
-        X_valid = X_valid.reshape(
-            X_valid.shape[0], img_rows, img_cols, channels
-        )
+        X_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, channels)
+        X_valid = X_valid.reshape(X_valid.shape[0], img_rows, img_cols, channels)
         input_shape = (img_rows, img_cols, channels)
     else:
-        X_train = X_train.reshape(
-            X_train.shape[0], channels, img_rows, img_cols
-        )
-        X_valid = X_valid.reshape(
-            X_valid.shape[0], channels, img_rows, img_cols
-        )
+        X_train = X_train.reshape(X_train.shape[0], channels, img_rows, img_cols)
+        X_valid = X_valid.reshape(X_valid.shape[0], channels, img_rows, img_cols)
         input_shape = (channels, img_rows, img_cols)
 
     X_train = X_train.astype("float32")

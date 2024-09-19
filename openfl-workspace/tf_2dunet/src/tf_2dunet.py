@@ -28,9 +28,7 @@ class TensorFlow2DUNet(TensorFlowTaskRunner):
         self.create_model(**kwargs)
         self.initialize_tensorkeys_for_functions()
 
-    def create_model(
-        self, training_smoothing=32.0, validation_smoothing=1.0, **kwargs
-    ):
+    def create_model(self, training_smoothing=32.0, validation_smoothing=1.0, **kwargs):
         """Create the TensorFlow 2D U-Net model.
 
         Args:
@@ -49,13 +47,9 @@ class TensorFlow2DUNet(TensorFlowTaskRunner):
         self.y = tf.placeholder(tf.float32, self.input_shape)
         self.output = define_model(self.X, use_upsampling=True, **kwargs)
 
-        self.loss = dice_coef_loss(
-            self.y, self.output, smooth=training_smoothing
-        )
+        self.loss = dice_coef_loss(self.y, self.output, smooth=training_smoothing)
         self.loss_name = dice_coef_loss.__name__
-        self.validation_metric = dice_coef(
-            self.y, self.output, smooth=validation_smoothing
-        )
+        self.validation_metric = dice_coef(self.y, self.output, smooth=validation_smoothing)
         self.validation_metric_name = dice_coef.__name__
 
         self.global_step = tf.train.get_or_create_global_step()
@@ -65,9 +59,7 @@ class TensorFlow2DUNet(TensorFlowTaskRunner):
         self.optimizer = tf.train.RMSPropOptimizer(1e-2)
 
         self.gvs = self.optimizer.compute_gradients(self.loss, self.tvars)
-        self.train_step = self.optimizer.apply_gradients(
-            self.gvs, global_step=self.global_step
-        )
+        self.train_step = self.optimizer.apply_gradients(self.gvs, global_step=self.global_step)
 
         self.opt_vars = self.optimizer.variables()
 
@@ -121,9 +113,7 @@ def dice_coef_loss(y_true, y_pred, smooth=1.0, **kwargs):
 
     term1 = -tf.log(tf.constant(2.0) * intersection + smooth)
     term2 = tf.log(
-        tf.reduce_sum(y_true, axis=(1, 2, 3))
-        + tf.reduce_sum(y_pred, axis=(1, 2, 3))
-        + smooth
+        tf.reduce_sum(y_true, axis=(1, 2, 3)) + tf.reduce_sum(y_pred, axis=(1, 2, 3)) + smooth
     )
 
     term1 = tf.reduce_mean(term1)
@@ -219,18 +209,14 @@ def define_model(
         # only pool if not last level
         if i != depth - 1:
             name = f"pool{i + 1}"
-            net = tf.keras.layers.MaxPooling2D(name=name, pool_size=(2, 2))(
-                net
-            )
+            net = tf.keras.layers.MaxPooling2D(name=name, pool_size=(2, 2))(net)
             filters *= 2
 
     # do the up levels
     filters //= 2
     for i in range(depth - 1):
         if use_upsampling:
-            up = tf.keras.layers.UpSampling2D(
-                name=f"up{depth + i + 1}", size=(2, 2)
-            )(net)
+            up = tf.keras.layers.UpSampling2D(name=f"up{depth + i + 1}", size=(2, 2))(net)
         else:
             up = tf.keras.layers.Conv2DTranspose(
                 name="transConv6",
@@ -243,12 +229,8 @@ def define_model(
         net = tf.keras.layers.concatenate(
             [up, convb_layers[f"conv{depth - i - 1}b"]], axis=concat_axis
         )
-        net = tf.keras.layers.Conv2D(
-            name=f"conv{depth + i + 1}a", filters=filters, **params
-        )(net)
-        net = tf.keras.layers.Conv2D(
-            name=f"conv{depth + i + 1}b", filters=filters, **params
-        )(net)
+        net = tf.keras.layers.Conv2D(name=f"conv{depth + i + 1}a", filters=filters, **params)(net)
+        net = tf.keras.layers.Conv2D(name=f"conv{depth + i + 1}b", filters=filters, **params)(net)
         filters //= 2
 
     net = tf.keras.layers.Conv2D(

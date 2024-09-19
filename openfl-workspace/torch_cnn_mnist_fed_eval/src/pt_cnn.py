@@ -71,12 +71,8 @@ class PyTorchCNN(PyTorchTaskRunner):
         above)
         """
         self.pool_sqrkernel_size = pool_sqrkernel_size
-        channel = self.data_loader.get_feature_shape()[
-            0
-        ]  # (channel, dim1, dim2)
-        self.conv1 = nn.Conv2d(
-            channel, conv1_channels_out, conv_sqrkernel_size, 1
-        )
+        channel = self.data_loader.get_feature_shape()[0]  # (channel, dim1, dim2)
+        self.conv1 = nn.Conv2d(channel, conv1_channels_out, conv_sqrkernel_size, 1)
 
         # perform some calculations to track the size of the single channel activations
         # channels are first for pytorch
@@ -86,9 +82,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         # (note dependence on 'forward' function below)
         conv2_sqrsize_in = int(conv1_sqrsize_out / pool_sqrkernel_size)
 
-        self.conv2 = nn.Conv2d(
-            conv1_channels_out, conv2_channels_out, conv_sqrkernel_size, 1
-        )
+        self.conv2 = nn.Conv2d(conv1_channels_out, conv2_channels_out, conv_sqrkernel_size, 1)
 
         # more tracking of single channel activation size
         conv2_sqrsize_out = conv2_sqrsize_in - (conv_sqrkernel_size - 1)
@@ -118,9 +112,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         x = self.fc2(x)
         return x
 
-    def validate(
-        self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs
-    ):
+    def validate(self, col_name, round_num, input_tensor_dict, use_tqdm=False, **kwargs):
         """Validate.
 
         Run validation of the model on the local data.
@@ -149,9 +141,9 @@ class PyTorchCNN(PyTorchTaskRunner):
             for data, target in loader:
                 samples = target.shape[0]
                 total_samples += samples
-                data, target = torch.tensor(data).to(
-                    self.device
-                ), torch.tensor(target).to(self.device, dtype=torch.int64)
+                data, target = torch.tensor(data).to(self.device), torch.tensor(target).to(
+                    self.device, dtype=torch.int64
+                )
                 output = self(data)
                 # get the index of the max log-probability
                 pred = output.argmax(dim=1)
@@ -167,9 +159,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         # TODO figure out a better way to pass
         #  in metric for this pytorch validate function
         output_tensor_dict = {
-            TensorKey("acc", origin, round_num, True, tags): np.array(
-                val_score / total_samples
-            )
+            TensorKey("acc", origin, round_num, True, tags): np.array(val_score / total_samples)
         }
 
         # Empty list represents metrics that should only be stored locally

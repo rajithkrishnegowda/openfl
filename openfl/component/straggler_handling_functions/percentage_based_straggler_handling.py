@@ -9,9 +9,7 @@ from openfl.component.straggler_handling_functions.straggler_handling_function i
 class PercentageBasedStragglerHandling(StragglerHandlingFunction):
     """Percentage based Straggler Handling function."""
 
-    def __init__(
-        self, percent_collaborators_needed=1.0, minimum_reporting=1, **kwargs
-    ):
+    def __init__(self, percent_collaborators_needed=1.0, minimum_reporting=1, **kwargs):
         """Initialize a PercentageBasedStragglerHandling object.
 
         Args:
@@ -37,9 +35,7 @@ class PercentageBasedStragglerHandling(StragglerHandlingFunction):
         """
         return num_collaborators_done >= self.minimum_reporting
 
-    def straggler_cutoff_check(
-        self, num_collaborators_done, all_collaborators
-    ):
+    def straggler_cutoff_check(self, num_collaborators_done, all_collaborators):
         """Check if the straggler cutoff conditions are met.
 
         Args:
@@ -52,7 +48,6 @@ class PercentageBasedStragglerHandling(StragglerHandlingFunction):
                 otherwise.
         """
         cutoff = (
-            num_collaborators_done
-            >= self.percent_collaborators_needed * len(all_collaborators)
+            num_collaborators_done >= self.percent_collaborators_needed * len(all_collaborators)
         ) and self.minimum_collaborators_reported(num_collaborators_done)
         return cutoff

@@ -21,16 +21,10 @@ mnist_test = torchvision.datasets.MNIST(
 test_dataset = mnist_test
 
 
-def callable_to_initialize_aggregator_private_attributes(
-    n_collaborators, test_dataset, batch_size
-):
+def callable_to_initialize_aggregator_private_attributes(n_collaborators, test_dataset, batch_size):
     aggregator_test = deepcopy(test_dataset)
-    aggregator_test.targets = test_dataset.targets[
-        n_collaborators :: n_collaborators + 1
-    ]
-    aggregator_test.data = test_dataset.data[
-        n_collaborators :: n_collaborators + 1
-    ]
+    aggregator_test.targets = test_dataset.targets[n_collaborators :: n_collaborators + 1]
+    aggregator_test.data = test_dataset.data[n_collaborators :: n_collaborators + 1]
 
     return {
         "test_loader": torch.utils.data.DataLoader(

@@ -24,9 +24,7 @@ class FedDataset(DataInterface):
         """
         self._shard_descriptor = shard_descriptor
         validation_size = len(self.shard_descriptor) // 10
-        self.train_indices = np.arange(
-            len(self.shard_descriptor) - validation_size
-        )
+        self.train_indices = np.arange(len(self.shard_descriptor) - validation_size)
         self.val_indices = np.arange(
             len(self.shard_descriptor) - validation_size,
             len(self.shard_descriptor),
@@ -43,22 +41,16 @@ class FedDataset(DataInterface):
             targets.append(target)
         samples = np.array(samples)
         targets = np.array(targets)
-        return tf.data.Dataset.from_tensor_slices((samples, targets)).batch(
-            self.train_bs
-        )
+        return tf.data.Dataset.from_tensor_slices((samples, targets)).batch(self.train_bs)
 
     def get_valid_loader(self, **kwargs):
         """
         Output of this method will be provided to tasks without optimizer in contract
         """
-        samples, targets = zip(
-            *[self.shard_descriptor[i] for i in self.val_indices]
-        )
+        samples, targets = zip(*[self.shard_descriptor[i] for i in self.val_indices])
         samples = np.array(samples)
         targets = np.array(targets)
-        return tf.data.Dataset.from_tensor_slices((samples, targets)).batch(
-            self.valid_bs
-        )
+        return tf.data.Dataset.from_tensor_slices((samples, targets)).batch(self.valid_bs)
 
     def get_train_data_size(self):
         """

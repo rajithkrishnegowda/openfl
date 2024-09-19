@@ -89,9 +89,7 @@ for section, title in new_sections.items():
     setattr(
         GoogleDocstring,
         f"_parse_{section}_section",
-        lambda self, section: self._format_fields(
-            title, self._consume_fields()
-        ),
+        lambda self, section: self._format_fields(title, self._consume_fields()),
     )
 
 

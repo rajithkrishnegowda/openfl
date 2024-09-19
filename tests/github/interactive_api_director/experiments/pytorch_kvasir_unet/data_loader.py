@@ -12,8 +12,7 @@ def load_data():
     os.makedirs("data", exist_ok=True)
     with open("./data/kvasir.zip", "wb") as zf:
         response = requests.get(
-            "https://datasets.simula.no/downloads/hyper-kvasir/"
-            "hyper-kvasir-segmented-images.zip"
+            "https://datasets.simula.no/downloads/hyper-kvasir/" "hyper-kvasir-segmented-images.zip"
         )
         for chunk in response.iter_content(1024 * 1024 * 1024):
             zf.write(chunk)

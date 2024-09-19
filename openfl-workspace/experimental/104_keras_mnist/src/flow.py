@@ -31,9 +31,7 @@ model = Sequential(
         Dense(nb_classes, activation="softmax"),
     ]
 )
-model.compile(
-    optimizer="sgd", loss="categorical_crossentropy", metrics=["accuracy"]
-)
+model.compile(optimizer="sgd", loss="categorical_crossentropy", metrics=["accuracy"])
 
 
 def fedavg(models):
@@ -51,9 +49,7 @@ def fedavg(models):
 
 def inference(model, test_loader, batch_size):
     x_test, y_test = test_loader
-    loss, accuracy = model.evaluate(
-        x_test, y_test, batch_size=batch_size, verbose=0
-    )
+    loss, accuracy = model.evaluate(x_test, y_test, batch_size=batch_size, verbose=0)
     accuracy_percentage = accuracy * 100
     print(f"Test set: Avg. loss: {loss}, Accuracy: {accuracy_percentage:.2f}%")
     return accuracy
@@ -73,12 +69,8 @@ class KerasMNISTFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(
-            f"Performing aggregated model validation for collaborator {self.input}"
-        )
-        self.agg_validation_score = inference(
-            self.model, self.test_loader, self.batch_size
-        )
+        print(f"Performing aggregated model validation for collaborator {self.input}")
+        self.agg_validation_score = inference(self.model, self.test_loader, self.batch_size)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.next(self.train)
 
@@ -97,9 +89,7 @@ class KerasMNISTFlow(FLSpec):
 
     @collaborator
     def local_model_validation(self):
-        self.local_validation_score = inference(
-            self.model, self.test_loader, self.batch_size
-        )
+        self.local_validation_score = inference(self.model, self.test_loader, self.batch_size)
         print(
             f"Doing local model validation for collaborator {self.input}:"
             + f" {self.local_validation_score}"
@@ -109,19 +99,15 @@ class KerasMNISTFlow(FLSpec):
     @aggregator
     def join(self, inputs):
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
-        print(
-            f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
         )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
+        print(f"Average aggregated model validation values = {self.aggregated_model_accuracy}")
         print(f"Average training loss = {self.average_loss}")
-        print(
-            f"Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"Average local model validation values = {self.local_model_accuracy}")
         print("Taking FedAvg of models of all collaborators")
         self.model = fedavg([input.model for input in inputs])
 
@@ -133,9 +119,7 @@ class KerasMNISTFlow(FLSpec):
             self.next(self.end)
         else:
             self.current_round += 1
-            self.next(
-                self.aggregated_model_validation, foreach="collaborators"
-            )
+            self.next(self.aggregated_model_validation, foreach="collaborators")
 
     @aggregator
     def end(self):

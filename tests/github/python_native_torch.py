@@ -58,27 +58,15 @@ if __name__ == "__main__":
         ]
     )
 
-    trainset = datasets.MNIST(
-        root="./data", train=True, download=True, transform=transform
-    )
+    trainset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
 
-    train_images, train_labels = trainset.train_data, np.array(
-        trainset.train_labels
-    )
-    train_images = torch.from_numpy(
-        np.expand_dims(train_images, axis=1)
-    ).float()
+    train_images, train_labels = trainset.train_data, np.array(trainset.train_labels)
+    train_images = torch.from_numpy(np.expand_dims(train_images, axis=1)).float()
 
-    validset = datasets.MNIST(
-        root="./data", train=False, download=True, transform=transform
-    )
+    validset = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
 
-    valid_images, valid_labels = validset.test_data, np.array(
-        validset.test_labels
-    )
-    valid_images = torch.from_numpy(
-        np.expand_dims(valid_images, axis=1)
-    ).float()
+    valid_images, valid_labels = validset.test_data, np.array(validset.test_labels)
+    valid_images = torch.from_numpy(np.expand_dims(valid_images, axis=1)).float()
     valid_labels = one_hot(valid_labels, 10)
     feature_shape = train_images.shape[1]
     classes = 10
@@ -126,7 +114,5 @@ if __name__ == "__main__":
     )
 
     print(fx.get_plan())
-    final_fl_model = fx.run_experiment(
-        collaborators, {"aggregator.settings.rounds_to_train": 5}
-    )
+    final_fl_model = fx.run_experiment(collaborators, {"aggregator.settings.rounds_to_train": 5})
     final_fl_model.save_native("final_pytorch_model")

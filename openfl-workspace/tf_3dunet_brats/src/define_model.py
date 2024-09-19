@@ -95,9 +95,7 @@ def build_model(
         **kwargs: Additional parameters to pass to the function
     """
     if (input_shape[0] % (2**depth)) > 0:
-        raise ValueError(
-            f"Crop dimension must be a multiple of 2^(depth of U-Net) = {2**depth}"
-        )
+        raise ValueError(f"Crop dimension must be a multiple of 2^(depth of U-Net) = {2**depth}")
 
     inputs = tf.keras.layers.Input(input_shape, name="brats_mr_image")
 
@@ -127,18 +125,14 @@ def build_model(
         # only pool if not last level
         if i != depth - 1:
             name = f"pool{i + 1}"
-            net = tf.keras.layers.MaxPooling3D(name=name, pool_size=(2, 2, 2))(
-                net
-            )
+            net = tf.keras.layers.MaxPooling3D(name=name, pool_size=(2, 2, 2))(net)
             filters *= 2
 
     # do the up levels
     filters //= 2
     for i in range(depth - 1):
         if use_upsampling:
-            up = tf.keras.layers.UpSampling3D(
-                name=f"up{depth + i + 1}", size=(2, 2, 2)
-            )(net)
+            up = tf.keras.layers.UpSampling3D(name=f"up{depth + i + 1}", size=(2, 2, 2))(net)
         else:
             up = tf.keras.layers.Conv3DTranspose(
                 name=f"transConv{depth + i + 1}",
@@ -147,15 +141,9 @@ def build_model(
                 strides=(2, 2, 2),
                 padding="same",
             )(net)
-        net = tf.keras.layers.concatenate(
-            [up, convb_layers[f"conv{depth - i - 1}b"]], axis=-1
-        )
-        net = tf.keras.layers.Conv3D(
-            name=f"conv{depth + i + 1}a", filters=filters, **params
-        )(net)
-        net = tf.keras.layers.Conv3D(
-            name=f"conv{depth + i + 1}b", filters=filters, **params
-        )(net)
+        net = tf.keras.layers.concatenate([up, convb_layers[f"conv{depth - i - 1}b"]], axis=-1)
+        net = tf.keras.layers.Conv3D(name=f"conv{depth + i + 1}a", filters=filters, **params)(net)
+        net = tf.keras.layers.Conv3D(name=f"conv{depth + i + 1}b", filters=filters, **params)(net)
         filters //= 2
 
     net = tf.keras.layers.Conv3D(

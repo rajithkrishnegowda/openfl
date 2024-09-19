@@ -81,12 +81,7 @@ def test_opt(func, optim, num_iter):
         optim.step(grads)
 
     diff = np.array(
-        [
-            optim.params[param_name] - func.true_answer[param_name]
-            for param_name in optim.params
-        ]
+        [optim.params[param_name] - func.true_answer[param_name] for param_name in optim.params]
     )
     diff = (diff**2).sum()  # calculate L2 norm
-    assert (
-        diff <= EPS
-    ), f"Found parameters are not optimal, L2 difference: {diff}"
+    assert diff <= EPS, f"Found parameters are not optimal, L2 difference: {diff}"

@@ -45,9 +45,7 @@ if __name__ == "__main__":
     # Activate experimental
     check_call(["fx", "experimental", "activate"])
 
-    create_certified_workspace(
-        fed_workspace, custom_template, template, fqdn, rounds_to_train
-    )
+    create_certified_workspace(fed_workspace, custom_template, template, fqdn, rounds_to_train)
     certify_aggregator(fqdn)
 
     # Get the absolute directory path for the workspace
@@ -55,15 +53,11 @@ if __name__ == "__main__":
 
     # Create Collaborators
     for collab in collaborators:
-        create_collaborator(
-            collab, workspace_root, archive_name, fed_workspace
-        )
+        create_collaborator(collab, workspace_root, archive_name, fed_workspace)
 
     # Run the federation
     with ProcessPoolExecutor(max_workers=len(collaborators) + 1) as executor:
-        executor.submit(
-            check_call, ["fx", "aggregator", "start"], cwd=workspace_root
-        )
+        executor.submit(check_call, ["fx", "aggregator", "start"], cwd=workspace_root)
         time.sleep(5)
 
         for collab in collaborators:

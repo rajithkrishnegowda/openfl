@@ -37,9 +37,7 @@ class PyTorchFederatedUnet(PyTorchTaskRunner):
         """Initialize the optimizer."""
         self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
 
-    def init_network(
-        self, device, n_channels, n_classes, print_model=True, **kwargs
-    ):
+    def init_network(self, device, n_channels, n_classes, print_model=True, **kwargs):
         """Create the network (model).
 
         Args:
@@ -85,9 +83,7 @@ class PyTorchFederatedUnet(PyTorchTaskRunner):
         x = torch.sigmoid(x)
         return x
 
-    def validate_task(
-        self, col_name, round_num, input_tensor_dict, use_tqdm=True, **kwargs
-    ):
+    def validate_task(self, col_name, round_num, input_tensor_dict, use_tqdm=True, **kwargs):
         """Run validation of the model on the local data.
 
         Args:
@@ -114,9 +110,9 @@ class PyTorchFederatedUnet(PyTorchTaskRunner):
             for data, target in loader:
                 samples = target.shape[0]
                 total_samples += samples
-                data, target = torch.tensor(data).to(
+                data, target = torch.tensor(data).to(self.device), torch.tensor(target).to(
                     self.device
-                ), torch.tensor(target).to(self.device)
+                )
                 output = self(data)
                 # get the index of the max log-probability
                 val = soft_dice_coef(output, target)

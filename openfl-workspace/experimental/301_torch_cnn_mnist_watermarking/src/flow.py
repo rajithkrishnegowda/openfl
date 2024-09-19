@@ -34,9 +34,7 @@ def inference(network, test_loader):
     return accuracy
 
 
-def train_model(
-    model, optimizer, data_loader, entity, round_number, log=False
-):
+def train_model(model, optimizer, data_loader, entity, round_number, log=False):
     # Helper function to train the model
     train_loss = 0
     model.train()
@@ -128,9 +126,7 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
             self.watermark_retrain_optimizer = watermark_retrain_optimizer
         else:
             self.model = Net()
-            self.optimizer = optim.SGD(
-                self.model.parameters(), lr=learning_rate, momentum=momentum
-            )
+            self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
             self.watermark_pretrain_optimizer = optim.SGD(
                 self.model.parameters(),
                 lr=watermark_pretrain_learning_rate,
@@ -207,9 +203,7 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
         """
         print("<Collab>: Performing Model Training on Local dataset ... ")
 
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=learning_rate, momentum=momentum
-        )
+        self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
 
         self.loss = train_model(
             self.model,
@@ -239,22 +233,18 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
         Model aggregation step.
         """
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
+        )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
 
         print("<Agg>: Joining models from collaborators...")
 
-        print(
-            f"   Aggregated model validation score = {self.aggregated_model_accuracy}"
-        )
+        print(f"   Aggregated model validation score = {self.aggregated_model_accuracy}")
         print(f"   Average training loss = {self.average_loss}")
-        print(
-            f"   Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"   Average local model validation values = {self.local_model_accuracy}")
 
         self.model = fedavg(self.model, [input.model for input in inputs])
 
@@ -274,13 +264,10 @@ class FederatedFlow_MNIST_Watermarking(FLSpec):  # NOQA N801
 
         # Perform re-training until (accuracy >= acc_threshold) or
         # (retrain_round > number of retrain_epochs)
-        self.watermark_retrain_validation_score = inference(
-            self.model, self.watermark_data_loader
-        )
-        while (
-            self.watermark_retrain_validation_score
-            < self.watermark_acc_threshold
-        ) and (retrain_round < self.retrain_epochs):
+        self.watermark_retrain_validation_score = inference(self.model, self.watermark_data_loader)
+        while (self.watermark_retrain_validation_score < self.watermark_acc_threshold) and (
+            retrain_round < self.retrain_epochs
+        ):
             self.watermark_retrain_train_loss = train_model(
                 self.model,
                 self.watermark_retrain_optimizer,

@@ -135,14 +135,10 @@ def test_get_aggregated_tensor_directly(nparray, tensor_key):
     db = TensorDB()
     db.cache_tensor({tensor_key: nparray})
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, "col2", round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, "col2", round_number, report, ("model",))
 
     db.cache_tensor({tensor_key: nparray})
-    agg_nparray, agg_metadata_dict = db.get_aggregated_tensor(
-        tensor_key, {}, WeightedAverage()
-    )
+    agg_nparray, agg_metadata_dict = db.get_aggregated_tensor(tensor_key, {}, WeightedAverage())
 
     assert np.array_equal(nparray, agg_nparray)
 
@@ -152,14 +148,10 @@ def test_get_aggregated_tensor_only_col(nparray, tensor_key):
     db = TensorDB()
     db.cache_tensor({tensor_key: nparray})
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, "col2", round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, "col2", round_number, report, ("model",))
 
     collaborator_weight_dict = {"col1": 0.5, "col2": 0.5}
-    agg_nparray = db.get_aggregated_tensor(
-        tensor_key, collaborator_weight_dict, WeightedAverage()
-    )
+    agg_nparray = db.get_aggregated_tensor(tensor_key, collaborator_weight_dict, WeightedAverage())
 
     assert agg_nparray is None
 
@@ -169,9 +161,7 @@ def test_get_aggregated_tensor(nparray, tensor_key):
     db = TensorDB()
     db.cache_tensor({tensor_key: nparray})
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, "col2", round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, "col2", round_number, report, ("model",))
     db.cache_tensor({tensor_key: nparray})
 
     collaborator_weight_dict = {"col1": 0.5, "col2": 0.5}
@@ -189,9 +179,7 @@ def test_get_aggregated_tensor_raise_wrong_weights(nparray, tensor_key):
 
     collaborator_weight_dict = {"col1": 0.5, "col2": 0.8}
     with pytest.raises(AssertionError):
-        db.get_aggregated_tensor(
-            tensor_key, collaborator_weight_dict, WeightedAverage()
-        )
+        db.get_aggregated_tensor(tensor_key, collaborator_weight_dict, WeightedAverage())
 
 
 @pytest.fixture
@@ -228,9 +216,7 @@ def test_get_aggregated_tensor_error_aggregation_function(tensor_db):
     collaborator_weight_dict = {"col1": 0.1, "col2": 0.9}
     tensor_key = TensorKey("tensor_name", "agg", 0, False, ())
     with pytest.raises(TypeError):
-        tensor_db.get_aggregated_tensor(
-            tensor_key, collaborator_weight_dict, "fake_agg_function"
-        )
+        tensor_db.get_aggregated_tensor(tensor_key, collaborator_weight_dict, "fake_agg_function")
 
 
 def test_get_aggregated_tensor_new_aggregation_function(tensor_db):
@@ -244,9 +230,7 @@ def test_get_aggregated_tensor_new_aggregation_function(tensor_db):
 
     tensor_key = TensorKey("tensor_name", "agg", 0, False, ())
 
-    agg_nparray = tensor_db.get_aggregated_tensor(
-        tensor_key, collaborator_weight_dict, Sum()
-    )
+    agg_nparray = tensor_db.get_aggregated_tensor(tensor_key, collaborator_weight_dict, Sum())
 
     assert np.array_equal(agg_nparray, np.array([2, 4, 6, 8, 10]))
 
@@ -286,18 +270,14 @@ def test_get_aggregated_tensor_iterate_input(tensor_db):
 
     tensor_key = TensorKey("tensor_name", "agg", 0, False, ())
 
-    agg_nparray = tensor_db.get_aggregated_tensor(
-        tensor_key, collaborator_weight_dict, Sum()
-    )
+    agg_nparray = tensor_db.get_aggregated_tensor(tensor_key, collaborator_weight_dict, Sum())
 
     assert np.array_equal(agg_nparray, np.array([2, 4, 6, 8, 10]))
 
 
 def test_retrieve(tensor_db):
     """Test that TensorDB's retrieve method works correctly."""
-    ret = _retrieve(
-        tensor_db.tensor_db, "tensor_name", "agg", 0, False, ("col1",)
-    )
+    ret = _retrieve(tensor_db.tensor_db, "tensor_name", "agg", 0, False, ("col1",))
 
     assert np.array_equal(ret, np.array([0, 1, 2, 3, 4]))
 
@@ -311,18 +291,14 @@ def test_retrieve_no_result(tensor_db):
 
 def test_search(tensor_db):
     """Test that TensorDB's search method works correctly."""
-    ret = _search(
-        tensor_db.tensor_db, "tensor_name", "agg", 0, False, ("col1",)
-    )
+    ret = _search(tensor_db.tensor_db, "tensor_name", "agg", 0, False, ("col1",))
 
     assert_frame_equal(ret, tensor_db.tensor_db.drop([1]))
 
 
 def test_search_no_result(tensor_db):
     """Test that TensorDB's search method finds no result."""
-    ret = _search(
-        tensor_db.tensor_db, "tensor_name", "agg", 1, False, ("col3",)
-    )
+    ret = _search(tensor_db.tensor_db, "tensor_name", "agg", 1, False, ("col3",))
 
     assert_frame_equal(ret, tensor_db.tensor_db)
 
@@ -339,9 +315,7 @@ def test_store(tensor_db):
         np.array([5, 6, 7, 8, 9]),
     )
 
-    assert np.array_equal(
-        tensor_db.tensor_db.loc[0]["nparray"], np.array([5, 6, 7, 8, 9])
-    )
+    assert np.array_equal(tensor_db.tensor_db.loc[0]["nparray"], np.array([5, 6, 7, 8, 9]))
 
 
 def test_store_no_nparray(tensor_db):
@@ -381,6 +355,4 @@ def test_store_append_at_the_end(tensor_db):
         np.array([5, 6, 7, 8, 9]),
     )
 
-    assert np.array_equal(
-        tensor_db.tensor_db.loc[2]["nparray"], np.array([5, 6, 7, 8, 9])
-    )
+    assert np.array_equal(tensor_db.tensor_db.loc[2]["nparray"], np.array([5, 6, 7, 8, 9]))

@@ -140,9 +140,7 @@ def test_compress_not_require_lossless(tensor_key, named_tensor):
     flat_array = np.frombuffer(named_tensor.data_bytes, dtype=np.float32)
 
     nparray = np.reshape(flat_array, newshape=array_shape, order="C")
-    tensor_codec.compression_pipeline.forward = mock.Mock(
-        return_value=(nparray, metadata[0])
-    )
+    tensor_codec.compression_pipeline.forward = mock.Mock(return_value=(nparray, metadata[0]))
     (
         compressed_tensor_key,
         compressed_nparray,
@@ -178,15 +176,11 @@ def test_decompress_no_tags(tensor_key, named_tensor):
         tensor_codec.decompress(tensor_key, named_tensor.data_bytes, metadata)
 
 
-def test_decompress_require_lossless_no_compressed_in_tags(
-    tensor_key, named_tensor
-):
+def test_decompress_require_lossless_no_compressed_in_tags(tensor_key, named_tensor):
     """Test that decompress raises error when require_lossless is True and is no compressed tag."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("lossy_compressed",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("lossy_compressed",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -204,15 +198,11 @@ def test_decompress_require_lossless_no_compressed_in_tags(
         )
 
 
-def test_decompress_call_lossless_pipeline_with_require_lossless(
-    tensor_key, named_tensor
-):
+def test_decompress_call_lossless_pipeline_with_require_lossless(tensor_key, named_tensor):
     """Test that decompress calls lossless pipeline when require_lossless is True."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("compressed",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("compressed",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -222,21 +212,15 @@ def test_decompress_call_lossless_pipeline_with_require_lossless(
         for proto in named_tensor.transformer_metadata
     ]
     tensor_codec.lossless_pipeline = mock.Mock()
-    tensor_codec.decompress(
-        tensor_key, named_tensor.data_bytes, metadata, require_lossless=True
-    )
-    tensor_codec.lossless_pipeline.backward.assert_called_with(
-        named_tensor.data_bytes, metadata
-    )
+    tensor_codec.decompress(tensor_key, named_tensor.data_bytes, metadata, require_lossless=True)
+    tensor_codec.lossless_pipeline.backward.assert_called_with(named_tensor.data_bytes, metadata)
 
 
 def test_decompress_call_compression_pipeline(tensor_key, named_tensor):
     """Test that decompress calls compression pipeline when there is no compressed tag."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("lossy_compressed",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("lossy_compressed",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -247,18 +231,14 @@ def test_decompress_call_compression_pipeline(tensor_key, named_tensor):
     ]
     tensor_codec.compression_pipeline = mock.Mock()
     tensor_codec.decompress(tensor_key, named_tensor.data_bytes, metadata)
-    tensor_codec.compression_pipeline.backward.assert_called_with(
-        named_tensor.data_bytes, metadata
-    )
+    tensor_codec.compression_pipeline.backward.assert_called_with(named_tensor.data_bytes, metadata)
 
 
 def test_decompress_lossy_compressed_in_tags(tensor_key, named_tensor):
     """Test that decompress works correctly when there is lossy_compressed tag."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("lossy_compressed",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("lossy_compressed",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -277,9 +257,7 @@ def test_decompress_compressed_in_tags(tensor_key, named_tensor):
     """Test that decompress works correctly when there is compressed tag."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("compressed",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("compressed",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -310,9 +288,7 @@ def test_generate(tensor_key, named_tensor):
 
     nparray = np.reshape(flat_array, newshape=array_shape, order="C")
 
-    delta_tensor_key, delta_nparray = tensor_codec.generate_delta(
-        tensor_key, nparray, nparray
-    )
+    delta_tensor_key, delta_nparray = tensor_codec.generate_delta(tensor_key, nparray, nparray)
 
     assert np.array_equal(delta_nparray, nparray - nparray)
     assert "delta" in delta_tensor_key.tags
@@ -322,9 +298,7 @@ def test_generate_delta_assert_model_in_tags(tensor_key, named_tensor):
     """Test that generate_delta raises exception when there is model tag."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("model",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -346,9 +320,7 @@ def test_apply_delta_agg(tensor_key, named_tensor):
     """Test that apply_delta works for aggregator tensor_key."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, "aggregator_1", round_number, report, ("delta",)
-    )
+    tensor_key = TensorKey(tensor_name, "aggregator_1", round_number, report, ("delta",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -374,9 +346,7 @@ def test_apply_delta_col(tensor_key, named_tensor):
     """Test that apply_delta works for collaborator tensor_key."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("delta",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("delta",))
     metadata = [
         {
             "int_to_float": proto.int_to_float,
@@ -421,9 +391,7 @@ def test_find_dependencies_with_zero_round(tensor_key):
     """Test that find_dependencies returns empty list when round number is 0."""
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("model",))
     tensor_key_dependencies = tensor_codec.find_dependencies(tensor_key, True)
 
     assert len(tensor_key_dependencies) == 0
@@ -434,9 +402,7 @@ def test_find_dependencies(tensor_key):
     tensor_codec = TensorCodec(NoCompressionPipeline())
     tensor_name, origin, round_number, report, tags = tensor_key
     round_number = 2
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("model",))
     tensor_key_dependencies = tensor_codec.find_dependencies(tensor_key, True)
 
     assert len(tensor_key_dependencies) == 2
@@ -456,9 +422,7 @@ def test_find_dependencies_is_lossy(tensor_key):
     tensor_codec.compression_pipeline.is_lossy = mock.Mock(return_value=True)
     tensor_name, origin, round_number, report, tags = tensor_key
     round_number = 2
-    tensor_key = TensorKey(
-        tensor_name, origin, round_number, report, ("model",)
-    )
+    tensor_key = TensorKey(tensor_name, origin, round_number, report, ("model",))
     tensor_key_dependencies = tensor_codec.find_dependencies(tensor_key, True)
 
     assert len(tensor_key_dependencies) == 2

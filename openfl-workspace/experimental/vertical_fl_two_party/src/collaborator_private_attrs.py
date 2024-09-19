@@ -27,13 +27,9 @@ transform = transforms.Compose(
         transforms.Normalize((0.5,), (0.5,)),
     ]
 )
-trainset = datasets.MNIST(
-    "mnist", download=True, train=True, transform=transform
-)
+trainset = datasets.MNIST("mnist", download=True, train=True, transform=transform)
 
-train_loader = torch.utils.data.DataLoader(
-    trainset, batch_size=batch_size, shuffle=True
-)
+train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
 
 
 def collaborator_private_attrs(data_model, data_model_optimizer, train_loader):

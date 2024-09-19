@@ -39,10 +39,7 @@ def test_call_exception(agg, db_iterator):
 def test_call_default_agg_func(agg, db_iterator):
     agg.optimizer.params = {"tensor1": 1}
     agg.default_agg_func = mock.Mock(return_value="default_agg_func")
-    assert (
-        agg.call(["local_tensors"], db_iterator, "tensor2", 1, ("tag"))
-        == "default_agg_func"
-    )
+    assert agg.call(["local_tensors"], db_iterator, "tensor2", 1, ("tag")) == "default_agg_func"
 
 
 def test_call_successful(agg, db_iterator):

@@ -71,17 +71,13 @@ class TestFlowDatastoreAndCli(FLSpec):
             self.optimizer = optimizer
         else:
             self.model = Net()
-            self.optimizer = optim.SGD(
-                self.model.parameters(), lr=learning_rate, momentum=momentum
-            )
+            self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         self.num_rounds = rounds
         self.current_round = 0
 
     @aggregator
     def start(self):
-        print(
-            "Testing FederatedFlow - Starting Test for Dataflow and CLI Functionality"
-        )
+        print("Testing FederatedFlow - Starting Test for Dataflow and CLI Functionality")
         self.collaborators = self.runtime.collaborators
         self.private = 10
         self.next(
@@ -100,9 +96,7 @@ class TestFlowDatastoreAndCli(FLSpec):
     def train(self):
         print("Train the model")
         self.model.train()
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=learning_rate, momentum=momentum
-        )
+        self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         for batch_idx, (data, target) in enumerate(self.train_loader):
             self.optimizer.zero_grad()
             output = self.model(data)
@@ -177,15 +171,9 @@ def validate_datastore_cli(flow_obj, expected_flow_steps, num_rounds):
     cli_flow_steps = list(list(cli_flow_obj)[0])
     cli_step_names = [step.id for step in cli_flow_steps]
 
-    steps_present_in_cli = [
-        step for step in expected_flow_steps if step in cli_step_names
-    ]
-    missing_steps_in_cli = [
-        step for step in expected_flow_steps if step not in cli_step_names
-    ]
-    extra_steps_in_cli = [
-        step for step in cli_step_names if step not in expected_flow_steps
-    ]
+    steps_present_in_cli = [step for step in expected_flow_steps if step in cli_step_names]
+    missing_steps_in_cli = [step for step in expected_flow_steps if step not in cli_step_names]
+    extra_steps_in_cli = [step for step in cli_step_names if step not in expected_flow_steps]
 
     if len(steps_present_in_cli) != len(expected_flow_steps):
         validate_flow_error.append(
@@ -216,29 +204,19 @@ def validate_datastore_cli(flow_obj, expected_flow_steps, num_rounds):
                         {step} {task} {Bcolors.ENDC} \n"
                 )
 
-        if (
-            (func.aggregator_step)
-            and (task_count != num_rounds)
-            and (func.__name__ != "end")
-        ):
+        if (func.aggregator_step) and (task_count != num_rounds) and (func.__name__ != "end"):
             validate_flow_error.append(
                 f"{Bcolors.FAIL}... Error : More than one execution detected \
                     for Aggregator Step: {step} {Bcolors.ENDC} \n"
             )
 
-        if (
-            (func.aggregator_step)
-            and (task_count != 1)
-            and (func.__name__ == "end")
-        ):
+        if (func.aggregator_step) and (task_count != 1) and (func.__name__ == "end"):
             validate_flow_error.append(
                 f"{Bcolors.FAIL}... Error : More than one execution detected \
                     for Aggregator Step: {step} {Bcolors.ENDC} \n"
             )
 
-        if (func.collaborator_step) and (
-            task_count != len(flow_obj.collaborators) * num_rounds
-        ):
+        if (func.collaborator_step) and (task_count != len(flow_obj.collaborators) * num_rounds):
             validate_flow_error.append(
                 f"{Bcolors.FAIL}... Error : Incorrect number of execution \
                     detected for Collaborator Step: {step}. \

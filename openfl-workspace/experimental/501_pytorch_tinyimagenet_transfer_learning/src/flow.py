@@ -53,12 +53,8 @@ class ConvNormActivation(torch.nn.Sequential):
         stride: Union[int, Tuple[int, ...]] = 1,
         padding: Optional[Union[int, Tuple[int, ...], str]] = None,
         groups: int = 1,
-        norm_layer: Optional[
-            Callable[..., torch.nn.Module]
-        ] = torch.nn.BatchNorm2d,
-        activation_layer: Optional[
-            Callable[..., torch.nn.Module]
-        ] = torch.nn.ReLU,
+        norm_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.BatchNorm2d,
+        activation_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.ReLU,
         dilation: Union[int, Tuple[int, ...]] = 1,
         inplace: Optional[bool] = True,
         bias: Optional[bool] = None,
@@ -68,17 +64,10 @@ class ConvNormActivation(torch.nn.Sequential):
             if isinstance(kernel_size, int) and isinstance(dilation, int):
                 padding = (kernel_size - 1) // 2 * dilation
             else:
-                _conv_dim = (
-                    len(kernel_size)
-                    if isinstance(kernel_size, Sequence)
-                    else len(dilation)
-                )
+                _conv_dim = len(kernel_size) if isinstance(kernel_size, Sequence) else len(dilation)
                 kernel_size = _make_ntuple(kernel_size, _conv_dim)
                 dilation = _make_ntuple(dilation, _conv_dim)
-                padding = tuple(
-                    (kernel_size[i] - 1) // 2 * dilation[i]
-                    for i in range(_conv_dim)
-                )
+                padding = tuple((kernel_size[i] - 1) // 2 * dilation[i] for i in range(_conv_dim))
         if bias is None:
             bias = norm_layer is None
 
@@ -121,12 +110,8 @@ class Conv2dNormActivation(ConvNormActivation):
         stride: Union[int, Tuple[int, int]] = 1,
         padding: Optional[Union[int, Tuple[int, int], str]] = None,
         groups: int = 1,
-        norm_layer: Optional[
-            Callable[..., torch.nn.Module]
-        ] = torch.nn.BatchNorm2d,
-        activation_layer: Optional[
-            Callable[..., torch.nn.Module]
-        ] = torch.nn.ReLU,
+        norm_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.BatchNorm2d,
+        activation_layer: Optional[Callable[..., torch.nn.Module]] = torch.nn.ReLU,
         dilation: Union[int, Tuple[int, int]] = 1,
         inplace: Optional[bool] = True,
         bias: Optional[bool] = None,
@@ -147,9 +132,7 @@ class Conv2dNormActivation(ConvNormActivation):
         )
 
 
-def _make_divisible(
-    v: float, divisor: int, min_value: Optional[int] = None
-) -> int:
+def _make_divisible(v: float, divisor: int, min_value: Optional[int] = None) -> int:
     if min_value is None:
         min_value = divisor
     new_v = max(min_value, int(v + divisor / 2) // divisor * divisor)
@@ -243,22 +226,15 @@ class MobileNetV2(nn.Module):
         last_channel = 1280
 
         # only check the first element, assuming user knows t,c,n,s are required
-        if (
-            len(inverted_residual_setting) == 0
-            or len(inverted_residual_setting[0]) != 4
-        ):
+        if len(inverted_residual_setting) == 0 or len(inverted_residual_setting[0]) != 4:
             raise ValueError(
                 "inverted_residual_setting should be non-empty "
                 + f"or a 4-element list, got {inverted_residual_setting}"
             )
 
         # building first layer
-        input_channel = _make_divisible(
-            input_channel * width_mult, round_nearest
-        )
-        self.last_channel = _make_divisible(
-            last_channel * max(1.0, width_mult), round_nearest
-        )
+        input_channel = _make_divisible(input_channel * width_mult, round_nearest)
+        self.last_channel = _make_divisible(last_channel * max(1.0, width_mult), round_nearest)
         features: List[nn.Module] = [
             Conv2dNormActivation(
                 3,
@@ -347,9 +323,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.base_model = mobilenetv2
         self.base_model.requires_grad_(False)
-        self.linear = torch.nn.Linear(
-            in_features=in_features, out_features=out_features, bias=True
-        )
+        self.linear = torch.nn.Linear(in_features=in_features, out_features=out_features, bias=True)
         self.linear.requires_grad_(True)
 
     def forward(self, x):
@@ -369,9 +343,9 @@ def inference(network, test_loader):
         for data, target in data_loader:
             samples = target.shape[0]
             total_samples += samples
-            data, target = torch.tensor(data).to(device), torch.tensor(
-                target
-            ).to(device, dtype=torch.int64)
+            data, target = torch.tensor(data).to(device), torch.tensor(target).to(
+                device, dtype=torch.int64
+            )
             output = network(data)
             pred = output.argmax(dim=1, keepdim=True)
             val_score += pred.eq(target).sum().cpu().numpy()
@@ -415,9 +389,7 @@ class TinyImageNetFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(
-            f"Performing aggregated model validation for collaborator {self.input}"
-        )
+        print(f"Performing aggregated model validation for collaborator {self.input}")
         self.agg_validation_score = inference(self.model, self.test_loader)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.next(self.train)
@@ -432,9 +404,7 @@ class TinyImageNetFlow(FLSpec):
             [x for x in self.model.parameters() if x.requires_grad], lr=1e-4
         )
         for data, target in data_loader:
-            data, target = torch.tensor(data).to(device), torch.tensor(
-                target
-            ).to(device)
+            data, target = torch.tensor(data).to(device), torch.tensor(target).to(device)
             self.optimizer.zero_grad()
             output = self.model(data)
             loss = F.cross_entropy(output, target)
@@ -459,20 +429,15 @@ class TinyImageNetFlow(FLSpec):
     @aggregator
     def join(self, inputs):
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
-        print(
-            "Average aggregated model "
-            + f"validation values = {self.aggregated_model_accuracy}"
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
         )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
+        print("Average aggregated model " + f"validation values = {self.aggregated_model_accuracy}")
         print(f"Average training loss = {self.average_loss}")
-        print(
-            f"Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"Average local model validation values = {self.local_model_accuracy}")
         self.model = fedavg([input.model.to("cpu") for input in inputs])
         self.next(self.internal_loop)
 

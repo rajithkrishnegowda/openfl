@@ -47,9 +47,7 @@ def test_get_dataset_info(director_client):
     ],
 )
 @mock.patch("openfl.transport.grpc.director_client.deconstruct_model_proto")
-def test_get_best_model(
-    deconstruct_model_proto, director_client, clients_method, model_type
-):
+def test_get_best_model(deconstruct_model_proto, director_client, clients_method, model_type):
     """Test get_best_model RPC."""
     deconstruct_model_proto.return_value = {}, {}
     getattr(director_client, clients_method)("test name")
@@ -60,6 +58,4 @@ def test_get_best_model(
         incoming_model_type = request[0][0].model_type
     else:
         incoming_model_type = request.args[0].model_type
-    assert incoming_model_type == getattr(
-        director_pb2.GetTrainedModelRequest, model_type
-    )
+    assert incoming_model_type == getattr(director_pb2.GetTrainedModelRequest, model_type)

@@ -4,12 +4,8 @@
 from abc import ABCMeta
 from collections import namedtuple
 
-TensorKey = namedtuple(
-    "TensorKey", ["tensor_name", "origin", "round_number", "report", "tags"]
-)
-TaskResultKey = namedtuple(
-    "TaskResultKey", ["task_name", "owner", "round_number"]
-)
+TensorKey = namedtuple("TensorKey", ["tensor_name", "origin", "round_number", "report", "tags"])
+TaskResultKey = namedtuple("TaskResultKey", ["task_name", "owner", "round_number"])
 
 Metric = namedtuple("Metric", ["name", "value"])
 LocalTensor = namedtuple("LocalTensor", ["col_name", "tensor", "weight"])
@@ -38,7 +34,5 @@ class SingletonABCMeta(ABCMeta):
             Any: The singleton instance of the class.
         """
         if cls not in cls._instances:
-            cls._instances[cls] = super(SingletonABCMeta, cls).__call__(
-                *args, **kwargs
-            )
+            cls._instances[cls] = super(SingletonABCMeta, cls).__call__(*args, **kwargs)
         return cls._instances[cls]

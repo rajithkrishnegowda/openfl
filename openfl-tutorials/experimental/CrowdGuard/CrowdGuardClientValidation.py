@@ -73,8 +73,7 @@ class CrowdGuardClientValidation:
         # We create a distance matrix with distances between global and local models
         # of the dimensions sample x model x layer x values
         global_distance_matrix = [
-            [[0.0] * layer_count for _ in range(model_count)]
-            for _ in range(sample_count)
+            [[0.0] * layer_count for _ in range(model_count)] for _ in range(sample_count)
         ]
         # 1. calculate distances between predictions of global model and each local model
         for s_i, s in enumerate(prediction_matrix):
@@ -90,8 +89,7 @@ class CrowdGuardClientValidation:
         for label, sample_list in sample_indices_by_label.items():
             # First pick the samples from the global predictions
             global_distance_matrix_for_label_helper = [
-                [[0.0] * len(sample_list) for _ in range(layer_count)]
-                for _ in range(model_count)
+                [[0.0] * len(sample_list) for _ in range(layer_count)] for _ in range(model_count)
             ]
 
             s_i_new = 0
@@ -100,15 +98,12 @@ class CrowdGuardClientValidation:
                     continue
                 for m_i, mi in enumerate(s):
                     for l_i, l in enumerate(mi):
-                        global_distance_matrix_for_label_helper[m_i][l_i][
-                            s_i_new
-                        ] = l
+                        global_distance_matrix_for_label_helper[m_i][l_i][s_i_new] = l
                 s_i_new += 1
 
         # We produce the first relative matrix
         sample_relation_matrix = [
-            [[0.0] * layer_count for _ in range(model_count)]
-            for _ in range(sample_count)
+            [[0.0] * layer_count for _ in range(model_count)] for _ in range(sample_count)
         ]
 
         # 3. divide by distances of this client to use its values as reference
@@ -118,9 +113,7 @@ class CrowdGuardClientValidation:
                 for l_i, l in enumerate(mj):
                     relation = 0
                     if distances_for_own_models_predictions[l_i] != 0:
-                        relation = (
-                            l / distances_for_own_models_predictions[l_i]
-                        )
+                        relation = l / distances_for_own_models_predictions[l_i]
                     sample_relation_matrix[s_i][m_j][l_i] = relation  # line 21
 
         # We produce the Label average
@@ -134,8 +127,7 @@ class CrowdGuardClientValidation:
                 [0.0] * layer_count for _ in range(model_count)
             ]
             sample_relation_matrix_for_label_helper = [
-                [[0.0] * len(sample_list) for _ in range(layer_count)]
-                for _ in range(model_count)
+                [[0.0] * len(sample_list) for _ in range(layer_count)] for _ in range(model_count)
             ]
             # transpose dimensions of distance matrix, before we had (sample,model, layer) and
             # we transpose it to (model,layer,sample)
@@ -145,18 +137,14 @@ class CrowdGuardClientValidation:
                     continue
                 for m_j, mj in enumerate(s):
                     for l_i, l in enumerate(mj):
-                        sample_relation_matrix_for_label_helper[m_j][l_i][
-                            s_i_new
-                        ] = l
+                        sample_relation_matrix_for_label_helper[m_j][l_i][s_i_new] = l
                 s_i_new += 1
 
             # 5. Average over all samples from the same label (basically kick-out the last
             # dimension)
             for m_j, mj in enumerate(sample_relation_matrix_for_label_helper):
                 for l_i, l in enumerate(mj):
-                    sample_relation_matrix_for_label[label][m_j][
-                        l_i
-                    ] = np.mean(l).item()
+                    sample_relation_matrix_for_label[label][m_j][l_i] = np.mean(l).item()
 
         avg_sample_relation_matrix_squared_negative_models_first = {}
 
@@ -170,9 +158,9 @@ class CrowdGuardClientValidation:
                     x = l - 1
                     relation = x * x
                     relation = relation if x >= 0 else relation * (-1)
-                    avg_sample_relation_matrix_squared_negative_models_first[
-                        label
-                    ][m_j][l_i] = relation
+                    avg_sample_relation_matrix_squared_negative_models_first[label][m_j][
+                        l_i
+                    ] = relation
         return avg_sample_relation_matrix_squared_negative_models_first
 
     @staticmethod
@@ -208,21 +196,13 @@ class CrowdGuardClientValidation:
                     if layer_output_index == 0:
                         expected_predictions = sample_idx + 1
                     else:
-                        expected_predictions = (
-                            number_of_previous_samples + target.shape[0]
-                        )
+                        expected_predictions = number_of_previous_samples + target.shape[0]
                     assert_msg = f"{len(predictions)} vs. {sample_idx} ({idx} {batch_id} "
-                    assert_msg += (
-                        f"{layer_output_index} {number_of_previous_samples})"
-                    )
+                    assert_msg += f"{layer_output_index} {number_of_previous_samples})"
                     assert len(predictions) == expected_predictions, assert_msg
-                    assert_msg = (
-                        f"{len(predictions[sample_idx])} {layer_output_index} "
-                    )
+                    assert_msg = f"{len(predictions[sample_idx])} {layer_output_index} "
                     assert_msg += f"{sample_idx} {batch_id} {idx} {number_of_previous_samples}"
-                    assert (
-                        len(predictions[sample_idx]) == layer_output_index
-                    ), assert_msg
+                    assert len(predictions[sample_idx]) == layer_output_index, assert_msg
                     value = layer_output_values[idx].clone().detach().cpu()
                     predictions[sample_idx].append(value)
             number_of_previous_samples += target.shape[0]
@@ -247,19 +227,13 @@ class CrowdGuardClientValidation:
                 predictions,
                 _,
                 _,
-            ) = CrowdGuardClientValidation.__predict_for_single_model(
-                model, local_data, device
-            )
-            for sample_index, layer_predictions_for_sample in enumerate(
-                predictions
-            ):
+            ) = CrowdGuardClientValidation.__predict_for_single_model(model, local_data, device)
+            for sample_index, layer_predictions_for_sample in enumerate(predictions):
                 if sample_index >= len(all_models_predictions):
                     assert model_index == 0
                     assert len(all_models_predictions) == sample_index
                     all_models_predictions.append([])
-                all_models_predictions[sample_index].append(
-                    layer_predictions_for_sample
-                )
+                all_models_predictions[sample_index].append(layer_predictions_for_sample)
         tmp = CrowdGuardClientValidation.__predict_for_single_model(
             global_model, local_data, device
         )
@@ -292,30 +266,20 @@ class CrowdGuardClientValidation:
 
             # We put all of our labels into one big row.
             layer_length = num_layers * len(distance_matrix_la_m_l)
-            dist_matrix_m_lcon = [
-                [0.0] * layer_length for _ in range(total_number_of_clients)
-            ]
+            dist_matrix_m_lcon = [[0.0] * layer_length for _ in range(total_number_of_clients)]
             label_count = 0
             for (
                 label_x,
                 dist_matrix_m_l_for_label,
             ) in distance_matrix_la_m_l.items():
-                for model_idx, model_values in enumerate(
-                    dist_matrix_m_l_for_label
-                ):
+                for model_idx, model_values in enumerate(dist_matrix_m_l_for_label):
                     for layer_idx, layer in enumerate(model_values):
-                        dist_matrix_m_lcon[model_idx][
-                            layer_idx + label_count * num_layers
-                        ] = layer
+                        dist_matrix_m_lcon[model_idx][layer_idx + label_count * num_layers] = layer
                 label_count = label_count + 1
 
             dist_matrix_m_l = dist_matrix_m_lcon
 
-            client_indices = [
-                x
-                for x, value in enumerate(dist_matrix_m_l)
-                if x != own_client_index
-            ]
+            client_indices = [x for x, value in enumerate(dist_matrix_m_l) if x != own_client_index]
             pruned_indices = []
             has_malicious_model = True
             new_round_needed = True
@@ -388,12 +352,8 @@ class CrowdGuardClientValidation:
                         x_values.append(distance_value)
                     else:
                         y_values.append(distance_value)
-                print(
-                    f"Distance: {distance_type}, use y {len(y_values)}: {y_values}"
-                )
-                print(
-                    f"Distance: {distance_type}, use x {len(x_values)}: {x_values}"
-                )
+                print(f"Distance: {distance_type}, use y {len(y_values)}: {y_values}")
+                print(f"Distance: {distance_type}, use x {len(x_values)}: {x_values}")
 
                 # Statistical tests
                 t_value, t_p_value = ttest_ind(x_values, y_values)
@@ -460,9 +420,7 @@ class CrowdGuardClientValidation:
                 ac_e_labels: list = ac_e.labels_.tolist()
                 median_value_cluster_label = ac_e_labels[-1]
                 ac_e_malicious_class_indices = [
-                    idx
-                    for idx, val in enumerate(ac_e_labels)
-                    if val != median_value_cluster_label
+                    idx for idx, val in enumerate(ac_e_labels) if val != median_value_cluster_label
                 ]
 
                 for m_j, value in enumerate(pruned_client_indices):
@@ -477,14 +435,10 @@ class CrowdGuardClientValidation:
                 if len(pruned_indices_local) > max_pruning_count:
                     dist_values_of_pruned_models = []
                     for midx in ac_e_malicious_class_indices:
-                        dist_to_median = abs(
-                            cluster_input[midx][0] - cluster_input[-1][0]
-                        )
+                        dist_to_median = abs(cluster_input[midx][0] - cluster_input[-1][0])
                         dist_values_of_pruned_models.append(dist_to_median)
 
-                    sorted_dist_values_of_pruned_models = list(
-                        dist_values_of_pruned_models
-                    )
+                    sorted_dist_values_of_pruned_models = list(dist_values_of_pruned_models)
                     sorted_dist_values_of_pruned_models.sort()
 
                     sorted_ac_e_malicious_class_indices = []
@@ -492,18 +446,12 @@ class CrowdGuardClientValidation:
                         dvidx = dist_values_of_pruned_models.index(sdv)
                         for m_j, value in enumerate(pruned_client_indices):
                             if m_j == ac_e_malicious_class_indices[dvidx]:
-                                sorted_ac_e_malicious_class_indices.append(
-                                    value
-                                )
-                    overflowed_count = (
-                        len(pruned_indices_local) - max_pruning_count
-                    )
+                                sorted_ac_e_malicious_class_indices.append(value)
+                    overflowed_count = len(pruned_indices_local) - max_pruning_count
                     for oc in range(overflowed_count):
                         # Get the values of the clusters and remove the nearest ones
                         # from pruned_indices_local
-                        pruned_indices_local.remove(
-                            sorted_ac_e_malicious_class_indices[-1]
-                        )
+                        pruned_indices_local.remove(sorted_ac_e_malicious_class_indices[-1])
                         del sorted_ac_e_malicious_class_indices[-1]
                     pruned_too_much = False
 
@@ -522,12 +470,8 @@ class CrowdGuardClientValidation:
         return list(set(detected_poisoned_models))
 
     @staticmethod
-    def validate_models(
-        global_model, models, own_client_index, local_data, device
-    ):
-        tmp = CrowdGuardClientValidation.__do_predictions(
-            models, global_model, local_data, device
-        )
+    def validate_models(global_model, models, own_client_index, local_data, device):
+        tmp = CrowdGuardClientValidation.__do_predictions(models, global_model, local_data, device)
         (
             prediction_matrix,
             global_model_predictions,

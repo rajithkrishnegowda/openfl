@@ -65,15 +65,11 @@ class TestFlowPrivateAttributes(FLSpec):
         Testing whether Collab private attributes are accessible in collab step
         Aggregator private attributes should not be accessible here
         """
-        validate_agg_private_attrs(
-            self, "train_loader", "test_loader", "collaborator_step_a"
-        )
+        validate_agg_private_attrs(self, "train_loader", "test_loader", "collaborator_step_a")
 
         self.exclude_collab_to_collab = 2
         self.include_collab_to_collab = 22
-        self.next(
-            self.collaborator_step_b, exclude=["exclude_collab_to_collab"]
-        )
+        self.next(self.collaborator_step_b, exclude=["exclude_collab_to_collab"])
 
     @collaborator
     def collaborator_step_b(self):
@@ -82,9 +78,7 @@ class TestFlowPrivateAttributes(FLSpec):
         Aggregator private attributes should not be accessible here
         """
 
-        validate_agg_private_attrs(
-            self, "train_loader", "test_loader", "collaborator_step_b"
-        )
+        validate_agg_private_attrs(self, "train_loader", "test_loader", "collaborator_step_b")
         self.exclude_collab_to_agg = 10
         self.include_collab_to_agg = 12
         self.next(self.join, exclude=["exclude_collab_to_agg"])
@@ -106,14 +100,9 @@ class TestFlowPrivateAttributes(FLSpec):
 
         for input in enumerate(inputs):
             collab = input[1].input
-            if (
-                hasattr(input, "train_loader") is True
-                or hasattr(input, "test_loader") is True
-            ):
+            if hasattr(input, "train_loader") is True or hasattr(input, "test_loader") is True:
                 # Error - we are able to access collaborator attributes
-                TestFlowPrivateAttributes.ERROR_LIST.append(
-                    "join_collaborator_attributes_found"
-                )
+                TestFlowPrivateAttributes.ERROR_LIST.append("join_collaborator_attributes_found")
                 print(
                     f"{bcolors.FAIL} ... Attribute test failed in Join - Collaborator: {collab}"
                     + f" private attributes accessible {bcolors.ENDC}"
@@ -134,15 +123,9 @@ class TestFlowPrivateAttributes(FLSpec):
         )
 
         if TestFlowPrivateAttributes.ERROR_LIST:
-            raise (
-                AssertionError(
-                    f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"
-                )
-            )
+            raise (AssertionError(f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"))
         else:
-            print(
-                f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}"
-            )
+            print(f"{bcolors.OKGREEN}\n ...Test case passed ... {bcolors.ENDC}")
 
         TestFlowPrivateAttributes.ERROR_LIST = []
 
@@ -150,9 +133,7 @@ class TestFlowPrivateAttributes(FLSpec):
 def validate_collab_private_attr(self, private_attr, step_name):
     # Aggregator should only be able to access its own attributes
     if hasattr(self, private_attr) is False:
-        TestFlowPrivateAttributes.ERROR_LIST.append(
-            step_name + "_aggregator_attributes_missing"
-        )
+        TestFlowPrivateAttributes.ERROR_LIST.append(step_name + "_aggregator_attributes_missing")
         print(
             f"{bcolors.FAIL} ...Failed in {step_name} - aggregator private attributes not "
             + f"accessible {bcolors.ENDC}"
@@ -175,26 +156,18 @@ def validate_collab_private_attr(self, private_attr, step_name):
             )
 
 
-def validate_agg_private_attrs(
-    self, private_attr_1, private_attr_2, step_name
-):
+def validate_agg_private_attrs(self, private_attr_1, private_attr_2, step_name):
     # Collaborator should only be able to access its own attributes
     if not hasattr(self, private_attr_1) or not hasattr(self, private_attr_2):
-        TestFlowPrivateAttributes.ERROR_LIST.append(
-            step_name + "collab_attributes_not_found"
-        )
+        TestFlowPrivateAttributes.ERROR_LIST.append(step_name + "collab_attributes_not_found")
         print(
             f"{bcolors.FAIL} ... Attribute test failed in {step_name} - Collab "
             + f"private attributes not accessible {bcolors.ENDC}"
         )
 
-    if hasattr(self.runtime, "_aggregator") and isinstance(
-        self.runtime._aggregator, Aggregator
-    ):
+    if hasattr(self.runtime, "_aggregator") and isinstance(self.runtime._aggregator, Aggregator):
         # Error - we are able to access aggregator attributes
-        TestFlowPrivateAttributes.ERROR_LIST.append(
-            step_name + "_aggregator_attributes_found"
-        )
+        TestFlowPrivateAttributes.ERROR_LIST.append(step_name + "_aggregator_attributes_found")
         print(
             f"{bcolors.FAIL} ... Attribute test failed in {step_name} - Aggregator"
             + f" private attributes accessible {bcolors.ENDC}"

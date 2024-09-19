@@ -98,10 +98,7 @@ class TestFlowReferenceWithInclude(FLSpec):
         # append self attributes of collaborators
         TestFlowReferenceWithInclude.step_one_collab_attrs.append(self)
 
-        if (
-            len(TestFlowReferenceWithInclude.step_one_collab_attrs)
-            >= MIN_COLLECTION_COUNT
-        ):
+        if len(TestFlowReferenceWithInclude.step_one_collab_attrs) >= MIN_COLLECTION_COUNT:
             collab_attr_list = filter_attrs(inspect.getmembers(self))
             matched_ref_dict = find_matched_references(
                 collab_attr_list,
@@ -109,9 +106,7 @@ class TestFlowReferenceWithInclude(FLSpec):
             )
             validate_references(matched_ref_dict)
 
-        self.next(
-            self.test_create_more_collab_attr, include=["collab_attr_dict_one"]
-        )
+        self.next(self.test_create_more_collab_attr, include=["collab_attr_dict_one"])
 
     @collaborator
     def test_create_more_collab_attr(self):
@@ -124,10 +119,7 @@ class TestFlowReferenceWithInclude(FLSpec):
 
         TestFlowReferenceWithInclude.step_two_collab_attrs.append(self)
 
-        if (
-            len(TestFlowReferenceWithInclude.step_two_collab_attrs)
-            >= MIN_COLLECTION_COUNT
-        ):
+        if len(TestFlowReferenceWithInclude.step_two_collab_attrs) >= MIN_COLLECTION_COUNT:
             collab_attr_list = filter_attrs(inspect.getmembers(self))
             matched_ref_dict = find_matched_references(
                 collab_attr_list,
@@ -153,13 +145,9 @@ class TestFlowReferenceWithInclude(FLSpec):
         for val in TestFlowReferenceWithInclude.all_ref_error_dict.values():
             all_shared_attr = all_shared_attr + ",".join(val)
         if all_shared_attr:
-            print(
-                f"{bcolors.FAIL}...Test case failed for {all_shared_attr} {bcolors.ENDC}"
-            )
+            print(f"{bcolors.FAIL}...Test case failed for {all_shared_attr} {bcolors.ENDC}")
         else:
-            print(
-                f"{bcolors.OKGREEN}...Test case passed for all the attributes."
-            )
+            print(f"{bcolors.OKGREEN}...Test case passed for all the attributes.")
         self.next(self.end)
 
     @aggregator
@@ -169,11 +157,7 @@ class TestFlowReferenceWithInclude(FLSpec):
             + f"{bcolors.ENDC}"
         )
         if TestFlowReferenceWithInclude.all_ref_error_dict:
-            raise (
-                AssertionError(
-                    f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"
-                )
-            )
+            raise (AssertionError(f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"))
 
         TestFlowReferenceWithInclude.step_one_collab_attrs = []
         TestFlowReferenceWithInclude.step_two_collab_attrs = []
@@ -212,13 +196,9 @@ def find_matched_references(collab_attr_list, all_collaborators):
             # Compare the current collaborator with the collaborator(s) that come(s) after it.
             for next_collab in all_collaborators[i + 1 :]:
                 # Check if both collaborators have the current attribute
-                if hasattr(curr_collab, attr_name) and hasattr(
-                    next_collab, attr_name
-                ):
+                if hasattr(curr_collab, attr_name) and hasattr(next_collab, attr_name):
                     # Check if both collaborators are sharing same reference
-                    if getattr(curr_collab, attr_name) is getattr(
-                        next_collab, attr_name
-                    ):
+                    if getattr(curr_collab, attr_name) is getattr(next_collab, attr_name):
                         matched_ref_dict[curr_collab.input].append(attr_name)
                         print(
                             f"{bcolors.FAIL} ... Reference test failed - {curr_collab.input} \
@@ -243,14 +223,12 @@ def validate_references(matched_ref_dict):
     if collborators_sharing_ref:
         for collab in collborators_sharing_ref:
             if collab not in TestFlowReferenceWithInclude.all_ref_error_dict:
-                TestFlowReferenceWithInclude.all_ref_error_dict[
+                TestFlowReferenceWithInclude.all_ref_error_dict[collab] = matched_ref_dict.get(
                     collab
-                ] = matched_ref_dict.get(collab)
+                )
 
     if not reference_flag:
-        print(
-            f"{bcolors.OKGREEN}  Pass : Reference test passed  {bcolors.ENDC}"
-        )
+        print(f"{bcolors.OKGREEN}  Pass : Reference test passed  {bcolors.ENDC}")
 
 
 if __name__ == "__main__":

@@ -99,9 +99,7 @@ def generate_watermark(
 # If the Watermark dataset does not exist, generate and save the Watermark images
 watermark_path = pathlib.Path(watermark_dir)
 if watermark_path.exists() and watermark_path.is_dir():
-    print(
-        f"Watermark dataset already exists at: {watermark_path}. Proceeding to next step ... "
-    )
+    print(f"Watermark dataset already exists at: {watermark_path}. Proceeding to next step ... ")
 else:
     print("Generating Watermark dataset... ")
     generate_watermark()
@@ -110,10 +108,7 @@ else:
 class WatermarkDataset(torch.utils.data.Dataset):
     def __init__(self, images_dir, label_dir=None, transforms=None):
         self.images_dir = os.path.abspath(images_dir)
-        self.image_paths = [
-            os.path.join(self.images_dir, d)
-            for d in os.listdir(self.images_dir)
-        ]
+        self.image_paths = [os.path.join(self.images_dir, d) for d in os.listdir(self.images_dir)]
         self.label_paths = label_dir
         self.transform = transforms
         temp = []
@@ -150,9 +145,7 @@ def get_watermark_transforms():
             torchvision.transforms.Grayscale(),
             torchvision.transforms.Resize(28),
             torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(
-                mean=(0.5,), std=(0.5,)
-            ),  # Normalize
+            torchvision.transforms.Normalize(mean=(0.5,), std=(0.5,)),  # Normalize
         ]
     )
 

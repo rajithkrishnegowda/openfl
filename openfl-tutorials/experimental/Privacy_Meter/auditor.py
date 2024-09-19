@@ -52,9 +52,7 @@ class PM_report:  # NOQA: N801
         self.level = level  # which target model to audit
         self.log_dir = log_dir
         self.interval = interval
-        self.history = (
-            {}
-        )  # history information based on each snapshot of the model
+        self.history = {}  # history information based on each snapshot of the model
         self.other_info = other_info
 
         for attr in ["tpr", "fpr", "auc", "roc", "round"]:
@@ -123,9 +121,7 @@ def PopulationAuditor(target_model, datasets, pm_info):  # NOQA: N802
         default_group="y",
     )
 
-    target_info_source = InformationSource(
-        models=[target_model], datasets=[target_dataset]
-    )
+    target_info_source = InformationSource(models=[target_model], datasets=[target_dataset])
 
     reference_info_source = InformationSource(
         models=[target_model], datasets=[pm_population_dataset]
@@ -283,9 +279,7 @@ def plot_roc_history(history_dict, client):
             fpr = history_dict[key].history["roc"][-1][sidx]["fpr"]
             plt.plot(fpr, tpr, label=f"{key}-{signal}")
 
-        round_num = history_dict[key].history["round"][
-            -1
-        ]  # the current round number
+        round_num = history_dict[key].history["round"][-1]  # the current round number
 
     plt.grid()
     plt.legend(loc="upper left")

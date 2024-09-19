@@ -72,9 +72,7 @@ class MVTecShardDescriptor(ShardDescriptor):
 
         self.dataset_path = Path.cwd() / data_folder
         self.download_data()
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
         self.obj = obj
 
         # Calculating data and target shapes
@@ -114,9 +112,7 @@ class MVTecShardDescriptor(ShardDescriptor):
         """Return a shard dataset by type."""
         # Train dataset
         if dataset_type == "train":
-            fpattern = os.path.join(
-                self.dataset_path, f"{self.obj}/train/*/*.png"
-            )
+            fpattern = os.path.join(self.dataset_path, f"{self.obj}/train/*/*.png")
             fpaths = sorted(glob(fpattern))
             self.images_path = list(fpaths)
             self.labels = np.zeros(len(fpaths), dtype=np.int32)
@@ -124,41 +120,30 @@ class MVTecShardDescriptor(ShardDescriptor):
             self.mask_path = np.full(self.labels.shape, None)
         # Test dataset
         elif dataset_type == "test":
-            fpattern = os.path.join(
-                self.dataset_path, f"{self.obj}/test/*/*.png"
-            )
+            fpattern = os.path.join(self.dataset_path, f"{self.obj}/test/*/*.png")
             fpaths = sorted(glob(fpattern))
             fpaths_anom = list(
                 filter(
-                    lambda fpath: os.path.basename(os.path.dirname(fpath))
-                    != "good",
+                    lambda fpath: os.path.basename(os.path.dirname(fpath)) != "good",
                     fpaths,
                 )
             )
             fpaths_good = list(
                 filter(
-                    lambda fpath: os.path.basename(os.path.dirname(fpath))
-                    == "good",
+                    lambda fpath: os.path.basename(os.path.dirname(fpath)) == "good",
                     fpaths,
                 )
             )
             fpaths = fpaths_anom + fpaths_good
             self.images_path = fpaths
-            self.labels = np.zeros(
-                len(fpaths_anom) + len(fpaths_good), dtype=np.int32
-            )
+            self.labels = np.zeros(len(fpaths_anom) + len(fpaths_good), dtype=np.int32)
             self.labels[: len(fpaths_anom)] = 1  # anomalies
             # Masks
-            fpattern_mask = os.path.join(
-                self.dataset_path, f"{self.obj}/ground_truth/*/*.png"
-            )
-            self.mask_path = sorted(glob(fpattern_mask)) + [None] * len(
-                fpaths_good
-            )
+            fpattern_mask = os.path.join(self.dataset_path, f"{self.obj}/ground_truth/*/*.png")
+            self.mask_path = sorted(glob(fpattern_mask)) + [None] * len(fpaths_good)
         else:
             raise Exception(
-                f"Wrong dataset type: {dataset_type}."
-                f"Choose from the list: [train, test]"
+                f"Wrong dataset type: {dataset_type}." f"Choose from the list: [train, test]"
             )
 
         return MVTecShardDataset(
@@ -182,7 +167,4 @@ class MVTecShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the shard dataset description."""
-        return (
-            f"MVTec dataset, shard number {self.rank}"
-            f" out of {self.worldsize}"
-        )
+        return f"MVTec dataset, shard number {self.rank}" f" out of {self.worldsize}"

@@ -15,17 +15,13 @@ def bilinears(images, shape) -> np.ndarray:
     new_shape = (n,) + shape
     ret = np.zeros(new_shape, dtype=images.dtype)
     for i in range(n):
-        ret[i] = cv2.resize(
-            images[i], dsize=shape[::-1], interpolation=cv2.INTER_LINEAR
-        )
+        ret[i] = cv2.resize(images[i], dsize=shape[::-1], interpolation=cv2.INTER_LINEAR)
     return ret
 
 
 def bal_acc_score(obj, predictions, labels):
     """Calculate balanced accuracy score."""
-    precision, recall, thresholds = precision_recall_curve(
-        labels.flatten(), predictions.flatten()
-    )
+    precision, recall, thresholds = precision_recall_curve(labels.flatten(), predictions.flatten())
     f1_score = (2 * precision * recall) / (precision + recall)
     threshold = thresholds[np.argmax(f1_score)]
     prediction_result = predictions > threshold

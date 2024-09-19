@@ -44,9 +44,7 @@ class DatasetGenerator:
             self.ds_train = None
             self.ds_val = None
             self.ds_test = None
-            raise ValueError(
-                f"ERROR: No BraTS datafiles found under directory {self.data_path}"
-            )
+            raise ValueError(f"ERROR: No BraTS datafiles found under directory {self.data_path}")
 
     def create_file_list(self):
         """
@@ -275,36 +273,26 @@ class DatasetGenerator:
         ds_test = ds_val_test.skip(self.num_val)
 
         ds_train = ds_train.map(
-            lambda x: tf.py_function(
-                self.read_nifti_file, [x, True], [tf.float32, tf.float32]
-            ),
+            lambda x: tf.py_function(self.read_nifti_file, [x, True], [tf.float32, tf.float32]),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
         ds_val = ds_val.map(
-            lambda x: tf.py_function(
-                self.read_nifti_file, [x, False], [tf.float32, tf.float32]
-            ),
+            lambda x: tf.py_function(self.read_nifti_file, [x, False], [tf.float32, tf.float32]),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
         ds_test = ds_test.map(
-            lambda x: tf.py_function(
-                self.read_nifti_file, [x, False], [tf.float32, tf.float32]
-            ),
+            lambda x: tf.py_function(self.read_nifti_file, [x, False], [tf.float32, tf.float32]),
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
 
         ds_train = ds_train.batch(self.batch_size, drop_remainder=True)
         ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
-        batch_size_val = max(
-            1, self.batch_size // 2
-        )  # Could be any batch size you'd like
+        batch_size_val = max(1, self.batch_size // 2)  # Could be any batch size you'd like
         ds_val = ds_val.batch(batch_size_val, drop_remainder=True)
         ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
 
-        batch_size_test = max(
-            1, self.batch_size // 2
-        )  # Could be any batch size you'd like
+        batch_size_test = max(1, self.batch_size // 2)  # Could be any batch size you'd like
         ds_test = ds_test.batch(batch_size_test, drop_remainder=True)
         ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 

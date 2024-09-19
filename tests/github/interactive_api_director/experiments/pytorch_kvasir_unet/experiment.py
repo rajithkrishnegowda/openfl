@@ -56,9 +56,7 @@ def run():
 
     # create an experimnet in federation
     experiment_name = "kvasir_test_experiment"
-    fl_experiment = FLExperiment(
-        federation=federation, experiment_name=experiment_name
-    )
+    fl_experiment = FLExperiment(federation=federation, experiment_name=experiment_name)
 
     fl_experiment.start(
         model_provider=MI,
@@ -128,17 +126,11 @@ class KvasirSD(DataInterface):
         Local shard_descriptor  will be set by Envoy.
         """
         self._shard_descriptor = shard_descriptor
-        self._shard_dataset = KvasirShardDataset(
-            shard_descriptor.get_dataset("train")
-        )
+        self._shard_dataset = KvasirShardDataset(shard_descriptor.get_dataset("train"))
 
-        validation_size = max(
-            1, int(len(self._shard_dataset) * self.validation_fraction)
-        )
+        validation_size = max(1, int(len(self._shard_dataset) * self.validation_fraction))
 
-        self.train_indeces = np.arange(
-            len(self._shard_dataset) - validation_size
-        )
+        self.train_indeces = np.arange(len(self._shard_dataset) - validation_size)
         self.val_indeces = np.arange(
             len(self._shard_dataset) - validation_size,
             len(self._shard_dataset),

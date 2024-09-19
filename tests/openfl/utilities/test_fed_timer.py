@@ -17,9 +17,7 @@ from openfl.utilities.fed_timer import fedtiming
         ("first", "first"),
     ],
 )
-def test_check_sync_function_return_same_value_within_timelimit(
-    input, expected
-):
+def test_check_sync_function_return_same_value_within_timelimit(input, expected):
     """
     Test that the decorated synchronous function return the output within the timeout threshold
     Function call returns the expected output and it is asserted.
@@ -39,9 +37,7 @@ def test_check_sync_function_return_same_value_within_timelimit(
         (True, True),
     ],
 )
-def test_check_async_function_return_same_value_within_timelimit(
-    input, expected
-):
+def test_check_async_function_return_same_value_within_timelimit(input, expected):
     """
     Test that the decorated asynchronous function return the output within the timeout threshold
     Function call returns the expected output and it is asserted

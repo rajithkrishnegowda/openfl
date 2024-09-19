@@ -61,9 +61,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         x = self.fc2(x)
         return x
 
-    def train_(
-        self, train_dataloader: Iterator[Tuple[np.ndarray, np.ndarray]]
-    ) -> Metric:
+    def train_(self, train_dataloader: Iterator[Tuple[np.ndarray, np.ndarray]]) -> Metric:
         """
         Train single epoch.
 
@@ -87,9 +85,7 @@ class PyTorchCNN(PyTorchTaskRunner):
         loss = np.mean(losses)
         return Metric(name=self.loss_fn.__name__, value=np.array(loss))
 
-    def validate_(
-        self, validation_dataloader: Iterator[Tuple[np.ndarray, np.ndarray]]
-    ) -> Metric:
+    def validate_(self, validation_dataloader: Iterator[Tuple[np.ndarray, np.ndarray]]) -> Metric:
         """
         Perform validation on PyTorch Model
 
@@ -108,9 +104,7 @@ class PyTorchCNN(PyTorchTaskRunner):
             for data, target in validation_dataloader:
                 samples = target.shape[0]
                 total_samples += samples
-                data, target = data.to(self.device), target.to(
-                    self.device, dtype=torch.int64
-                )
+                data, target = data.to(self.device), target.to(self.device, dtype=torch.int64)
                 output = self(data)
                 # get the index of the max log-probability
                 pred = output.argmax(dim=1)

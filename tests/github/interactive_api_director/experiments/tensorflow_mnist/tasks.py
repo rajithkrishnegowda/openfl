@@ -18,9 +18,7 @@ task_interface = TaskInterface()
     device="device",
     optimizer="optimizer",
 )
-def train(
-    model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False
-):
+def train(model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False):
     import tensorflow as tf
 
     # Iterate over the batches of the dataset.
@@ -36,10 +34,7 @@ def train(
 
         # Log every 200 batches.
         if step % 200 == 0:
-            print(
-                "Training loss (for one batch) at step %d: %.4f"
-                % (step, float(loss_value))
-            )
+            print("Training loss (for one batch) at step %d: %.4f" % (step, float(loss_value)))
             print("Seen so far: %d samples" % ((step + 1) * 64))
         if warmup:
             break
@@ -54,9 +49,7 @@ def train(
     return {"train_acc": train_acc}
 
 
-@task_interface.register_fl_task(
-    model="model", data_loader="val_dataset", device="device"
-)
+@task_interface.register_fl_task(model="model", data_loader="val_dataset", device="device")
 def validate(model, val_dataset, device):
     # Run a validation loop at the end of each epoch.
     for x_batch_val, y_batch_val in val_dataset:

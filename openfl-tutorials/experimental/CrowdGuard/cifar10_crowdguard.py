@@ -39,9 +39,7 @@ MOMENTUM = 0.9
 LOG_INTERVAL = 10
 TOTAL_CLIENT_NUMBER = 4
 PMR = 0.25
-NUMBER_OF_MALICIOUS_CLIENTS = (
-    max(1, int(TOTAL_CLIENT_NUMBER * PMR)) if PMR > 0 else 0
-)
+NUMBER_OF_MALICIOUS_CLIENTS = max(1, int(TOTAL_CLIENT_NUMBER * PMR)) if PMR > 0 else 0
 NUMBER_OF_BENIGN_CLIENTS = TOTAL_CLIENT_NUMBER - NUMBER_OF_MALICIOUS_CLIENTS
 PRETRAINED_MODEL_FILE = "pretrained_cifar.pt"
 
@@ -56,8 +54,7 @@ MEAN = torch.from_numpy(np.array([0.4914, 0.4822, 0.4465]))
 
 def download_pretrained_model():
     urlretrieve(
-        "https://huggingface.co/prieger/cifar10/resolve/main/pretrained_cifar.pt?"
-        "download=true",
+        "https://huggingface.co/prieger/cifar10/resolve/main/pretrained_cifar.pt?" "download=true",
         PRETRAINED_MODEL_FILE,
     )
 
@@ -99,9 +96,7 @@ def poison_data(samples_to_poison, labels_to_poison, pdr=0.5):
         assert dataset_size > 1
         num_samples_to_poison += 1
 
-    indices = np.random.choice(
-        dataset_size, size=num_samples_to_poison, replace=False
-    )
+    indices = np.random.choice(dataset_size, size=num_samples_to_poison, replace=False)
     for image_index in indices:
         image = trigger_single_image(samples_to_poison[image_index])
         samples_to_poison[image_index] = image
@@ -182,9 +177,7 @@ def default_optimizer(model, optimizer_type=None, optimizer_like=None):
         optimizer_like: "torch.optim.SGD" or "torch.optim.Adam" optimizer
     """
     if optimizer_type == "SGD" or isinstance(optimizer_like, optim.SGD):
-        return optim.SGD(
-            model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM
-        )
+        return optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
     elif optimizer_type == "Adam" or isinstance(optimizer_like, optim.Adam):
         return optim.Adam(model.parameters())
 
@@ -237,9 +230,7 @@ def FedAvg(models):  # NOQA: N802
         state_dicts = [model.state_dict() for model in models]
         state_dict = new_model.state_dict()
         for key in models[1].state_dict():
-            state_dict[key] = np.sum(
-                [state[key] for state in state_dicts], axis=0
-            ) / len(models)
+            state_dict[key] = np.sum([state[key] for state in state_dicts], axis=0) / len(models)
         new_model.load_state_dict(state_dict)
     return new_model
 
@@ -264,9 +255,7 @@ def scale_update_of_model(to_scale, global_model, scaling_factor):
     return result
 
 
-def create_cluster_map_from_labels(
-    expected_number_of_labels, clustering_labels
-):
+def create_cluster_map_from_labels(expected_number_of_labels, clustering_labels):
     """
     Converts a list of labels into a dictionary where each label is the key and
     the values are lists/np arrays of the indices from the samples that received
@@ -295,10 +284,7 @@ def determine_biggest_cluster(clustering):
     biggest_cluster_size = None
     for cluster_id, cluster in clustering.items():
         size_of_current_cluster = np.array(cluster).shape[0]
-        if (
-            biggest_cluster_id is None
-            or size_of_current_cluster > biggest_cluster_size
-        ):
+        if biggest_cluster_id is None or size_of_current_cluster > biggest_cluster_size:
             biggest_cluster_id = cluster_id
             biggest_cluster_size = size_of_current_cluster
     return biggest_cluster_id
@@ -317,9 +303,7 @@ class FederatedFlow(FLSpec):
         **kwargs,
     ):
         if aggregation_algorithm not in ["FedAVG", "CrowdGuard"]:
-            raise Exception(
-                f"Unsupported Aggregation Algorithm: {aggregation_algorithm}"
-            )
+            raise Exception(f"Unsupported Aggregation Algorithm: {aggregation_algorithm}")
         super().__init__(**kwargs)
         self.aggregation_algorithm = aggregation_algorithm
         self.model = model
@@ -354,14 +338,10 @@ class FederatedFlow(FLSpec):
     def train(self):
         self.collaborator_name = self.input
         print(20 * "#")
-        print(
-            f"Performing model training for collaborator {self.input} in round {self.round_num}"
-        )
+        print(f"Performing model training for collaborator {self.input} in round {self.round_num}")
 
         self.model.to(self.device)
-        original_model = {
-            n: d.clone() for n, d in self.model.state_dict().items()
-        }
+        original_model = {n: d.clone() for n, d in self.model.state_dict().items()}
         test(
             self.model,
             self.train_loader,
@@ -382,9 +362,7 @@ class FederatedFlow(FLSpec):
             mode="Backdoor",
             move_to_cpu_afterward=False,
         )
-        self.optimizer = default_optimizer(
-            self.model, optimizer_like=self.optimizers[self.input]
-        )
+        self.optimizer = default_optimizer(self.model, optimizer_like=self.optimizers[self.input])
 
         self.model.train()
         train_losses = []
@@ -425,9 +403,7 @@ class FederatedFlow(FLSpec):
         )
         if "malicious" in self.input:
             weights = self.model.state_dict()
-            scaled = scale_update_of_model(
-                weights, original_model, 1 / self.pmr
-            )
+            scaled = scale_update_of_model(weights, original_model, 1 / self.pmr)
             self.model.load_state_dict(scaled)
         self.model.to("cpu")
         torch.cuda.empty_cache()
@@ -438,9 +414,7 @@ class FederatedFlow(FLSpec):
 
     @aggregator
     def fed_avg_aggregation(self, inputs):
-        self.all_models = {
-            input.collaborator_name: input.model.cpu() for input in inputs
-        }
+        self.all_models = {input.collaborator_name: input.model.cpu() for input in inputs}
         self.model = FedAvg([m.cpu() for m in self.all_models.values()])
         self.round_num += 1
         if self.round_num + 1 < self.total_rounds:
@@ -465,19 +439,15 @@ class FederatedFlow(FLSpec):
         all_names = list(self.all_models.keys())
         all_models = [self.all_models[n] for n in all_names]
         own_client_index = all_names.index(self.collaborator_name)
-        detected_suspicious_models = (
-            CrowdGuardClientValidation.validate_models(
-                self.global_model,
-                all_models,
-                own_client_index,
-                self.train_loader,
-                self.device,
-            )
+        detected_suspicious_models = CrowdGuardClientValidation.validate_models(
+            self.global_model,
+            all_models,
+            own_client_index,
+            self.train_loader,
+            self.device,
         )
         detected_suspicious_models = sorted(detected_suspicious_models)
-        print(
-            f"Suspicious Models detected by {own_client_index}: {detected_suspicious_models}"
-        )
+        print(f"Suspicious Models detected by {own_client_index}: {detected_suspicious_models}")
 
         votes_of_this_client = []
         for c in range(len(all_models)):
@@ -498,9 +468,7 @@ class FederatedFlow(FLSpec):
         # Following the CrowdGuard paper, this should be executed within SGX
 
         all_names = list(self.all_models.keys())
-        all_votes_by_name = {
-            i.collaborator_name: i.votes_of_this_client for i in inputs
-        }
+        all_votes_by_name = {i.collaborator_name: i.votes_of_this_client for i in inputs}
 
         all_models = [self.all_models[name] for name in all_names]
         binary_votes = [
@@ -519,9 +487,7 @@ class FederatedFlow(FLSpec):
             compute_distances=True,
         ).fit(binary_votes)
         ac_e_labels: list = ac_e.labels_.tolist()
-        agglomerative_result = create_cluster_map_from_labels(
-            len(all_names), ac_e_labels
-        )
+        agglomerative_result = create_cluster_map_from_labels(len(all_names), ac_e_labels)
         print(f"Agglomerative Clustering: {agglomerative_result}")
         agglomerative_negative_cluster = agglomerative_result[
             determine_biggest_cluster(agglomerative_result)
@@ -529,24 +495,18 @@ class FederatedFlow(FLSpec):
 
         db_scan_input_idx_list = agglomerative_negative_cluster
         print(f"DBScan Input: {db_scan_input_idx_list}")
-        db_scan_input_list = [
-            binary_votes[vote_id] for vote_id in db_scan_input_idx_list
-        ]
+        db_scan_input_list = [binary_votes[vote_id] for vote_id in db_scan_input_idx_list]
 
         db = DBSCAN(eps=0.5, min_samples=1).fit(db_scan_input_list)
         dbscan_clusters = create_cluster_map_from_labels(
             len(agglomerative_negative_cluster), db.labels_.tolist()
         )
-        biggest_dbscan_cluster = dbscan_clusters[
-            determine_biggest_cluster(dbscan_clusters)
-        ]
+        biggest_dbscan_cluster = dbscan_clusters[determine_biggest_cluster(dbscan_clusters)]
         print(f"DBScan Clustering: {biggest_dbscan_cluster}")
 
         single_sample_of_biggest_cluster = biggest_dbscan_cluster[0]
         final_voting = db_scan_input_list[single_sample_of_biggest_cluster]
-        negatives = [
-            i for i, vote in enumerate(final_voting) if vote == VOTE_FOR_BENIGN
-        ]
+        negatives = [i for i, vote in enumerate(final_voting) if vote == VOTE_FOR_BENIGN]
         recognized_benign_models = [all_models[n] for n in negatives]
 
         print(f"Negatives: {negatives}")
@@ -619,9 +579,9 @@ if __name__ == "__main__":
     # Setup participants
     aggregator_object = Aggregator()
     aggregator_object.private_attributes = {}
-    collaborator_names = [
-        f"benign_{i:02d}" for i in range(NUMBER_OF_BENIGN_CLIENTS)
-    ] + [f"malicious_{i:02d}" for i in range(NUMBER_OF_MALICIOUS_CLIENTS)]
+    collaborator_names = [f"benign_{i:02d}" for i in range(NUMBER_OF_BENIGN_CLIENTS)] + [
+        f"malicious_{i:02d}" for i in range(NUMBER_OF_MALICIOUS_CLIENTS)
+    ]
     collaborators = [Collaborator(name=name) for name in collaborator_names]
     if torch.cuda.is_available():
         device = torch.device(
@@ -637,19 +597,13 @@ if __name__ == "__main__":
             transforms.Normalize(MEAN, STD_DEV),
         ]
     )
-    cifar_train = datasets.CIFAR10(
-        root="./data", train=True, download=True, transform=transform
-    )
+    cifar_train = datasets.CIFAR10(root="./data", train=True, download=True, transform=transform)
     cifar_train = list(cifar_train)
-    cifar_test = datasets.CIFAR10(
-        root="./data", train=False, download=True, transform=transform
-    )
+    cifar_test = datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
     cifar_test = list(cifar_test)
     X = torch.stack([x[0] for x in cifar_train] + [x[0] for x in cifar_test])
     Y = torch.LongTensor(
-        np.stack(
-            np.array([x[1] for x in cifar_train] + [x[1] for x in cifar_test])
-        )
+        np.stack(np.array([x[1] for x in cifar_train] + [x[1] for x in cifar_test]))
     )
 
     # split the dataset
@@ -666,12 +620,8 @@ if __name__ == "__main__":
     train_dataset_data = X[:train_dataset_size]
     train_dataset_targets = Y[:train_dataset_size]
 
-    test_dataset_data = X[
-        train_dataset_size : train_dataset_size + test_dataset_size
-    ]
-    test_dataset_targets = Y[
-        train_dataset_size : train_dataset_size + test_dataset_size
-    ]
+    test_dataset_data = X[train_dataset_size : train_dataset_size + test_dataset_size]
+    test_dataset_targets = Y[train_dataset_size : train_dataset_size + test_dataset_size]
     print(
         f"Dataset info (total {N_total_samples}): train - {test_dataset_targets.shape[0]}, "
         f"test - {test_dataset_targets.shape[0]}, "
@@ -719,9 +669,7 @@ if __name__ == "__main__":
             ),
         }
 
-    local_runtime = LocalRuntime(
-        aggregator=aggregator_object, collaborators=collaborators
-    )
+    local_runtime = LocalRuntime(aggregator=aggregator_object, collaborators=collaborators)
 
     print(f"Local runtime collaborators = {local_runtime.collaborators}")
 
@@ -729,9 +677,7 @@ if __name__ == "__main__":
     model = Net()
     top_model_accuracy = 0
     optimizers = {
-        collaborator.name: default_optimizer(
-            model, optimizer_type=args.optimizer_type
-        )
+        collaborator.name: default_optimizer(model, optimizer_type=args.optimizer_type)
         for collaborator in collaborators
     }
     flflow = FederatedFlow(

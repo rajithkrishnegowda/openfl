@@ -26,14 +26,10 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
 
     def __init__(self, rank_worldsize: str = "1, 1", **kwargs) -> None:
         """Download/Prepare CIFAR10 dataset"""
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
 
         # Load dataset
-        train_ds, valid_ds = self._download_and_prepare_dataset(
-            self.rank, self.worldsize
-        )
+        train_ds, valid_ds = self._download_and_prepare_dataset(self.rank, self.worldsize)
 
         # Set attributes
         self._sample_shape = train_ds["image"].shape[1:]
@@ -41,9 +37,7 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
 
         self.splits = {"train": train_ds, "valid": valid_ds}
 
-    def _download_and_prepare_dataset(
-        self, rank: int, worldsize: int
-    ) -> Tuple[dict]:
+    def _download_and_prepare_dataset(self, rank: int, worldsize: int) -> Tuple[dict]:
         """
         Download, Cache CIFAR10 and prepare `tfds` builder.
 
@@ -66,18 +60,10 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
         train_shard_size = int(len(datasets["train"]) / worldsize)
         test_shard_size = int(len(datasets["test"]) / worldsize)
 
-        self.train_segment = (
-            f"train[{train_shard_size * (rank - 1)}:{train_shard_size * rank}]"
-        )
-        self.test_segment = (
-            f"test[{test_shard_size * (rank - 1)}:{test_shard_size * rank}]"
-        )
-        train_dataset = dataset_builder.as_dataset(
-            split=self.train_segment, batch_size=-1
-        )
-        test_dataset = dataset_builder.as_dataset(
-            split=self.test_segment, batch_size=-1
-        )
+        self.train_segment = f"train[{train_shard_size * (rank - 1)}:{train_shard_size * rank}]"
+        self.test_segment = f"test[{test_shard_size * (rank - 1)}:{test_shard_size * rank}]"
+        train_dataset = dataset_builder.as_dataset(split=self.train_segment, batch_size=-1)
+        test_dataset = dataset_builder.as_dataset(split=self.test_segment, batch_size=-1)
         train_ds = tfds.as_numpy(train_dataset)
         test_ds = tfds.as_numpy(test_dataset)
 
@@ -96,8 +82,7 @@ class CIFAR10ShardDescriptor(ShardDescriptor):
         """Return a shard dataset by type."""
         if name not in self.splits:
             raise Exception(
-                f"Split name `{name}` not found."
-                f" Expected one of {list(self.splits.keys())}"
+                f"Split name `{name}` not found." f" Expected one of {list(self.splits.keys())}"
             )
         return self.splits[name]
 

@@ -103,9 +103,7 @@ class TestFlowReference(FLSpec):
         self.collab_attr_str_one = "Test string data in collab " + self.input
         self.collab_attr_list_one = [1, 2, 5, 6, 7, 8]
         self.collab_attr_dict_one = {key: key for key in range(5)}
-        self.collab_attr_file_one = io.StringIO(
-            "Test file data in collaborator"
-        )
+        self.collab_attr_file_one = io.StringIO("Test file data in collaborator")
         self.collab_attr_math_one = math.sqrt(self.index)
         self.collab_attr_complex_num_one = complex(self.index, self.index)
 
@@ -170,13 +168,9 @@ class TestFlowReference(FLSpec):
         for val in TestFlowReference.all_ref_error_dict.values():
             all_shared_attr = all_shared_attr + ",".join(val)
         if all_shared_attr:
-            print(
-                f"{bcolors.FAIL}...Test case failed for {all_shared_attr} {bcolors.ENDC}"
-            )
+            print(f"{bcolors.FAIL}...Test case failed for {all_shared_attr} {bcolors.ENDC}")
         else:
-            print(
-                f"{bcolors.OKGREEN}...Test case passed for all the attributes.{bcolors.ENDC}"
-            )
+            print(f"{bcolors.OKGREEN}...Test case passed for all the attributes.{bcolors.ENDC}")
 
         self.next(self.end)
 
@@ -192,11 +186,7 @@ class TestFlowReference(FLSpec):
             + f"{bcolors.ENDC}"
         )
         if TestFlowReference.all_ref_error_dict:
-            raise (
-                AssertionError(
-                    f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"
-                )
-            )
+            raise (AssertionError(f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"))
 
         TestFlowReference.step_one_collab_attrs = []
         TestFlowReference.step_two_collab_attrs = []
@@ -235,13 +225,9 @@ def find_matched_references(collab_attr_list, all_collaborators):
             # Compare the current collaborator with the collaborator(s) that come(s) after it.
             for next_collab in all_collaborators[i + 1 :]:
                 # Check if both collaborators have the current attribute
-                if hasattr(curr_collab, attr_name) and hasattr(
-                    next_collab, attr_name
-                ):
+                if hasattr(curr_collab, attr_name) and hasattr(next_collab, attr_name):
                     # Check if both collaborators are sharing same reference
-                    if id(getattr(curr_collab, attr_name)) is id(
-                        getattr(next_collab, attr_name)
-                    ):
+                    if id(getattr(curr_collab, attr_name)) is id(getattr(next_collab, attr_name)):
                         matched_ref_dict[curr_collab.input].append(attr_name)
                         print(
                             f"{bcolors.FAIL} ... Reference test failed - {curr_collab.input} \
@@ -266,14 +252,10 @@ def validate_collab_references(matched_ref_dict):
     if collborators_sharing_ref:
         for collab in collborators_sharing_ref:
             if collab not in TestFlowReference.all_ref_error_dict:
-                TestFlowReference.all_ref_error_dict[
-                    collab
-                ] = matched_ref_dict.get(collab)
+                TestFlowReference.all_ref_error_dict[collab] = matched_ref_dict.get(collab)
 
     if not reference_flag:
-        print(
-            f"{bcolors.OKGREEN}  Pass : Reference test passed for collaborators. {bcolors.ENDC}"
-        )
+        print(f"{bcolors.OKGREEN}  Pass : Reference test passed for collaborators. {bcolors.ENDC}")
 
 
 def validate_agg_attr_ref(agg_attrs, agg_obj):
@@ -283,9 +265,7 @@ def validate_agg_attr_ref(agg_attrs, agg_obj):
     """
     attr_flag = False
     for attr in agg_attrs:
-        if TestFlowReference.agg_attr_dict.get(attr) == id(
-            getattr(agg_obj, attr)
-        ):
+        if TestFlowReference.agg_attr_dict.get(attr) == id(getattr(agg_obj, attr)):
             attr_flag = True
     if not attr_flag:
         print(
@@ -323,6 +303,4 @@ def validate_agg_collab_references(all_collborators, agg_obj, agg_attrs):
             + f"{bcolors.ENDC}"
         )
     else:
-        print(
-            f"{bcolors.OKGREEN}  Pass : Reference test passed for aggregator.{bcolors.ENDC}"
-        )
+        print(f"{bcolors.OKGREEN}  Pass : Reference test passed for aggregator.{bcolors.ENDC}")

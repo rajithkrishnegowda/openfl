@@ -43,9 +43,7 @@ def _init_model(base_model_name="roberta-base", device=None):
 
 def _init_optimizer(model, num_training_steps):
     decay_parameters = get_parameter_names(model, ALL_LAYERNORM_LAYERS)
-    decay_parameters = [
-        name for name in decay_parameters if "bias" not in name
-    ]
+    decay_parameters = [name for name in decay_parameters if "bias" not in name]
 
     optimizer_grouped_parameters = [
         {

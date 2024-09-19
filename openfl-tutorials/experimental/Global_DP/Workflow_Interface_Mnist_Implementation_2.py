@@ -100,11 +100,7 @@ class GlobalModelTools(object):
         else:
             sample_rate = dp_params["sample_rate"]
         self.global_data_loader = torch.utils.data.DataLoader(
-            TensorDataset(
-                torch.Tensor(list(range(len(self.collaborator_names)))).to(
-                    torch.int
-                )
-            ),
+            TensorDataset(torch.Tensor(list(range(len(self.collaborator_names)))).to(torch.int)),
             batch_size=int(sample_rate * float(len(collaborator_names))),
             shuffle=True,
         )
@@ -121,9 +117,7 @@ class GlobalModelTools(object):
                 max_grad_norm=dp_params["clip_norm"],
             )
 
-    def populate_model_params_and_gradients(
-        self, state_for_params, states_for_gradients
-    ):
+    def populate_model_params_and_gradients(self, state_for_params, states_for_gradients):
         if self.dp_params is not None:
             # populate param.grad_sample with individual updates from state_dicts,
             # and populate pram.grad with a random
@@ -132,13 +126,9 @@ class GlobalModelTools(object):
                 key: [state[key] for state in states_for_gradients]
                 for key in states_for_gradients[0].keys()
             }
-            for params, name in zip(
-                self.global_model.parameters(), self.example_state.keys()
-            ):
+            for params, name in zip(self.global_model.parameters(), self.example_state.keys()):
                 params.data = state_for_params[name]
-                params.grad_sample = torch.stack(
-                    per_layer_grad_samples[name], dim=0
-                )
+                params.grad_sample = torch.stack(per_layer_grad_samples[name], dim=0)
                 # only the shape is important below, values are not important and so we
                 # use only the first state
                 params.grad = states_for_gradients[0][name]
@@ -168,9 +158,7 @@ def default_optimizer(model):
     return optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
 
-def FedAvg(
-    models, global_model_tools, previous_global_state, dp_params
-):  # NOQA: N802
+def FedAvg(models, global_model_tools, previous_global_state, dp_params):  # NOQA: N802
     """
     This tutorial utilizes non-weighted averaging of collaborator model updates
     regardless of whether DP config is used.
@@ -183,10 +171,7 @@ def FedAvg(
     for non_delta_state in non_delta_states:
         # These will be used for the gradient, so need to be opposite the model delta
         neg_delta_states.append(
-            {
-                key: -non_delta_state[key] + previous_global_state[key]
-                for key in non_delta_state
-            }
+            {key: -non_delta_state[key] + previous_global_state[key] for key in non_delta_state}
         )
     # validate that in fact the local models clipped their updates
     print()
@@ -213,10 +198,7 @@ def FedAvg(
     # removing the '_module.' from the beggining of all keys coming from
     # global_model_tools.global_model state dict
     new_model.load_state_dict(
-        {
-            key[8:]: value
-            for key, value in global_model_tools.global_model.state_dict().items()
-        }
+        {key[8:]: value for key, value in global_model_tools.global_model.state_dict().items()}
     )
     return new_model
 
@@ -256,11 +238,7 @@ def optimizer_to_device(optimizer, device):
                     if isinstance(v, torch.Tensor):
                         state[k] = v.to(device)
     else:
-        raise (
-            ValueError(
-                "Current optimizer state does not have dict keys: please verify"
-            )
-        )
+        raise (ValueError("Current optimizer state does not have dict keys: please verify"))
 
 
 def clip_testing_on_optimizer_parameters(
@@ -369,9 +347,7 @@ class FederatedFlow(FLSpec):
         round_collaborator_idxs = [
             batch[0] for batch in self.global_model_tools.global_data_loader
         ][0]
-        self.round_collaborators = [
-            self.collaborator_names[idx] for idx in round_collaborator_idxs
-        ]
+        self.round_collaborators = [self.collaborator_names[idx] for idx in round_collaborator_idxs]
 
         if self.round is None:
             self.round = 0
@@ -396,9 +372,7 @@ class FederatedFlow(FLSpec):
         print("Training with collaborators: ", self.round_collaborators)
         print(20 * "#" + "\n\n")
 
-        if (len(round_collaborator_idxs) != 0) and (
-            round_collaborator_idxs[0].nelement() != 0
-        ):
+        if (len(round_collaborator_idxs) != 0) and (round_collaborator_idxs[0].nelement() != 0):
             self.next(
                 self.aggregated_model_validation,
                 foreach="round_collaborators",
@@ -416,9 +390,7 @@ class FederatedFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(
-            f"Performing aggregated model validation for collaborator {self.input}"
-        )
+        print(f"Performing aggregated model validation for collaborator {self.input}")
         self.model = self.model.to(self.device)
         self.global_model = self.global_model.to(self.device)
 
@@ -426,9 +398,7 @@ class FederatedFlow(FLSpec):
         assert next(self.model.parameters()).device == self.device
         assert next(self.global_model.parameters()).device == self.device
 
-        self.agg_validation_score = inference(
-            self.model, self.test_loader, self.device
-        )
+        self.agg_validation_score = inference(self.model, self.test_loader, self.device)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.collaborator_name = self.input
         self.next(self.train)
@@ -448,9 +418,7 @@ class FederatedFlow(FLSpec):
         # instantiated optimizer for the same collaborator
         if self.round > 0:
             optimizer_to_device(optimizer=self.optimizer, device=self.device)
-            self.optimizer.load_state_dict(
-                deepcopy(self.optimizers[self.input].state_dict())
-            )
+            self.optimizer.load_state_dict(deepcopy(self.optimizers[self.input].state_dict()))
 
         self.model.train()
         train_losses = []
@@ -464,8 +432,7 @@ class FederatedFlow(FLSpec):
 
             if self.clip_test:
                 optimizer_before_step_params = [
-                    param.data
-                    for param in self.optimizer.param_groups()[0]["params"]
+                    param.data for param in self.optimizer.param_groups()[0]["params"]
                 ]
 
             self.optimizer.step(
@@ -478,8 +445,7 @@ class FederatedFlow(FLSpec):
             ):
                 if self.clip_test:
                     optimizer_after_step_params = [
-                        param.data
-                        for param in self.optimizer.param_groups()[0]["params"]
+                        param.data for param in self.optimizer.param_groups()[0]["params"]
                     ]
                     clip_testing_on_optimizer_parameters(
                         optimizer_before_step_params,
@@ -502,31 +468,23 @@ class FederatedFlow(FLSpec):
 
     @collaborator
     def local_model_validation(self):
-        print(
-            f"Performing local model validation for collaborator {self.input}"
-        )
-        self.local_validation_score = inference(
-            self.model, self.test_loader, self.device
-        )
+        print(f"Performing local model validation for collaborator {self.input}")
+        self.local_validation_score = inference(self.model, self.test_loader, self.device)
         print(f"{self.input} value of {self.local_validation_score}")
         self.next(self.join, exclude=["training_completed"])
 
     @aggregator
     def join(self, inputs):
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
-        print(
-            f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
         )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
+        print(f"Average aggregated model validation values = {self.aggregated_model_accuracy}")
         print(f"Average training loss = {self.average_loss}")
-        print(
-            f"Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"Average local model validation values = {self.local_model_accuracy}")
         self.model.load_state_dict(
             FedAvg(
                 [input.model.cpu() for input in inputs],
@@ -541,16 +499,11 @@ class FederatedFlow(FLSpec):
             epsilon = self.global_model_tools.privacy_engine.get_epsilon(
                 delta=self.dp_params["delta"]
             )
-            print(
-                "\nCurrent epsilon is: "
-                + f"{epsilon} for delta: {self.dp_params['delta']}"
-            )
+            print("\nCurrent epsilon is: " + f"{epsilon} for delta: {self.dp_params['delta']}")
             print(15 * "#")
 
         self.global_model.load_state_dict(deepcopy(self.model.state_dict()))
-        self.optimizers.update(
-            {input.collaborator_name: input.optimizer for input in inputs}
-        )
+        self.optimizers.update({input.collaborator_name: input.optimizer for input in inputs})
 
         del inputs
         self.next(self.check_round_completion)
@@ -573,8 +526,7 @@ class FederatedFlow(FLSpec):
                 round_collaborator_idxs = batch
                 break
             self.round_collaborators = [
-                self.collaborator_names[idx]
-                for idx in round_collaborator_idxs[0]
+                self.collaborator_names[idx] for idx in round_collaborator_idxs[0]
             ]
 
             print("\n\n" + 20 * "#")
@@ -582,9 +534,7 @@ class FederatedFlow(FLSpec):
             print("Training with collaborators: ", self.round_collaborators)
             print(20 * "#" + "\n\n")
 
-            if (len(round_collaborator_idxs) != 0) and (
-                round_collaborator_idxs[0].nelement() != 0
-            ):
+            if (len(round_collaborator_idxs) != 0) and (round_collaborator_idxs[0].nelement() != 0):
                 self.next(
                     self.aggregated_model_validation,
                     foreach="round_collaborators",
@@ -604,9 +554,7 @@ class FederatedFlow(FLSpec):
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description=__doc__)
-    argparser.add_argument(
-        "--config_path", help="Absolute path to the flow configuration file."
-    )
+    argparser.add_argument("--config_path", help="Absolute path to the flow configuration file.")
     argparser.add_argument(
         "--clip_test",
         default=False,
@@ -649,12 +597,8 @@ if __name__ == "__main__":
         test.targets = test_dataset.targets[index::n_collaborators]
 
         return {
-            "train_loader": torch.utils.data.DataLoader(
-                train, batch_size=batch_size, shuffle=True
-            ),
-            "test_loader": torch.utils.data.DataLoader(
-                test, batch_size=batch_size, shuffle=True
-            ),
+            "train_loader": torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=True),
+            "test_loader": torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=True),
         }
 
     collaborators = []
@@ -674,9 +618,7 @@ if __name__ == "__main__":
             )
         )
 
-    local_runtime = LocalRuntime(
-        aggregator=aggregator, collaborators=collaborators, backend="ray"
-    )
+    local_runtime = LocalRuntime(aggregator=aggregator, collaborators=collaborators, backend="ray")
     print(f"Local runtime collaborators = {local_runtime.collaborators}")
 
     best_model = None

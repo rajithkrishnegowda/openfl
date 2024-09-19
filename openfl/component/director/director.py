@@ -116,9 +116,7 @@ class Director:
                 shard_info["node_info"]["name"],
             )
             return is_accepted
-        logger.info(
-            "Director accepted shard for %s", shard_info["node_info"]["name"]
-        )
+        logger.info("Director accepted shard for %s", shard_info["node_info"]["name"])
         self._shard_registry[shard_info["node_info"]["name"]] = {
             "shard_info": shard_info,
             "is_online": True,
@@ -184,9 +182,7 @@ class Director:
             return None
         return self.experiments_registry[experiment_name].status
 
-    def get_trained_model(
-        self, experiment_name: str, caller: str, model_type: str
-    ):
+    def get_trained_model(self, experiment_name: str, caller: str, model_type: str):
         """Get trained model.
 
         Args:
@@ -247,10 +243,7 @@ class Director:
             # Experiment already set, but the envoy hasn't received experiment
             # name (e.g. was disconnected)
             experiment = self.experiments_registry[experiment_name]
-            if (
-                experiment.aggregator.round_number
-                < experiment.aggregator.rounds_to_train
-            ):
+            if experiment.aggregator.round_number < experiment.aggregator.rounds_to_train:
                 return experiment_name
 
         self.col_exp[envoy_name] = None
@@ -266,10 +259,7 @@ class Director:
 
     def get_registered_shards(self) -> list:  # Why is it here?
         """Get registered shard infos."""
-        return [
-            shard_status["shard_info"]
-            for shard_status in self._shard_registry.values()
-        ]
+        return [shard_status["shard_info"] for shard_status in self._shard_registry.values()]
 
     async def stream_metrics(self, experiment_name: str, caller: str):
         """Stream metrics from the aggregator.
@@ -307,10 +297,7 @@ class Director:
                 yield aggregator.metric_queue.get()
                 continue
 
-            if (
-                aggregator.all_quit_jobs_sent()
-                and aggregator.metric_queue.empty()
-            ):
+            if aggregator.all_quit_jobs_sent() and aggregator.metric_queue.empty():
                 return
 
             yield None
@@ -328,9 +315,7 @@ class Director:
         ):
             self.experiments_registry.remove(experiment_name)
 
-    def set_experiment_failed(
-        self, *, experiment_name: str, collaborator_name: str
-    ):
+    def set_experiment_failed(self, *, experiment_name: str, collaborator_name: str):
         """Envoys Set experiment failed RPC.
 
         Args:
@@ -392,9 +377,7 @@ class Director:
 
         if cuda_devices_status is not None:
             for i in range(len(cuda_devices_status)):
-                shard_info["shard_info"]["node_info"]["cuda_devices"][
-                    i
-                ] = cuda_devices_status[i]
+                shard_info["shard_info"]["node_info"]["cuda_devices"][i] = cuda_devices_status[i]
 
         return self.envoy_health_check_period
 
@@ -435,10 +418,7 @@ class Director:
                 exp_data["progress"] = progress
             if exp.aggregator:
                 tasks_amount = len(
-                    {
-                        task["function"]
-                        for task in exp.aggregator.assigner.tasks.values()
-                    }
+                    {task["function"] for task in exp.aggregator.assigner.tasks.values()}
                 )
                 exp_data["tasks_amount"] = tasks_amount
             result.append(exp_data)
@@ -484,9 +464,7 @@ class Director:
             async with self.experiments_registry.get_next_experiment() as experiment:
                 # Review experiment block starts.
                 if self.review_plan_callback:
-                    if not await experiment.review_experiment(
-                        self.review_plan_callback
-                    ):
+                    if not await experiment.review_experiment(self.review_plan_callback):
                         logger.info(
                             f'"{experiment.name}" Plan was rejected by the Director manager.'
                         )
@@ -510,12 +488,8 @@ class Director:
 
 
 def _get_model_download_statuses(experiment) -> List[dict]:
-    best_model_status = (
-        "ready" if experiment.aggregator.best_tensor_dict else "pending"
-    )
-    last_model_status = (
-        "ready" if experiment.aggregator.last_tensor_dict else "pending"
-    )
+    best_model_status = "ready" if experiment.aggregator.best_tensor_dict else "pending"
+    last_model_status = "ready" if experiment.aggregator.last_tensor_dict else "pending"
     model_statuses = [
         {
             "name": "best",
@@ -532,10 +506,7 @@ def _get_model_download_statuses(experiment) -> List[dict]:
 
 def _get_experiment_progress(experiment) -> Union[float, None]:
     if experiment.status == Status.IN_PROGRESS:
-        return (
-            experiment.aggregator.round_number
-            / experiment.aggregator.rounds_to_train
-        )
+        return experiment.aggregator.round_number / experiment.aggregator.rounds_to_train
 
 
 def _get_experiment_tasks(experiment) -> List[dict]:

@@ -65,9 +65,7 @@ class FederatedModel(TaskRunner):
             if hasattr(self.model, "forward"):
                 self.runner.forward = self.model.forward
         else:
-            self.model = self.build_model(
-                self.feature_shape, self.data_loader.num_classes
-            )
+            self.model = self.build_model(self.feature_shape, self.data_loader.num_classes)
             from openfl.federated.task.runner_keras import (
                 KerasTaskRunner,
             )  # noqa: E501
@@ -76,24 +74,18 @@ class FederatedModel(TaskRunner):
             self.optimizer = self.model.optimizer
         self.lambda_opt = optimizer
         if hasattr(self.model, "validate"):
-            self.runner.validate = (
-                lambda *args, **kwargs: build_model.validate(
-                    self.runner, *args, **kwargs
-                )
+            self.runner.validate = lambda *args, **kwargs: build_model.validate(
+                self.runner, *args, **kwargs
             )
         if hasattr(self.model, "train_epoch"):
-            self.runner.train_epoch = (
-                lambda *args, **kwargs: build_model.train_epoch(
-                    self.runner, *args, **kwargs
-                )
+            self.runner.train_epoch = lambda *args, **kwargs: build_model.train_epoch(
+                self.runner, *args, **kwargs
             )
         self.runner.model = self.model
         self.runner.optimizer = self.optimizer
         self.loss_fn = loss_fn
         self.runner.loss_fn = self.loss_fn
-        self.tensor_dict_split_fn_kwargs = (
-            self.runner.tensor_dict_split_fn_kwargs
-        )
+        self.tensor_dict_split_fn_kwargs = self.runner.tensor_dict_split_fn_kwargs
         self.initialize_tensorkeys_for_functions()
 
     def __getattribute__(self, attr):

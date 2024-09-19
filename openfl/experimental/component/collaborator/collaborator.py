@@ -81,9 +81,7 @@ class Collaborator:
             for name, attr in self.__private_attrs.items():
                 setattr(clone, name, attr)
 
-    def __delete_agg_attrs_from_clone(
-        self, clone: Any, replace_str: str = None
-    ) -> None:
+    def __delete_agg_attrs_from_clone(self, clone: Any, replace_str: str = None) -> None:
         """
         Remove aggregator private attributes from FLSpec clone before
         transition from Aggregator step to collaborator steps
@@ -100,17 +98,13 @@ class Collaborator:
         if len(self.__private_attrs) > 0:
             for attr_name in self.__private_attrs:
                 if hasattr(clone, attr_name):
-                    self.__private_attrs.update(
-                        {attr_name: getattr(clone, attr_name)}
-                    )
+                    self.__private_attrs.update({attr_name: getattr(clone, attr_name)})
                     if replace_str:
                         setattr(clone, attr_name, replace_str)
                     else:
                         delattr(clone, attr_name)
 
-    def call_checkpoint(
-        self, ctx: Any, f: Callable, stream_buffer: Any
-    ) -> None:
+    def call_checkpoint(self, ctx: Any, f: Callable, stream_buffer: Any) -> None:
         """
         Call checkpoint gRPC.
 
@@ -164,12 +158,9 @@ class Collaborator:
             None
         """
         self.logger.info(
-            f"Round {self.round_number},"
-            f" collaborator {self.name} is sending results..."
+            f"Round {self.round_number}," f" collaborator {self.name} is sending results..."
         )
-        self.client.send_task_results(
-            self.name, self.round_number, next_step, pickle.dumps(clone)
-        )
+        self.client.send_task_results(self.name, self.round_number, next_step, pickle.dumps(clone))
 
     def get_tasks(self) -> Tuple:
         """Get tasks from the aggregator.
@@ -214,9 +205,7 @@ class Collaborator:
             f = getattr(ctx, f_name)
             f()
             # Checkpoint the function
-            self.__delete_agg_attrs_from_clone(
-                ctx, "Private attributes: Not Available."
-            )
+            self.__delete_agg_attrs_from_clone(ctx, "Private attributes: Not Available.")
             self.call_checkpoint(ctx, f, f._stream_buffer)
             self.__set_attributes_to_clone(ctx)
 

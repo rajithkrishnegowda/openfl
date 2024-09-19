@@ -30,9 +30,7 @@ class RandomShiftTransformer(Transformer):
             metadata: The metadata for the transformation.
         """
         shape = data.shape
-        random_shift = np.random.uniform(low=-20, high=20, size=shape).astype(
-            np.float32
-        )
+        random_shift = np.random.uniform(low=-20, high=20, size=shape).astype(np.float32)
         transformed_data = data + random_shift
 
         # construct metadata
@@ -61,10 +59,7 @@ class RandomShiftTransformer(Transformer):
         # we use it essentially as an array.
         shift = np.reshape(
             np.array(
-                [
-                    metadata["int_to_float"][idx]
-                    for idx in range(len(metadata["int_to_float"]))
-                ]
+                [metadata["int_to_float"][idx] for idx in range(len(metadata["int_to_float"]))]
             ),
             newshape=shape,
             order="C",

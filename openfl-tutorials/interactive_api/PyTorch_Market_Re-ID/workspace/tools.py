@@ -77,9 +77,7 @@ def evaluate(distmat, q_pids, g_pids, q_camids, g_camids):
         # groundtruth index
         query_index = np.argwhere(g_pids == q_pids[i])
         camera_index = np.argwhere(g_camids == q_camids[i])
-        good_index = np.setdiff1d(
-            query_index, camera_index, assume_unique=True
-        )
+        good_index = np.setdiff1d(query_index, camera_index, assume_unique=True)
         if good_index.size == 0:
             num_no_gt += 1
             continue
@@ -168,9 +166,7 @@ class RandomIdentitySampler(Sampler):
         for pid in self.pids:
             idxs = copy.deepcopy(self.index_dic[pid])
             if len(idxs) < self.num_instances:
-                idxs = np.random.choice(
-                    idxs, size=self.num_instances, replace=True
-                )
+                idxs = np.random.choice(idxs, size=self.num_instances, replace=True)
             random.shuffle(idxs)
             batch_idxs = []
             for idx in idxs:

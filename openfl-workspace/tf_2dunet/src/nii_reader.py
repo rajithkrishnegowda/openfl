@@ -31,9 +31,7 @@ def parse_segments(seg, msk_modes):
         this_msk_parts = []
         for mode in msk_modes:
             this_msk_parts.append(
-                ma.masked_not_equal(curr, mode_to_key_value[mode]).filled(
-                    fill_value=0
-                )
+                ma.masked_not_equal(curr, mode_to_key_value[mode]).filled(fill_value=0)
             )
         msks_parsed.append(np.dstack(this_msk_parts))
 
@@ -78,9 +76,7 @@ def resize_data(dataset, new_size=128, rotate=3):
 
     """
     # Determine whether dataset and new_size are compatible with existing logic
-    if (dataset.shape[1] - new_size) % 2 != 0 and (
-        dataset.shape[2] - new_size
-    ) % 2 != 0:
+    if (dataset.shape[1] - new_size) % 2 != 0 and (dataset.shape[2] - new_size) % 2 != 0:
         raise ValueError(
             f"dataset shape: {dataset.shape} and new_size: {new_size} "
             f"are not compatible with existing logic"
@@ -102,9 +98,7 @@ def resize_data(dataset, new_size=128, rotate=3):
 
 
 # adapted from https://github.com/NervanaSystems/topologies
-def _update_channels(
-    imgs, msks, img_channels_to_keep, msk_channels_to_keep, channels_last
-):
+def _update_channels(imgs, msks, img_channels_to_keep, msk_channels_to_keep, channels_last):
     """Filter the channels of images and move placement of channels in shape if desired.
 
     Args:
@@ -127,17 +121,12 @@ def _update_channels(
     # the mask channels that are kept are summed over to leave one channel
     # note the indices producing non-zero entries on these masks are mutually exclusive
     # so that the result continues to be an array with only ones and zeros
-    msk_summands = [
-        msks[:, :, :, channel : channel + 1]
-        for channel in msk_channels_to_keep
-    ]
+    msk_summands = [msks[:, :, :, channel : channel + 1] for channel in msk_channels_to_keep]
     new_msks = np.sum(msk_summands, axis=0)
 
     if not channels_last:
         new_order = [0, 3, 1, 2]
-        return np.transpose(new_imgs, new_order), np.transpose(
-            new_msks, new_order
-        )
+        return np.transpose(new_imgs, new_order), np.transpose(new_msks, new_order)
     else:
         return new_imgs, new_msks
 
@@ -235,9 +224,7 @@ def nii_reader(
     # needed mask files are currntly independent of task
     need_files_oneof = list_files(file_root, extension, msk_names)
     if normalization != "modes_together":
-        need_files_all = list_files(
-            file_root, extension, task_to_img_modes[task]
-        )
+        need_files_all = list_files(file_root, extension, task_to_img_modes[task])
     else:
         need_files_all = list_files(file_root, extension, img_modes)
 
@@ -259,9 +246,7 @@ def nii_reader(
     # normalize each model then stack, stack after normalizing all modes together,
     # or stack without normalizing at all
     if normalization == "by_mode":
-        imgs = np.stack(
-            [normalize_stack(imgs) for imgs in imgs_per_mode], axis=-1
-        )
+        imgs = np.stack([normalize_stack(imgs) for imgs in imgs_per_mode], axis=-1)
     elif normalization == "modes_together":
         imgs = normalize_stack(np.stack(imgs_per_mode, axis=-1))
     elif normalization is None:
@@ -279,20 +264,14 @@ def nii_reader(
 
     # determine which channels are wanted in our images in the case where we kept
     # extra scanning modes in order to normalize across all but only use a subset
-    msk_mode_to_channel = {
-        mode: channel_num for (channel_num, mode) in enumerate(msk_modes)
-    }
-    msk_channels_to_keep = np.array(
-        [msk_mode_to_channel[mode] for mode in task_to_msk_modes[task]]
-    )
+    msk_mode_to_channel = {mode: channel_num for (channel_num, mode) in enumerate(msk_modes)}
+    msk_channels_to_keep = np.array([msk_mode_to_channel[mode] for mode in task_to_msk_modes[task]])
     # if we normalization is by_mode or None,
     # we have already restricted the image channels
     if normalization in ["by_mode", None]:
         img_channels_to_keep = np.arange(imgs.shape[-1])
     elif normalization == "modes_together":
-        img_mode_to_channel = {
-            mode: channel_num for (channel_num, mode) in enumerate(img_modes)
-        }
+        img_mode_to_channel = {mode: channel_num for (channel_num, mode) in enumerate(img_modes)}
         img_channels_to_keep = np.array(
             [img_mode_to_channel[mode] for mode in task_to_img_modes[task]]
         )
@@ -302,8 +281,6 @@ def nii_reader(
     img = imgs
     msk = msks
 
-    img, msk = _update_channels(
-        img, msk, img_channels_to_keep, msk_channels_to_keep, channels_last
-    )
+    img, msk = _update_channels(img, msk, img_channels_to_keep, msk_channels_to_keep, channels_last)
 
     return img.astype(numpy_type), msk.astype(numpy_type)

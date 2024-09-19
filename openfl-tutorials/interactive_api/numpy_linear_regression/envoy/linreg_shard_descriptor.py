@@ -11,9 +11,7 @@ from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 class LinRegSD(ShardDescriptor):
     """Shard descriptor class."""
 
-    def __init__(
-        self, rank: int, n_samples: int = 10, noise: float = 0.15
-    ) -> None:
+    def __init__(self, rank: int, n_samples: int = 10, noise: float = 0.15) -> None:
         """
         Initialize LinReg Shard Descriptor.
 

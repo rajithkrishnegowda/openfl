@@ -36,17 +36,13 @@ class ResizeRandomCropping:
         if random.uniform(0, 1) >= self.p:
             return img.resize((self.width, self.height), self.interpolation)
 
-        new_width, new_height = int(round(self.width * 1.125)), int(
-            round(self.height * 1.125)
-        )
+        new_width, new_height = int(round(self.width * 1.125)), int(round(self.height * 1.125))
         resized_img = img.resize((new_width, new_height), self.interpolation)
         x_maxrange = new_width - self.width
         y_maxrange = new_height - self.height
         x1 = int(round(random.uniform(0, x_maxrange)))
         y1 = int(round(random.uniform(0, y_maxrange)))
-        cropped_img = resized_img.crop(
-            (x1, y1, x1 + self.width, y1 + self.height)
-        )
+        cropped_img = resized_img.crop((x1, y1, x1 + self.width, y1 + self.height))
 
         return cropped_img
 

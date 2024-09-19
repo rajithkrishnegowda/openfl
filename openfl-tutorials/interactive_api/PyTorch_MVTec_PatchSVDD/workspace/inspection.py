@@ -26,9 +26,7 @@ def search_nn(test_emb, train_emb_flat, nn=1, method="kdt"):
 
     for n_ in range(ntest):
         for i_ in range(i):
-            dists, inds = kdt.query(
-                test_emb[n_, i_, :, :], return_distance=True, k=nn
-            )
+            dists, inds = kdt.query(test_emb[n_, i_, :, :], return_distance=True, k=nn)
             closest_inds[n_, i_, :, :] = inds[:, :]
             l2_maps[n_, i_, :, :] = dists[:, :]
 
@@ -54,9 +52,7 @@ def search_nn_ngt(test_emb, train_emb_flat, nn=1):
                 inds = [result[0] for result in results]
 
                 closest_inds[n_, i_, j_, :] = inds
-                vecs = np.asarray(
-                    [index.get_object(inds[nn_]) for nn_ in range(nn)]
-                )
+                vecs = np.asarray([index.get_object(inds[nn_]) for nn_ in range(nn)])
                 dists = np.linalg.norm(query - vecs, axis=-1)
                 l2_maps[n_, i_, j_, :] = dists
     shutil.rmtree(dpath)
@@ -87,14 +83,10 @@ def eval_embeddings_nn_multik(obj, embs64, embs32, masks, labels, nn=1):
     det_32, seg_32, ba_32 = assess_anomaly_maps(obj, maps_32, masks, labels)
 
     maps_sum = maps_64 + maps_32
-    det_sum, seg_sum, ba_sum = assess_anomaly_maps(
-        obj, maps_sum, masks, labels
-    )
+    det_sum, seg_sum, ba_sum = assess_anomaly_maps(obj, maps_sum, masks, labels)
 
     maps_mult = maps_64 * maps_32
-    det_mult, seg_mult, ba_mult = assess_anomaly_maps(
-        obj, maps_mult, masks, labels
-    )
+    det_mult, seg_mult, ba_mult = assess_anomaly_maps(obj, maps_mult, masks, labels)
 
     return {
         "det_64": det_64,

@@ -14,11 +14,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingFunction):
     """Cutoff time based Straggler Handling function."""
 
     def __init__(
-        self,
-        round_start_time=None,
-        straggler_cutoff_time=np.inf,
-        minimum_reporting=1,
-        **kwargs
+        self, round_start_time=None, straggler_cutoff_time=np.inf, minimum_reporting=1, **kwargs
     ):
         """
          Initialize a CutoffTimeBasedStragglerHandling object.
@@ -59,9 +55,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingFunction):
         """
         return num_collaborators_done >= self.minimum_reporting
 
-    def straggler_cutoff_check(
-        self, num_collaborators_done, all_collaborators=None
-    ):
+    def straggler_cutoff_check(self, num_collaborators_done, all_collaborators=None):
         """Check if the straggler cutoff conditions are met.
 
         Args:
@@ -74,8 +68,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingFunction):
             bool: True if the straggler cutoff conditions are met, False
                 otherwise.
         """
-        cutoff = (
-            self.straggler_time_expired()
-            and self.minimum_collaborators_reported(num_collaborators_done)
+        cutoff = self.straggler_time_expired() and self.minimum_collaborators_reported(
+            num_collaborators_done
         )
         return cutoff

@@ -23,9 +23,7 @@ def get_writer():
 def write_metric(node_name, task_name, metric_name, metric, round_number):
     """Write metric callback."""
     get_writer()
-    writer.add_scalar(
-        f"{node_name}/{task_name}/{metric_name}", metric, round_number
-    )
+    writer.add_scalar(f"{node_name}/{task_name}/{metric_name}", metric, round_number)
 
 
 def one_hot(labels, classes):

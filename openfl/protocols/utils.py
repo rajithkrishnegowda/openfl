@@ -41,9 +41,7 @@ def model_proto_to_bytes_and_metadata(model_proto):
     return bytes_dict, metadata_dict, round_number
 
 
-def bytes_and_metadata_to_model_proto(
-    bytes_dict, model_id, model_version, is_delta, metadata_dict
-):
+def bytes_and_metadata_to_model_proto(bytes_dict, model_id, model_version, is_delta, metadata_dict):
     """
     Convert bytes and metadata to model protobuf.
 
@@ -59,9 +57,7 @@ def bytes_and_metadata_to_model_proto(
     Returns:
         model_proto: The protobuf of the model.
     """
-    model_header = ModelHeader(
-        id=model_id, version=model_version, is_delta=is_delta
-    )  # noqa: F821
+    model_header = ModelHeader(id=model_id, version=model_version, is_delta=is_delta)  # noqa: F821
 
     tensor_protos = []
     for key, data_bytes in bytes_dict.items():
@@ -99,9 +95,7 @@ def bytes_and_metadata_to_model_proto(
     return base_pb2.ModelProto(header=model_header, tensors=tensor_protos)
 
 
-def construct_named_tensor(
-    tensor_key, nparray, transformer_metadata, lossless
-):
+def construct_named_tensor(tensor_key, nparray, transformer_metadata, lossless):
     """Construct named tensor.
 
     Args:
@@ -150,9 +144,7 @@ def construct_named_tensor(
     )
 
 
-def construct_proto(
-    tensor_dict, model_id, model_version, is_delta, compression_pipeline
-):
+def construct_proto(tensor_dict, model_id, model_version, is_delta, compression_pipeline):
     """Construct proto.
 
     Args:
@@ -171,9 +163,7 @@ def construct_proto(
     bytes_dict = {}
     metadata_dict = {}
     for key, array in tensor_dict.items():
-        bytes_dict[key], metadata_dict[key] = compression_pipeline.forward(
-            data=array
-        )
+        bytes_dict[key], metadata_dict[key] = compression_pipeline.forward(data=array)
 
     # convert the compressed_tensor_dict and metadata to protobuf, and make the new model proto
     model_proto = bytes_and_metadata_to_model_proto(
@@ -326,9 +316,7 @@ def datastream_to_proto(proto, stream, logger=None):
             logger.debug("datastream_to_proto parsed a %s.", type(proto))
         return proto
     else:
-        raise RuntimeError(
-            f"Received empty stream message of type {type(proto)}"
-        )
+        raise RuntimeError(f"Received empty stream message of type {type(proto)}")
 
 
 def proto_to_datastream(proto, logger, max_buffer_size=(2 * 1024 * 1024)):

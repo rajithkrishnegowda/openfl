@@ -156,9 +156,7 @@ class TransformationPipeline:
             The original data before the transformation.
         """
         for transformer in self.transformers[::-1]:
-            data = transformer.backward(
-                data=data, metadata=transformer_metadata.pop(), **kwargs
-            )
+            data = transformer.backward(data=data, metadata=transformer_metadata.pop(), **kwargs)
         return data
 
     def is_lossy(self):

@@ -29,9 +29,7 @@ dropout2d = nn.Dropout2d()
 
 
 class Net(nn.Module):
-    def __init__(
-        self, convolutional_block, in_features: int, out_features: int
-    ):
+    def __init__(self, convolutional_block, in_features: int, out_features: int):
         super(Net, self).__init__()
         self.conv_block = convolutional_block
         self.linear_block = nn.Sequential(
@@ -90,9 +88,7 @@ class MNISTFlow(FLSpec):
             self.optimizer = optimizer
         else:
             self.model = Net()
-            self.optimizer = optim.SGD(
-                self.model.parameters(), lr=learning_rate, momentum=momentum
-            )
+            self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         self.rounds = rounds
 
     @aggregator
@@ -109,9 +105,7 @@ class MNISTFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(
-            f"Performing aggregated model validation for collaborator {self.input}"
-        )
+        print(f"Performing aggregated model validation for collaborator {self.input}")
         self.agg_validation_score = inference(self.model, self.test_loader)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.next(self.train)
@@ -119,9 +113,7 @@ class MNISTFlow(FLSpec):
     @collaborator
     def train(self):
         self.model.train()
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=learning_rate, momentum=momentum
-        )
+        self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         for batch_idx, (data, target) in enumerate(self.train_loader):
             self.optimizer.zero_grad()
             output = self.model(data)
@@ -154,19 +146,15 @@ class MNISTFlow(FLSpec):
     @aggregator
     def join(self, inputs):
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
-        print(
-            f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
         )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
+        print(f"Average aggregated model validation values = {self.aggregated_model_accuracy}")
         print(f"Average training loss = {self.average_loss}")
-        print(
-            f"Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"Average local model validation values = {self.local_model_accuracy}")
         self.model = fedavg([input.model for input in inputs])
         self.optimizer = [input.optimizer for input in inputs][0]
         self.next(self.internal_loop)

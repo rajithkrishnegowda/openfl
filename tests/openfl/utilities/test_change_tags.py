@@ -61,9 +61,7 @@ def test_change_tags_remove(tags, remove_field, expected_result):
         (("abc", "def"), "def", "def", ("abc",)),
     ],
 )
-def test_change_tags_add_and_remove_both(
-    tags, add_field, remove_field, expected_result
-):
+def test_change_tags_add_and_remove_both(tags, add_field, remove_field, expected_result):
     """Test change tags with both add and remove fields."""
     result = change_tags(tags, add_field=add_field, remove_field=remove_field)
     assert result == expected_result
@@ -103,9 +101,7 @@ def test_change_tags_add_remove_not_in_tags(tags, add_field, remove_field):
         (("abc", "def", "def"), "ghi", "abc", ("def", "ghi")),
     ],
 )
-def test_change_tags_duplicate_fields_in_tags(
-    tags, add_field, remove_field, expected_result
-):
+def test_change_tags_duplicate_fields_in_tags(tags, add_field, remove_field, expected_result):
     """Test change tags with duplicate fields in tags."""
     result = change_tags(tags, add_field=add_field, remove_field=remove_field)
     assert result == expected_result

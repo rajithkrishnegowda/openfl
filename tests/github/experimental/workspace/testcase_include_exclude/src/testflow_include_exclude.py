@@ -158,14 +158,10 @@ class TestFlowIncludeExclude(FLSpec):
             )
 
         if validation:
-            print(
-                f"{bcolors.OKGREEN} ... Include and Exclude tests passed in join {bcolors.ENDC}"
-            )
+            print(f"{bcolors.OKGREEN} ... Include and Exclude tests passed in join {bcolors.ENDC}")
         else:
             TestFlowIncludeExclude.include_exclude_error_list.append("join")
-            print(
-                f"{bcolors.FAIL} ... Include and Exclude tests failed in join {bcolors.ENDC}"
-            )
+            print(f"{bcolors.FAIL} ... Include and Exclude tests failed in join {bcolors.ENDC}")
 
         print(
             f"\n{bcolors.UNDERLINE} Include and exclude attributes test summary: {bcolors.ENDC}\n"
@@ -193,9 +189,5 @@ class TestFlowIncludeExclude(FLSpec):
             + f"Attributes {bcolors.ENDC}"
         )
         if TestFlowIncludeExclude.include_exclude_error_list:
-            raise (
-                AssertionError(
-                    f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"
-                )
-            )
+            raise (AssertionError(f"{bcolors.FAIL}\n ...Test case failed ... {bcolors.ENDC}"))
         print(f"{bcolors.OKBLUE}End of Testing FederatedFlow {bcolors.ENDC}")

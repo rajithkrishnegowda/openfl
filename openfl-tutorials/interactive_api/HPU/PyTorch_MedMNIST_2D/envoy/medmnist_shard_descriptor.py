@@ -20,9 +20,7 @@ logger = logging.getLogger(__name__)
 class MedMNISTShardDataset(ShardDataset):
     """MedMNIST Shard dataset class."""
 
-    def __init__(
-        self, x, y, data_type: str = "train", rank: int = 1, worldsize: int = 1
-    ) -> None:
+    def __init__(self, x, y, data_type: str = "train", rank: int = 1, worldsize: int = 1) -> None:
         """Initialize MedMNISTDataset."""
         self.data_type = data_type
         self.rank = rank
@@ -50,9 +48,7 @@ class MedMNISTShardDescriptor(ShardDescriptor):
         **kwargs,
     ) -> None:
         """Initialize MedMNISTShardDescriptor."""
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
 
         self.datapath = datapath
         self.dataset_name = dataname
@@ -92,10 +88,7 @@ class MedMNISTShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"MedMNIST dataset, shard number {self.rank}"
-            f" out of {self.worldsize}"
-        )
+        return f"MedMNIST dataset, shard number {self.rank}" f" out of {self.worldsize}"
 
     @staticmethod
     def download_data(
@@ -125,12 +118,8 @@ class MedMNISTShardDescriptor(ShardDescriptor):
         dataset = os.path.join(self.datapath, dataname)
 
         if not os.path.isfile(dataset):
-            logger.info(
-                f"Dataset {dataname} not found at:{self.datapath}.\n\tDownloading..."
-            )
-            MedMNISTShardDescriptor.download_data(
-                self.datapath, dataname, self.info
-            )
+            logger.info(f"Dataset {dataname} not found at:{self.datapath}.\n\tDownloading...")
+            MedMNISTShardDescriptor.download_data(self.datapath, dataname, self.info)
             logger.info("DONE!")
 
         data = np.load(dataset)

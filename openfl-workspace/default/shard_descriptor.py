@@ -11,9 +11,7 @@ from openfl.interface.interactive_api.shard_descriptor import ShardDescriptor
 class LocalShardDescriptor(ShardDescriptor):
     """Shard descriptor subclass."""
 
-    def __init__(
-        self, data_path: str, sample_shape: tuple, target_shape: tuple
-    ) -> None:
+    def __init__(self, data_path: str, sample_shape: tuple, target_shape: tuple) -> None:
         """
         Initialize local Shard Descriptor.
 

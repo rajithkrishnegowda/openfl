@@ -24,9 +24,7 @@ logger = getLogger(__name__)
 class LandmarkShardDataset(ShardDataset):
     """Landmark Shard dataset class."""
 
-    def __init__(
-        self, dataset_dir: Path, rank: int = 1, worldsize: int = 1
-    ) -> None:
+    def __init__(self, dataset_dir: Path, rank: int = 1, worldsize: int = 1) -> None:
         """Initialize LandmarkShardDataset."""
         self.rank = rank
         self.worldsize = worldsize
@@ -43,9 +41,7 @@ class LandmarkShardDataset(ShardDataset):
         # Get name key points file
         # f.e. image name:  'img_123.npy, corresponding name of the key points: 'keypoints_123.npy'
         kp_name = str(self.img_names[index]).replace("img", "keypoints")
-        return np.load(self.img_names[index]), np.load(
-            self.dataset_dir / kp_name
-        )
+        return np.load(self.img_names[index]), np.load(self.dataset_dir / kp_name)
 
     def __len__(self) -> int:
         """Return the len of the dataset."""
@@ -55,9 +51,7 @@ class LandmarkShardDataset(ShardDataset):
 class LandmarkShardDescriptor(ShardDescriptor):
     """Landmark Shard descriptor class."""
 
-    def __init__(
-        self, data_folder: str = "data", rank_worldsize: str = "1, 1", **kwargs
-    ) -> None:
+    def __init__(self, data_folder: str = "data", rank_worldsize: str = "1, 1", **kwargs) -> None:
         """Initialize LandmarkShardDescriptor."""
         super().__init__()
         # Settings for sharding the dataset
@@ -84,9 +78,7 @@ class LandmarkShardDescriptor(ShardDescriptor):
 
         for i in range(data_df.shape[0]):
             img = data_df["Image"][i].split(" ")
-            img = np.array(
-                ["0" if x == "" else x for x in img], dtype="float32"
-            ).reshape(96, 96)
+            img = np.array(["0" if x == "" else x for x in img], dtype="float32").reshape(96, 96)
             np.save(str(cur_folder / f"img_{i}.npy"), img)
             y = np.array(keypoints.iloc[i, :], dtype="float32")
             np.save(str(cur_folder / f"keypoints_{i}.npy"), y)
@@ -142,9 +134,7 @@ class LandmarkShardDescriptor(ShardDescriptor):
     def save_all_md5(self) -> None:
         """Save dataset hash."""
         all_md5 = self.calc_all_md5()
-        with open(
-            self.data_folder / "dataset.json", "w", encoding="utf-8"
-        ) as f:
+        with open(self.data_folder / "dataset.json", "w", encoding="utf-8") as f:
             json.dump(all_md5, f)
 
     def is_dataset_complete(self) -> bool:
@@ -170,7 +160,4 @@ class LandmarkShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"Dogs and Cats dataset, shard number {self.rank} "
-            f"out of {self.worldsize}"
-        )
+        return f"Dogs and Cats dataset, shard number {self.rank} " f"out of {self.worldsize}"

@@ -49,7 +49,5 @@ def callable_to_initialize_collaborator_private_attributes(
         "train_loader": torch.utils.data.DataLoader(
             local_train, batch_size=batch_size, shuffle=True
         ),
-        "test_loader": torch.utils.data.DataLoader(
-            local_test, batch_size=batch_size, shuffle=True
-        ),
+        "test_loader": torch.utils.data.DataLoader(local_test, batch_size=batch_size, shuffle=True),
     }

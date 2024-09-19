@@ -78,9 +78,7 @@ class VerticalFlow(FLSpec):
 
     @aggregator
     def combine(self):
-        print(
-            f"The results from each of the collaborators are: {self.results}"
-        )
+        print(f"The results from each of the collaborators are: {self.results}")
         print(f"Their average = {sum(self.results) / len(self.results)}")
         self.round += 1
         if self.round < 10:

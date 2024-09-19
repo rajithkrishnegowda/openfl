@@ -13,9 +13,7 @@ from openfl.federated.plan.plan import Plan
 
 @pytest.fixture
 def plan():
-    return Plan.parse(
-        Path(__file__).parent / "plan_example.yaml", resolve=True
-    )
+    return Plan.parse(Path(__file__).parent / "plan_example.yaml", resolve=True)
 
 
 @pytest.fixture
@@ -24,9 +22,7 @@ def empty_plan():
 
 
 def test_import():
-    assert isinstance(
-        Plan.import_("openfl.federated.plan.plan.Plan"), type(Plan)
-    )
+    assert isinstance(Plan.import_("openfl.federated.plan.plan.Plan"), type(Plan))
 
 
 def test_build(plan):

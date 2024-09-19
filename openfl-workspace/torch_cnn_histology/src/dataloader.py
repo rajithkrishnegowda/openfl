@@ -73,16 +73,12 @@ class HistologyDataset(ImageFolder):
         filepath = root / HistologyDataset.FILENAME
         if not filepath.is_file():
             self.pbar = tqdm(total=None)
-            urlretrieve(
-                HistologyDataset.URL, filepath, self.report_hook
-            )  # nosec
+            urlretrieve(HistologyDataset.URL, filepath, self.report_hook)  # nosec
             validate_file_hash(filepath, HistologyDataset.ZIP_SHA384)
             with ZipFile(filepath, "r") as f:
                 f.extractall(root)
 
-        super(HistologyDataset, self).__init__(
-            root / HistologyDataset.FOLDER_NAME, **kwargs
-        )
+        super(HistologyDataset, self).__init__(root / HistologyDataset.FOLDER_NAME, **kwargs)
 
     def report_hook(self, count, block_size, total_size):
         """Update progressbar."""
@@ -94,9 +90,7 @@ class HistologyDataset(ImageFolder):
     def __getitem__(self, index):
         """Allow getting items by slice index."""
         if isinstance(index, Iterable):
-            return [
-                super(HistologyDataset, self).__getitem__(i) for i in index
-            ]
+            return [super(HistologyDataset, self).__getitem__(i) for i in index]
         else:
             return super(HistologyDataset, self).__getitem__(index)
 
@@ -175,9 +169,7 @@ def load_histology_shard(
     img_rows, img_cols = 150, 150
     num_classes = 8
 
-    (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(
-        shard_num, collaborator_count
-    )
+    (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(shard_num, collaborator_count)
 
     if channels_last:
         X_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)

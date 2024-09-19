@@ -43,12 +43,8 @@ test.data = mnist_test.data[0::n_collaborators]
 test.targets = mnist_test.targets[0::n_collaborators]
 
 col1_private_attributes = {
-    "train_loader": torch.utils.data.DataLoader(
-        train, batch_size=batch_size, shuffle=True
-    ),
-    "test_loader": torch.utils.data.DataLoader(
-        test, batch_size=batch_size, shuffle=True
-    ),
+    "train_loader": torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=True),
+    "test_loader": torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=True),
 }
 
 train.data = mnist_train.data[1::n_collaborators]
@@ -57,10 +53,6 @@ test.data = mnist_test.data[1::n_collaborators]
 test.targets = mnist_test.targets[1::n_collaborators]
 
 col2_private_attributes = {
-    "train_loader": torch.utils.data.DataLoader(
-        train, batch_size=batch_size, shuffle=True
-    ),
-    "test_loader": torch.utils.data.DataLoader(
-        test, batch_size=batch_size, shuffle=True
-    ),
+    "train_loader": torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=True),
+    "test_loader": torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=True),
 }

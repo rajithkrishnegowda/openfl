@@ -26,9 +26,7 @@ class TensorFlowHistologyInMemory(TensorFlowDataLoader):
             y_train,
             X_valid,
             y_valid,
-        ) = load_histology_shard(
-            shard_num=data_path, categorical=False, **kwargs
-        )
+        ) = load_histology_shard(shard_num=data_path, categorical=False, **kwargs)
 
         self.X_train = X_train
         self.y_train = y_train

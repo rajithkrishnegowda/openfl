@@ -22,14 +22,11 @@ def get_number_of_gpus() -> int:
     # Execute the nvidia-smi command.
     command = "nvidia-smi --list-gpus"
     try:
-        op = run(
-            command.strip().split(), shell=False, stdout=PIPE, stderr=PIPE
-        )
+        op = run(command.strip().split(), shell=False, stdout=PIPE, stderr=PIPE)
         stdout = op.stdout.decode().strip()
         return len(stdout.split("\n"))
     except FileNotFoundError:
         logger.warning(
-            f'No GPUs found! If this is a mistake please try running "{command}" '
-            + "manually."
+            f'No GPUs found! If this is a mistake please try running "{command}" ' + "manually."
         )
         return 0

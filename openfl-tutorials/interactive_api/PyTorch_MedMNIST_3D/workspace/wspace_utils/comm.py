@@ -41,9 +41,7 @@ class FutureResult(object):
 
 
 _MasterRegistry = collections.namedtuple("MasterRegistry", ["result"])
-_SlavePipeBase = collections.namedtuple(
-    "_SlavePipeBase", ["identifier", "queue", "result"]
-)
+_SlavePipeBase = collections.namedtuple("_SlavePipeBase", ["identifier", "queue", "result"])
 
 
 class SlavePipe(_SlavePipeBase):
@@ -97,9 +95,7 @@ class SyncMaster(object):
 
         """
         if self._activated:
-            assert (
-                self._queue.empty()
-            ), "Queue is not clean before next initialization."
+            assert self._queue.empty(), "Queue is not clean before next initialization."
             self._activated = False
             self._registry.clear()
         future = FutureResult()
@@ -128,9 +124,7 @@ class SyncMaster(object):
             intermediates.append(self._queue.get())
 
         results = self._master_callback(intermediates)
-        assert (
-            results[0][0] == 0
-        ), "The first result should belongs to the master."
+        assert results[0][0] == 0, "The first result should belongs to the master."
 
         for i, res in results:
             if i == 0:

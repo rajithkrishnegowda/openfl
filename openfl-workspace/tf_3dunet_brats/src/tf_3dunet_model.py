@@ -123,18 +123,14 @@ if __name__ == "__main__":
         # Or wherever you unzipped the BraTS datset,
         help="Root directory for BraTS 2020 dataset",
     )
-    parser.add_argument(
-        "--epochs", type=int, default=5, help="Number of epochs"
-    )
+    parser.add_argument("--epochs", type=int, default=5, help="Number of epochs")
     parser.add_argument(
         "--crop_dim",
         type=int,
         default=64,
         help="Crop all dimensions to this (height, width, depth)",
     )
-    parser.add_argument(
-        "--batch_size", type=int, default=4, help="Training batch size"
-    )
+    parser.add_argument("--batch_size", type=int, default=4, help="Training batch size")
     parser.add_argument(
         "--train_test_split",
         type=float,
@@ -159,9 +155,7 @@ if __name__ == "__main__":
         default=1,
         help="Number of output classes/channels",
     )
-    parser.add_argument(
-        "--random_seed", default=816, help="Random seed for determinism"
-    )
+    parser.add_argument("--random_seed", default=816, help="Random seed for determinism")
     parser.add_argument(
         "--print_model",
         action="store_true",
@@ -238,9 +232,7 @@ if __name__ == "__main__":
     # TensorBoard
     import datetime
 
-    logs_dir = os.path.join(
-        "tensorboard_logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    )
+    logs_dir = os.path.join("tensorboard_logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     tb_logs = tf.keras.callbacks.TensorBoard(log_dir=logs_dir)
 
     callbacks = [checkpoint, tb_logs]

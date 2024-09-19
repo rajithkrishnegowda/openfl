@@ -80,9 +80,7 @@ class AggregatorValidationFlow(FLSpec):
             self.optimizer = optimizer
         else:
             self.model = Net()
-            self.optimizer = optim.SGD(
-                self.model.parameters(), lr=learning_rate, momentum=momentum
-            )
+            self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         self.rounds = rounds
 
     @aggregator
@@ -99,9 +97,7 @@ class AggregatorValidationFlow(FLSpec):
 
     @collaborator
     def aggregated_model_validation(self):
-        print(
-            f"Performing aggregated model validation for collaborator {self.input}"
-        )
+        print(f"Performing aggregated model validation for collaborator {self.input}")
         self.agg_validation_score = inference(self.model, self.test_loader)
         print(f"{self.input} value of {self.agg_validation_score}")
         self.next(self.train)
@@ -109,9 +105,7 @@ class AggregatorValidationFlow(FLSpec):
     @collaborator
     def train(self):
         self.model.train()
-        self.optimizer = optim.SGD(
-            self.model.parameters(), lr=learning_rate, momentum=momentum
-        )
+        self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         for batch_idx, (data, target) in enumerate(self.train_loader):
             self.optimizer.zero_grad()
             output = self.model(data)
@@ -142,26 +136,20 @@ class AggregatorValidationFlow(FLSpec):
     @aggregator
     def join(self, inputs):
         self.average_loss = sum(input.loss for input in inputs) / len(inputs)
-        self.aggregated_model_accuracy = sum(
-            input.agg_validation_score for input in inputs
-        ) / len(inputs)
-        self.local_model_accuracy = sum(
-            input.local_validation_score for input in inputs
-        ) / len(inputs)
-        print(
-            f"Average aggregated model validation values = {self.aggregated_model_accuracy}"
+        self.aggregated_model_accuracy = sum(input.agg_validation_score for input in inputs) / len(
+            inputs
         )
+        self.local_model_accuracy = sum(input.local_validation_score for input in inputs) / len(
+            inputs
+        )
+        print(f"Average aggregated model validation values = {self.aggregated_model_accuracy}")
         print(f"Average training loss = {self.average_loss}")
-        print(
-            f"Average local model validation values = {self.local_model_accuracy}"
-        )
+        print(f"Average local model validation values = {self.local_model_accuracy}")
 
         highest_accuracy = 0
         highest_accuracy_model_idx = -1
         for idx, col in enumerate(inputs):
-            accuracy_for_held_out_agg_data = inference(
-                col.model, self.test_loader
-            )
+            accuracy_for_held_out_agg_data = inference(col.model, self.test_loader)
             if accuracy_for_held_out_agg_data > highest_accuracy:
                 highest_accuracy = accuracy_for_held_out_agg_data
                 highest_accuracy_model_idx = idx
@@ -174,9 +162,7 @@ class AggregatorValidationFlow(FLSpec):
             f"Highest accuracy model sent from {inputs[highest_accuracy_model_idx].input}."
             + " Receiving 2x weight in updated model"
         )
-        self.model = fedavg(
-            [input.model for input in inputs], weights=relative_model_weights
-        )
+        self.model = fedavg([input.model for input in inputs], weights=relative_model_weights)
         self.optimizer = [input.optimizer for input in inputs][0]
         self.current_round += 1
         if self.current_round < self.rounds:

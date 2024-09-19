@@ -70,12 +70,12 @@ class EmotionFederatedDataLoader(BaseDataLoader):
         if kwargs.get("collaborator_count"):
             self.collaborator_count = kwargs["collaborator_count"]
             data_path = int(data_path)
-            train_idx = self.data_splitter.split(
-                self.train_set, kwargs["collaborator_count"]
-            )[data_path - 1]
-            valid_idx = self.data_splitter.split(
-                self.valid_set, kwargs["collaborator_count"]
-            )[data_path - 1]
+            train_idx = self.data_splitter.split(self.train_set, kwargs["collaborator_count"])[
+                data_path - 1
+            ]
+            valid_idx = self.data_splitter.split(self.valid_set, kwargs["collaborator_count"])[
+                data_path - 1
+            ]
             train_set = self.train_set.select(train_idx)
             valid_set = self.valid_set.select(valid_idx)
             self.train_set = EmotionDataset.from_dict(train_set.to_dict())

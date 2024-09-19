@@ -18,13 +18,7 @@ class NLPDataLoader(KerasDataLoader):
     """NLP Dataloader template."""
 
     def __init__(
-        self,
-        collaborator_count,
-        split_ratio,
-        num_samples,
-        data_path,
-        batch_size,
-        **kwargs
+        self, collaborator_count, split_ratio, num_samples, data_path, batch_size, **kwargs
     ):
         """Instantiate the data object.
 

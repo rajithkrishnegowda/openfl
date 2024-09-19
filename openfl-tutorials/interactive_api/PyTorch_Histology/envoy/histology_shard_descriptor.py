@@ -25,9 +25,7 @@ class HistologyShardDataset(ShardDataset):
 
     TRAIN_SPLIT_RATIO = 0.8
 
-    def __init__(
-        self, data_folder: Path, data_type="train", rank=1, worldsize=1
-    ):
+    def __init__(self, data_folder: Path, data_type="train", rank=1, worldsize=1):
         """Histology shard dataset class."""
         self.data_type = data_type
         root = Path(data_folder) / "Kather_texture_2016_image_tiles_5000"
@@ -38,9 +36,7 @@ class HistologyShardDataset(ShardDataset):
         for target_class in sorted(class_to_idx.keys()):
             class_index = class_to_idx[target_class]
             target_dir = os.path.join(root, target_class)
-            for class_root, _, fnames in sorted(
-                os.walk(target_dir, followlinks=True)
-            ):
+            for class_root, _, fnames in sorted(os.walk(target_dir, followlinks=True)):
                 for fname in sorted(fnames):
                     path = os.path.join(class_root, fname)
                     item = path, class_index
@@ -94,9 +90,7 @@ class HistologyShardDescriptor(ShardDescriptor):
         """Initialize HistologyShardDescriptor."""
         self.data_folder = Path.cwd() / data_folder
         self.download_data()
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
 
     def download_data(self):
         """Download prepared shard dataset."""
@@ -104,9 +98,7 @@ class HistologyShardDescriptor(ShardDescriptor):
         filepath = self.data_folder / HistologyShardDescriptor.FILENAME
         if not filepath.exists():
             reporthook = tqdm_report_hook()
-            urlretrieve(
-                HistologyShardDescriptor.URL, filepath, reporthook
-            )  # nosec
+            urlretrieve(HistologyShardDescriptor.URL, filepath, reporthook)  # nosec
             validate_file_hash(filepath, HistologyShardDescriptor.ZIP_SHA384)
             with ZipFile(filepath, "r") as f:
                 f.extractall(self.data_folder)
@@ -136,7 +128,4 @@ class HistologyShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the shard dataset description."""
-        return (
-            f"Histology dataset, shard number {self.rank}"
-            f" out of {self.worldsize}"
-        )
+        return f"Histology dataset, shard number {self.rank}" f" out of {self.worldsize}"

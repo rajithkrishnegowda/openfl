@@ -84,9 +84,7 @@ class LLMTrainer(nn.Module):
     def state_dict(self):
         return get_peft_model_state_dict(self.model)
 
-    def load_state_dict(
-        self, state_dict: Mapping[str, Any], strict: bool = True
-    ):
+    def load_state_dict(self, state_dict: Mapping[str, Any], strict: bool = True):
         return set_peft_model_state_dict(self.model, state_dict)
 
     def load_state(self, kwargs):
@@ -101,15 +99,11 @@ class LLMTrainer(nn.Module):
         print("kwags broadcast")
         kwargs = hvd.broadcast_object(kwargs, root_rank=0)
         print("optimizer broadcast")
-        optim_state = hvd.broadcast_object(
-            self.optimizer.state_dict(), root_rank=0
-        )
+        optim_state = hvd.broadcast_object(self.optimizer.state_dict(), root_rank=0)
         print("model broadcast")
         state_dict = hvd.broadcast_object(self.state_dict(), root_rank=0)
         print("scheduler broadcast")
-        lr_scheduler_state_dict = hvd.broadcast_object(
-            self.lr_scheduler.state_dict(), root_rank=0
-        )
+        lr_scheduler_state_dict = hvd.broadcast_object(self.lr_scheduler.state_dict(), root_rank=0)
         if hvd.rank() > 0:
             self.load_state_dict(state_dict)
             self.lr_scheduler.load_state_dict(lr_scheduler_state_dict)
@@ -144,13 +138,9 @@ class LLMTrainer(nn.Module):
         if hvd.rank() == 0:
             if self.model.config.problem_type == "regression":
                 loss_fct = MSELoss()
-            elif (
-                self.model.config.problem_type == "single_label_classification"
-            ):
+            elif self.model.config.problem_type == "single_label_classification":
                 loss_fct = CrossEntropyLoss()
-            elif (
-                self.model.config.problem_type == "multi_label_classification"
-            ):
+            elif self.model.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss()
             torch.save(
                 {
@@ -197,9 +187,7 @@ class LLMTrainer(nn.Module):
                 # get the index of the max log-probability
                 logits = output.logits
                 predictions = torch.argmax(logits, dim=-1)
-                self.metric.add_batch(
-                    predictions=predictions, references=sample["labels"]
-                )
+                self.metric.add_batch(predictions=predictions, references=sample["labels"])
                 samples_run += len(sample)
         val_score = np.asarray(self.metric.compute()["accuracy"])
         result = hvd.allreduce(torch.from_numpy(val_score))

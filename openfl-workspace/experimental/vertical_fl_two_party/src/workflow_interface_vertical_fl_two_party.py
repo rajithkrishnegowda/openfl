@@ -58,9 +58,7 @@ class VerticalTwoPartyFlow(FLSpec):
     @collaborator
     def data_model_backprop(self):
         if self.data_remaining:
-            self.data_model_optimizer = optim.SGD(
-                self.data_model.parameters(), lr=0.03
-            )
+            self.data_model_optimizer = optim.SGD(self.data_model.parameters(), lr=0.03)
             self.data_model_optimizer.zero_grad()
             self.data_model_output_local.backward(self.grad_to_local)
             self.data_model_optimizer.step()

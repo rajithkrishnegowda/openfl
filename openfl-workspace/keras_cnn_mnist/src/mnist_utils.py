@@ -36,9 +36,7 @@ def _load_raw_datashards(shard_num, collaborator_count):
     Returns:
         2 tuples: (image, label) of the training, validation dataset
     """
-    origin_folder = (
-        "https://storage.googleapis.com/tensorflow/tf-keras-datasets/"
-    )
+    origin_folder = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/"
     path = get_file(
         "mnist.npz",
         origin=origin_folder + "mnist.npz",
@@ -94,9 +92,7 @@ def load_mnist_shard(
     img_rows, img_cols = 28, 28
     num_classes = 10
 
-    (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(
-        shard_num, collaborator_count
-    )
+    (X_train, y_train), (X_valid, y_valid) = _load_raw_datashards(shard_num, collaborator_count)
 
     if channels_last:
         X_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 1)

@@ -19,18 +19,14 @@ logger = logging.getLogger(__name__)
 class MarketShardDataset(ShardDataset):
     """Market shard dataset."""
 
-    def __init__(
-        self, dataset_dir: Path, dataset_type: str, rank=1, worldsize=1
-    ):
+    def __init__(self, dataset_dir: Path, dataset_type: str, rank=1, worldsize=1):
         """Initialize MarketShardDataset."""
         self.dataset_dir = dataset_dir
         self.dataset_type = dataset_type
         self.rank = rank
         self.worldsize = worldsize
 
-        self.imgs_path = list(dataset_dir.glob("*.jpg"))[
-            self.rank - 1 :: self.worldsize
-        ]
+        self.imgs_path = list(dataset_dir.glob("*.jpg"))[self.rank - 1 :: self.worldsize]
         self.pattern = re.compile(r"([-\d]+)_c(\d)")
 
     def __len__(self):
@@ -68,9 +64,7 @@ class MarketShardDescriptor(ShardDescriptor):
         super().__init__()
 
         # Settings for sharding the dataset
-        self.rank, self.worldsize = tuple(
-            int(num) for num in rank_worldsize.split(",")
-        )
+        self.rank, self.worldsize = tuple(int(num) for num in rank_worldsize.split(","))
 
         self.data_folder_name = data_folder_name
         self.dataset_dir = Path.cwd() / data_folder_name
@@ -114,10 +108,7 @@ class MarketShardDescriptor(ShardDescriptor):
     @property
     def dataset_description(self) -> str:
         """Return the dataset description."""
-        return (
-            f"Market dataset, shard number {self.rank} "
-            f"out of {self.worldsize}"
-        )
+        return f"Market dataset, shard number {self.rank} " f"out of {self.worldsize}"
 
     def download(self):
         """Download Market1501 dataset."""

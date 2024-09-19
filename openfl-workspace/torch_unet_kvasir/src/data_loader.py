@@ -101,8 +101,7 @@ def load_kvasir_dataset():
         "1ade2b75dada8d4648b816f2533c8748b1658efa3d49e205415d4116faade2c5810e241e"
     )
     data_url = (
-        "https://datasets.simula.no/downloads/"
-        "hyper-kvasir/hyper-kvasir-segmented-images.zip"
+        "https://datasets.simula.no/downloads/" "hyper-kvasir/hyper-kvasir-segmented-images.zip"
     )
     filename = "kvasir.zip"
     data_folder_path = Path.cwd().absolute() / "data"
@@ -111,9 +110,7 @@ def load_kvasir_dataset():
         download_url(data_url, data_folder_path, filename=filename)
         validate_file_hash(kvasir_archive_path, zip_sha384)
         with zipfile.ZipFile(kvasir_archive_path, "r") as zip_ref:
-            for member in tqdm(
-                iterable=zip_ref.infolist(), desc="Unzipping dataset"
-            ):
+            for member in tqdm(iterable=zip_ref.infolist(), desc="Unzipping dataset"):
                 zip_ref.extract(member, "./data")
 
 
@@ -132,12 +129,8 @@ class PyTorchKvasirDataLoader(PyTorchDataLoader):
         super().__init__(batch_size, **kwargs)
 
         load_kvasir_dataset()
-        self.valid_dataset = KvasirDataset(
-            True, shard_num=int(data_path), **kwargs
-        )
-        self.train_dataset = KvasirDataset(
-            False, shard_num=int(data_path), **kwargs
-        )
+        self.valid_dataset = KvasirDataset(True, shard_num=int(data_path), **kwargs)
+        self.train_dataset = KvasirDataset(False, shard_num=int(data_path), **kwargs)
         self.train_loader = self.get_train_loader()
         self.val_loader = self.get_valid_loader()
         self.batch_size = batch_size
@@ -148,9 +141,7 @@ class PyTorchKvasirDataLoader(PyTorchDataLoader):
 
     def get_train_loader(self, num_batches=None):
         """Return train dataloader."""
-        return DataLoader(
-            self.train_dataset, batch_size=self.batch_size, shuffle=True
-        )
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
 
     def get_train_data_size(self):
         """Return size of train dataset."""

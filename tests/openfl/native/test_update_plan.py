@@ -16,11 +16,7 @@ from openfl.native import update_plan
             {},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": ["Water", "Ice"],
                     "Pluto": [],
                 }
@@ -58,11 +54,7 @@ def test_update_plan_new_key_value_addition(override_config, expected_result):
             {"Planet.Jupiter": ["Sun", "Rings"]},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": ["Water", "Ice"],
                     "Pluto": [],
                     "Jupiter": ["Sun", "Rings"],
@@ -86,9 +78,7 @@ def test_update_plan_new_key_value_addition(override_config, expected_result):
         ),
     ],
 )
-def test_update_plan_new_key_list_value_addition(
-    override_config, expected_result
-):
+def test_update_plan_new_key_list_value_addition(override_config, expected_result):
     """Test update_plan or adding a new key with value as a list."""
     plan = Plan()
     plan.config = Plan.load(Path("./tests/openfl/native/base_example.yaml"))
@@ -103,11 +93,7 @@ def test_update_plan_new_key_list_value_addition(
             {"Planet.Earth.Continent.North-America.USA.Oregon": "Salem"},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Salem"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Salem"}}}},
                     "Mars": ["Water", "Ice"],
                     "Pluto": [],
                 }
@@ -117,11 +103,7 @@ def test_update_plan_new_key_list_value_addition(
             {"Planet.Mars": "Moon"},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": "Moon",
                     "Pluto": [],
                 }
@@ -131,11 +113,7 @@ def test_update_plan_new_key_list_value_addition(
             {"Planet.Pluto": "Tiny"},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": ["Water", "Ice"],
                     "Pluto": "Tiny",
                 }
@@ -143,9 +121,7 @@ def test_update_plan_new_key_list_value_addition(
         ),
     ],
 )
-def test_update_plan_existing_key_value_updation(
-    override_config, expected_result
-):
+def test_update_plan_existing_key_value_updation(override_config, expected_result):
     """Test update_plan for adding a new key value pair."""
     plan = Plan()
     plan.config = Plan.load(Path("./tests/openfl/native/base_example.yaml"))
@@ -160,11 +136,7 @@ def test_update_plan_existing_key_value_updation(
             {"Planet.Mars": ["Water", "Moon", "Ice"]},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": ["Water", "Moon", "Ice"],
                     "Pluto": [],
                 }
@@ -174,11 +146,7 @@ def test_update_plan_existing_key_value_updation(
             {"Planet.Mars": ["Water"]},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": ["Water"],
                     "Pluto": [],
                 }
@@ -194,11 +162,7 @@ def test_update_plan_existing_key_value_updation(
             {
                 "Planet": {
                     "Earth": {
-                        "Continent": {
-                            "North-America": {
-                                "USA": {"Oregon": ["Portland", "Salem"]}
-                            }
-                        }
+                        "Continent": {"North-America": {"USA": {"Oregon": ["Portland", "Salem"]}}}
                     },
                     "Mars": ["Water", "Ice"],
                     "Pluto": [],
@@ -209,11 +173,7 @@ def test_update_plan_existing_key_value_updation(
             {"Planet.Earth.Continent.North-America.USA.Oregon": ["Salem"]},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": ["Salem"]}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": ["Salem"]}}}},
                     "Mars": ["Water", "Ice"],
                     "Pluto": [],
                 }
@@ -223,11 +183,7 @@ def test_update_plan_existing_key_value_updation(
             {"Planet.Pluto": ["Tiny", "Far"]},
             {
                 "Planet": {
-                    "Earth": {
-                        "Continent": {
-                            "North-America": {"USA": {"Oregon": "Portland"}}
-                        }
-                    },
+                    "Earth": {"Continent": {"North-America": {"USA": {"Oregon": "Portland"}}}},
                     "Mars": ["Water", "Ice"],
                     "Pluto": ["Tiny", "Far"],
                 }
@@ -235,9 +191,7 @@ def test_update_plan_existing_key_value_updation(
         ),
     ],
 )
-def test_update_plan_existing_key_list_value_updation(
-    override_config, expected_result
-):
+def test_update_plan_existing_key_list_value_updation(override_config, expected_result):
     """Test update_plan or adding a new key with value as a list."""
     plan = Plan()
     plan.config = Plan.load(Path("./tests/openfl/native/base_example.yaml"))

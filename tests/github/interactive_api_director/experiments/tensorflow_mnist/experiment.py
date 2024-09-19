@@ -64,9 +64,7 @@ def run():
             print(sample.shape)
 
     framework_adapter = "openfl.plugins.frameworks_adapters.keras_adapter.FrameworkAdapterPlugin"
-    MI = ModelInterface(
-        model=model, optimizer=optimizer, framework_plugin=framework_adapter
-    )
+    MI = ModelInterface(model=model, optimizer=optimizer, framework_plugin=framework_adapter)
 
     def function_defined_in_notebook(some_parameter):
         print(f"Also I accept a parameter and it is {some_parameter}")
@@ -80,9 +78,7 @@ def run():
         device="device",
         optimizer="optimizer",
     )
-    def train(
-        model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False
-    ):
+    def train(model, train_dataset, optimizer, device, loss_fn=loss_fn, warmup=False):
         # Iterate over the batches of the dataset.
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
             with tf.GradientTape() as tape:
@@ -96,10 +92,7 @@ def run():
 
             # Log every 200 batches.
             if step % 200 == 0:
-                print(
-                    "Training loss (for one batch) at step %d: %.4f"
-                    % (step, float(loss_value))
-                )
+                print("Training loss (for one batch) at step %d: %.4f" % (step, float(loss_value)))
                 print("Seen so far: %d samples" % ((step + 1) * 64))
             if warmup:
                 break
@@ -113,9 +106,7 @@ def run():
 
         return {"train_acc": train_acc}
 
-    @TI.register_fl_task(
-        model="model", data_loader="val_dataset", device="device"
-    )
+    @TI.register_fl_task(model="model", data_loader="val_dataset", device="device")
     def validate(model, val_dataset, device):
         # Run a validation loop at the end of each epoch.
         for x_batch_val, y_batch_val in val_dataset:
@@ -141,8 +132,7 @@ def run():
     fl_experiment = FLExperiment(
         federation=federation,
         experiment_name=experiment_name,
-        serializer_plugin="openfl.plugins.interface_serializer."
-        "keras_serializer.KerasSerializer",
+        serializer_plugin="openfl.plugins.interface_serializer." "keras_serializer.KerasSerializer",
     )
     # If I use autoreload I got a pickling error
 

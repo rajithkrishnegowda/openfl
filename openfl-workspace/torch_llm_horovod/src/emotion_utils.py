@@ -24,15 +24,11 @@ def get_writer():
 def write_metric(node_name, task_name, metric_name, metric, round_number):
     """Write metric callback."""
     get_writer()
-    writer.add_scalar(
-        f"{node_name}/{task_name}/{metric_name}", metric, round_number
-    )
+    writer.add_scalar(f"{node_name}/{task_name}/{metric_name}", metric, round_number)
 
 
 def get_emotion_dataset(tokenizer):
-    dataset = load_dataset(
-        "dair-ai/emotion", cache_dir="dataset", revision="9ce6303"
-    )
+    dataset = load_dataset("dair-ai/emotion", cache_dir="dataset", revision="9ce6303")
 
     assert (
         dataset["train"]._fingerprint == "cbee262593e53bad"
@@ -60,9 +56,7 @@ def get_emotion_dataset(tokenizer):
     )
     tokenized_datasets = tokenized_datasets.rename_column("label", "labels")
     tokenized_datasets.set_format("torch")
-    data_collator = DataCollatorWithPadding(
-        tokenizer=tokenizer, padding="longest"
-    )
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer, padding="longest")
     return data_collator, tokenized_datasets
 
 
@@ -78,9 +72,7 @@ class EmotionDataset(Dataset):
 
 
 def get_dataset(base_model_name="roberta-base", padding_side="right"):
-    tokenizer = AutoTokenizer.from_pretrained(
-        base_model_name, padding_side=padding_side
-    )
+    tokenizer = AutoTokenizer.from_pretrained(base_model_name, padding_side=padding_side)
     if getattr(tokenizer, "pad_token_id") is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
     data_collator, tokenized_datasets = get_emotion_dataset(tokenizer)

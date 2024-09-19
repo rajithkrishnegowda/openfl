@@ -20,16 +20,12 @@ def xml_to_json(input_base_folder, subfolders, output_folder, verify_hash=1):
             "9d645c469ba37eb9ec2e121ae6ac90fbebccfb91f2aff7f"
             "faabc0531f2ede54ab4c91bea775922e5910b276340c040e8"
         )
-        verify_aggregated_hashes(
-            input_base_folder, subfolders, expected_hash=expected_hash
-        )
+        verify_aggregated_hashes(input_base_folder, subfolders, expected_hash=expected_hash)
 
     for subfolder in subfolders:
         folder_path = os.path.join(input_base_folder, subfolder)
         if os.path.isdir(folder_path):
-            xml_files = [
-                f for f in os.listdir(folder_path) if f.endswith(".xml")
-            ]
+            xml_files = [f for f in os.listdir(folder_path) if f.endswith(".xml")]
             test_file_count = math.ceil(len(xml_files) * 0.01)
 
             # Process files for training data
@@ -47,12 +43,8 @@ def xml_to_json(input_base_folder, subfolders, output_folder, verify_hash=1):
             raise SystemError(f"{folder_path} does not exist")
 
     # Save the data to JSON files
-    save_json(
-        train_data, os.path.join(output_folder, "medquad_alpaca_train.json")
-    )
-    save_json(
-        test_data, os.path.join(output_folder, "medquad_alpaca_test.json")
-    )
+    save_json(train_data, os.path.join(output_folder, "medquad_alpaca_train.json"))
+    save_json(test_data, os.path.join(output_folder, "medquad_alpaca_test.json"))
 
     # Write the counts to a text file
     with open(os.path.join(output_folder, "data_counts.txt"), "w") as f:
@@ -120,8 +112,6 @@ def verify_aggregated_hashes(input_base_folder, dir_list, expected_hash):
 
     # Compare the aggregated hash with the expected, hardcoded hash
     if aggregated_hash != expected_hash:
-        raise SystemError(
-            "Verification failed. Downloaded hash doesn't match expected hash."
-        )
+        raise SystemError("Verification failed. Downloaded hash doesn't match expected hash.")
     else:
         print("Verification passed")

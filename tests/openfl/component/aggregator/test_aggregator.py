@@ -83,9 +83,7 @@ def test_valid_collaborator_cn_and_id(
     ac = agg.authorized_cols
     agg.authorized_cols = authorized_cols
     agg.single_col_cert_common_name = single_cccn
-    is_valid = agg.valid_collaborator_cn_and_id(
-        cert_common_name, collaborator_common_name
-    )
+    is_valid = agg.valid_collaborator_cn_and_id(cert_common_name, collaborator_common_name)
     agg.authorized_cols = ac
     agg.single_col_cert_common_name = ""
 
@@ -184,9 +182,7 @@ def test_get_aggregated_tensor(agg):
 def test_collaborator_task_completed_none(agg):
     """Test that returns False if there are not collaborator tasks results."""
     round_num = 0
-    is_completed = agg._collaborator_task_completed(
-        "col1", "task_name", round_num
-    )
+    is_completed = agg._collaborator_task_completed("col1", "task_name", round_num)
     assert is_completed is False
 
 
@@ -195,9 +191,7 @@ def test_collaborator_task_completed_true(agg):
     round_num = 0
     task_name = "test_task_name"
     col1 = "one"
-    agg.collaborator_tasks_results = {
-        TaskResultKey(task_name, col1, round_num): 1
-    }
+    agg.collaborator_tasks_results = {TaskResultKey(task_name, col1, round_num): 1}
     is_completed = agg._collaborator_task_completed(col1, task_name, round_num)
 
     assert is_completed is True
@@ -217,9 +211,7 @@ def test_is_task_done_not_done(agg):
     task_name = "test_task_name"
     col1 = "one"
     col2 = "two"
-    agg.assigner.get_collaborators_for_task = mock.Mock(
-        return_value=[col1, col2]
-    )
+    agg.assigner.get_collaborators_for_task = mock.Mock(return_value=[col1, col2])
     is_task_done = agg._is_task_done(task_name)
 
     assert is_task_done is False
@@ -231,9 +223,7 @@ def test_is_task_done_done(agg):
     task_name = "test_task_name"
     col1 = "one"
     col2 = "two"
-    agg.assigner.get_collaborators_for_task = mock.Mock(
-        return_value=[col1, col2]
-    )
+    agg.assigner.get_collaborators_for_task = mock.Mock(return_value=[col1, col2])
     agg.collaborator_tasks_results = {
         TaskResultKey(task_name, col1, round_num): 1,
         TaskResultKey(task_name, col2, round_num): 1,
@@ -258,9 +248,7 @@ def test_is_round_done_not_done(agg):
     col1 = "one"
     col2 = "two"
     agg.assigner.get_all_tasks_for_round = mock.Mock(return_value=[task_name])
-    agg.assigner.get_collaborators_for_task = mock.Mock(
-        return_value=[col1, col2]
-    )
+    agg.assigner.get_collaborators_for_task = mock.Mock(return_value=[col1, col2])
     agg.collaborator_tasks_results = {
         TaskResultKey(task_name, col1, round_num): 1,
     }
@@ -276,9 +264,7 @@ def test_is_round_done_done(agg):
     col1 = "one"
     col2 = "two"
     agg.assigner.get_all_tasks_for_round = mock.Mock(return_value=[task_name])
-    agg.assigner.get_collaborators_for_task = mock.Mock(
-        return_value=[col1, col2]
-    )
+    agg.assigner.get_collaborators_for_task = mock.Mock(return_value=[col1, col2])
     agg.collaborator_tasks_results = {
         TaskResultKey(task_name, col1, round_num): 1,
         TaskResultKey(task_name, col2, round_num): 1,

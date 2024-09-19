@@ -8,14 +8,10 @@ from pathlib import Path
 from subprocess import check_call
 
 
-def create_collaborator(
-    col, workspace_root, data_path, archive_name, fed_workspace
-):
+def create_collaborator(col, workspace_root, data_path, archive_name, fed_workspace):
     # Copy workspace to collaborator directories (these can be on different machines)
     col_path = workspace_root / col
-    shutil.rmtree(
-        col_path, ignore_errors=True
-    )  # Remove any existing directory
+    shutil.rmtree(col_path, ignore_errors=True)  # Remove any existing directory
     col_path.mkdir()  # Create a new directory for the collaborator
 
     # Import the workspace to this collaborator
@@ -52,9 +48,7 @@ def create_collaborator(
 
     # Sign collaborator certificate
     # Remove '--silent' if you run this manually
-    request_pkg = (
-        col_path / fed_workspace / f"col_{col}_to_agg_cert_request.zip"
-    )
+    request_pkg = col_path / fed_workspace / f"col_{col}_to_agg_cert_request.zip"
     check_call(
         [
             "fx",
@@ -77,9 +71,7 @@ def create_collaborator(
 
 def create_certified_workspace(path, template, fqdn, rounds_to_train):
     shutil.rmtree(path, ignore_errors=True)
-    check_call(
-        ["fx", "workspace", "create", "--prefix", path, "--template", template]
-    )
+    check_call(["fx", "workspace", "create", "--prefix", path, "--template", template])
     os.chdir(path)
 
     # Initialize FL plan
@@ -134,9 +126,7 @@ def create_signed_cert_for_collaborator(col, data_path):
             "--silent",
         ]
     )
-    check_call(
-        ["fx", "collaborator", "generate-cert-request", "-n", col, "--silent"]
-    )
+    check_call(["fx", "collaborator", "generate-cert-request", "-n", col, "--silent"])
     # Sign collaborator certificate
     check_call(
         [

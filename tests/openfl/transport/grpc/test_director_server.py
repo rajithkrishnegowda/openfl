@@ -52,9 +52,7 @@ def test_get_caller_tls(insecure_director):
     insecure_director.tls = True
     context = mock.Mock()
     client_id = "client_id"
-    context.auth_context = mock.Mock(
-        return_value={"x509_common_name": [client_id.encode("utf-8")]}
-    )
+    context.auth_context = mock.Mock(return_value={"x509_common_name": [client_id.encode("utf-8")]})
     result = insecure_director.get_caller(context)
     assert result == client_id
 

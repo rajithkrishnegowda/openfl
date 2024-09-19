@@ -49,15 +49,12 @@ class AdaptiveAggregation(AggregationFunction):
         """
         return sum(
             [
-                local_tensor.weight
-                * (base_model_nparray - local_tensor.tensor)
+                local_tensor.weight * (base_model_nparray - local_tensor.tensor)
                 for local_tensor in local_tensors
             ]
         )
 
-    def call(
-        self, local_tensors, db_iterator, tensor_name, fl_round, tags
-    ) -> np.ndarray:
+    def call(self, local_tensors, db_iterator, tensor_name, fl_round, tags) -> np.ndarray:
         """Aggregate tensors.
 
         Args:
@@ -91,9 +88,7 @@ class AdaptiveAggregation(AggregationFunction):
             np.ndarray: aggregated tensor
         """
         if tensor_name not in self.optimizer.params:
-            return self.default_agg_func(
-                local_tensors, db_iterator, tensor_name, fl_round, tags
-            )
+            return self.default_agg_func(local_tensors, db_iterator, tensor_name, fl_round, tags)
 
         base_model_nparray = None
         search_tag = "aggregated" if fl_round != 0 else "model"
