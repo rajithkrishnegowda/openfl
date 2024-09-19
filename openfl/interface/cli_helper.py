@@ -46,7 +46,6 @@ def tree(path):
     echo(f"+ {path}")
 
     for path in sorted(path.rglob("*")):
-
         depth = len(path.relative_to(path).parts)
         space = "    " * depth
 
@@ -140,7 +139,6 @@ def copytree(
     copy_function = shutil.copy2
 
     def _copytree():
-
         if ignore is not None:
             ignored_names = ignore(os.fspath(src), [x.name for x in entries])
         else:

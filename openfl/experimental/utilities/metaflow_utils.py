@@ -31,6 +31,7 @@ from metaflow.runtime import MAX_LOG_SIZE
 from metaflow.runtime import mflog_msg
 from metaflow.runtime import TruncatedBuffer
 from metaflow.task import MetaDatum
+
 # getsource only used to determine structure of FlowGraph
 
 if TYPE_CHECKING:
@@ -96,7 +97,6 @@ class Flow:
 
 @ray.remote
 class Counter:
-
     def __init__(self):
         """Initializes the Counter with value set to 0."""
         self.value = 0

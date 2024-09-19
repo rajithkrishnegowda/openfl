@@ -10,7 +10,6 @@ from openfl.experimental.interface.participants import Collaborator
 
 
 class Runtime:
-
     def __init__(self):
         """Initializes the Runtime object.
 

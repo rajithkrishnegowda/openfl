@@ -82,7 +82,6 @@ class Plan:
         """
 
         class NoAliasDumper(SafeDumper):
-
             def ignore_aliases(self, data):
                 return True
 
@@ -126,7 +125,6 @@ class Plan:
             Plan: A Federated Learning plan object.
         """
         try:
-
             plan = Plan()
             plan.config = Plan.load(plan_config_path)  # load plan configuration
             plan.name = plan_config_path.name
@@ -134,7 +132,6 @@ class Plan:
 
             # ensure 'settings' appears in each top-level section
             for section in plan.config.keys():
-
                 if plan.config[section].get(SETTINGS) is None:
                     plan.config[section][SETTINGS] = {}
 
