@@ -1,8 +1,7 @@
-import time
 import tensorflow as tf
 # Create a federation
 from openfl.interface.interactive_api.federation import Federation
-from openfl.interface.interactive_api.experiment import TaskInterface, DataInterface, ModelInterface, FLExperiment
+from openfl.interface.interactive_api.experiment import TaskInterface, ModelInterface, FLExperiment
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.dataset import FedDataset
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import model
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import optimizer
@@ -10,7 +9,6 @@ from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import train_acc_metric
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.settings import val_acc_metric
 from tests.github.interactive_api_director.experiments.tensorflow_mnist.envoy.shard_descriptor import MNISTShardDescriptor
-from copy import deepcopy
 
 
 def run():
