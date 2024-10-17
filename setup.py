@@ -158,7 +158,7 @@ setup(
         'jupyterlab',
         'numpy',
         'pandas',
-        'protobuf>=4.22,<5.0.0',
+        'protobuf>=4.22,<6.0.0',
         'pyzmq<=26.2.0',
         'requests>=2.32.0',
         'rich',
@@ -167,7 +167,7 @@ setup(
         'tensorboardX>=2.6',
         'tqdm',
     ],
-    setup_requires=['grpcio-tools>=1.56.2,<1.68.0'],
+    setup_requires=['grpcio-tools>=1.56.2,<1.66.0'],
     python_requires='>=3.8, <3.12',
     project_urls={
         'Bug Tracker': 'https://github.com/securefederatedai/openfl/issues',
