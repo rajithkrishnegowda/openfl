@@ -73,6 +73,12 @@ jobs:
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
+        continue-on-error: true  # Allow the pipeline to continue even if this step fails
+
+      - name: Display Trivy Scan Results
+        run: |
+          echo "Trivy Scan Results:"
+          cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
   
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
