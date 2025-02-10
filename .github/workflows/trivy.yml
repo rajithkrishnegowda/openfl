@@ -73,9 +73,9 @@ jobs:
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
-        continue-on-error: true  # Allow the pipeline to continue even if this step fails
 
       - name: Display Trivy Scan Results
+        if: always()  # Ensure this step runs regardless of the previous step's outcome
         run: |
           echo "Trivy Scan Results:"
           cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
