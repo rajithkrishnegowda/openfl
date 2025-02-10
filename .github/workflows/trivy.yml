@@ -22,6 +22,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Update system packages
+        run: |
+          sudo apt-get update -y
+          sudo apt-get upgrade -y
+
       - name: Build an image from Dockerfile
         run: |
           docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
@@ -75,7 +80,7 @@ jobs:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
 
       - name: Display Trivy Scan Results
-        if: always()  # Ensure this step runs regardless of the previous step's outcome
+        if: failure()  # Ensure this step runs regardless of the previous step's outcome
         run: |
           echo "Trivy Scan Results:"
           cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
