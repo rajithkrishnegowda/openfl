@@ -7,5 +7,4 @@
 
 ######################## Trivy CVE supressions ########################
 vulnerabilities:
-  - id: "CVE-2025-0395"
-    ignore: "True"
+  - id: CVE-2025-0395
