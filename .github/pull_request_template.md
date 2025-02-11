@@ -1,32 +1,46 @@
 # Pull Request Template
 
 ## Title
-[Provide a succinct and descriptive title for the pull request, e.g., "Improve caching mechanism for API calls"]
+[Provide a short and descriptive title for the pull request, e.g., "Improve caching mechanism for API calls"]
 
 ## Type of Change
+Specify the type of change being made. Use one of the following:
 - [ ] New feature
 - [ ] Bug fix
 - [ ] Documentation update
 - [ ] Refactoring
 - [ ] Hotfix
 - [ ] Security patch
-- [ ] UI/UX improvement
+- [ ] Test Addition
+- [ ] Other (please specify)
 
 ## Description
-[Provide a detailed explanation of the changes you have made. Include the reasons behind these changes and any relevant context. Link any related issues.]
+[Provide a detailed explanation of the changes made in this PR. Explain the purpose of the PR and the problem it solves. Reference any related issues or tickets (e.g., `Fixes #123`).]
+
+## **Changes Made**
+List the key changes made in this PR. Be specific about files, functions, or modules that were modified. If applicable, include before-and-after code snippets or examples.
 
 ## Testing
-[Detail the testing you have performed to ensure that these changes function as intended. Include information about any added tests.]
+[Describe how the changes were tested. Include details about unit tests, integration tests, or manual testing. Specify any new tests added to cover the changes.]
 
 ## Impact
-[Discuss the impact of your changes on the project. This might include effects on performance, new dependencies, or changes in behaviour.]
+[Discuss the impact of the changes on the project. This might include effects on performance, new dependencies, or changes in behaviour.]
+
+## **Documentation**
+Indicate if documentation was updated. Provide links to updated documentation or describe the changes made.
 
 ## Additional Information
 [Any additional information that reviewers should be aware of.]
 
 ## Checklist
-- [ ] My code adheres to the coding and style guidelines of the project.
-- [ ] I have performed a self-review of my own code.
-- [ ] I have commented my code, particularly in hard-to-understand areas.
-- [ ] I have made corresponding changes to the documentation.
-- [ ] My changes generate no new warnings 
+Ensure the following tasks are completed before submitting the PR:
+- [ ] Code follows the project's coding standards.
+- [ ] All tests pass successfully.
+- [ ] Documentation has been updated (if applicable).
+- [ ] PR title and description are clear and descriptive.
+- [ ] PR is linked to the relevant issue or ticket.
+
+## **Optional Sections**
+
+### **Screenshots or Visuals**
+If applicable, include screenshots, diagrams, or visuals to demonstrate the changes.
