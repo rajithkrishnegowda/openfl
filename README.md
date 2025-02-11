@@ -27,6 +27,7 @@ OpenFL is a Python framework for Federated Learning. It enables organizations to
 
 Federated Learning is a distributed machine learning approach that enables collaborative training and evaluation of models without sharing sensitive data such as, personal information, patient records, financial data, or classified information. The minimum data movement needed across a Federated Training experiment, is solely the model parameters and their updates. This is in contrast to a Centralized Learning regime, where all data needs to be moved to a central server or a datacenter for massively parallel training.
 
+testing
 ![Federated Learning](https://openfl.readthedocs.io/en/latest/_images/ct_vs_fl.png)
 
 OpenFL builds on a collaboration between Intel and the Bakas lab at the University of Pennsylvania (UPenn) to develop the [Federated Tumor Segmentation (FeTS)](https://www.fets.ai/) platform (grant award number: U01-CA242871).
