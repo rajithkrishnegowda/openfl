@@ -52,7 +52,7 @@ jobs:
           --ignore-unfixed \
           --vuln-type os,library \
           --severity CRITICAL,HIGH,MEDIUM,LOW \
-          --trivyignores .trivyignore.yaml \
+          --trivyignore .trivyignore.yaml \
           --db-repository 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db' \
           .
 
@@ -78,7 +78,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-          trivyignores: '.trivyignore.yaml'
+          trivyignore: '.trivyignore.yaml'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
   
@@ -102,7 +102,7 @@ jobs:
           --ignore-unfixed \
           --vuln-type os,library \
           --severity CRITICAL,HIGH,MEDIUM,LOW \
-          --trivyignores .trivyignore.yaml \
+          --trivyignore .trivyignore.yaml \
           --db-repository 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db' \
           .
   
@@ -128,7 +128,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-          trivyignores: '.trivyignore.yaml'
+          trivyignore: '.trivyignore.yaml'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
     
