@@ -68,7 +68,7 @@ jobs:
           path: trivy-code-results.json
       
       - name: Run Trivy vulnerability scanner for Docker image (JSON Output)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
           format: 'json'
@@ -77,7 +77,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-          trivyignores: '.trivyignore'
+          trivyignores: '.trivyignore.txt'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
   
@@ -126,7 +126,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-          trivyignores: '.trivyignore'
+          trivyignores: '.trivyignore.txt'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
     
