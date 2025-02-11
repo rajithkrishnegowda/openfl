@@ -7,7 +7,5 @@
 
 ######################## Trivy CVE supressions ########################
 vulnerabilities:
-  #   * Relevant packages:: libc-bin
-  #   * These packages are part of Intel's latest official Ubuntu base image.
-  - id: CVE-2025-0395
-
+  - id: "CVE-2025-0395"
+    ignore: "True"
