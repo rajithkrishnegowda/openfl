@@ -1,11 +1,13 @@
+import json
 from bs4 import BeautifulSoup
 
-# Path to the Bandit HTML report
-report_path = 'results.html'
+# Path to the Bandit JSON report
+json_report_path = 'bandit_results.json'
+html_report_path = 'results.html'
 
-# Read the HTML report
-with open(report_path, 'r') as file:
-    soup = BeautifulSoup(file, 'html.parser')
+# Read the JSON report
+with open(json_report_path, 'r') as file:
+    data = json.load(file)
 
 # Extract summary and details
 summary = {
@@ -15,31 +17,110 @@ summary = {
 }
 details = []
 
-# Parse the HTML to extract the relevant information
-# (This part will depend on the structure of the Bandit HTML report)
+for result in data['results']:
+    severity = result['issue_severity']
+    confidence = result['issue_confidence']
+    file_path = result['filename']
+    line_number = result['line_number']
+    test_id = result['test_id']
+    issue_text = result['issue_text']
+    
+    summary[severity]['issue_count'] += 1
+    if file_path not in [detail['file'] for detail in details]:
+        summary[severity]['file_count'] += 1
+    
+    details.append({
+        'file': file_path,
+        'line_numbers': line_number,
+        'test': test_id,
+        'issue': issue_text,
+        'severity': severity,
+        'confidence': confidence
+    })
 
-# Example output (replace with actual parsing logic)
-summary['MEDIUM']['file_count'] = 12
-summary['MEDIUM']['issue_count'] = 17
-summary['LOW']['file_count'] = 27
-summary['LOW']['issue_count'] = 36
+# Create HTML report
+html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandit Report Summary</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; }}
+        h1 {{ text-align: center; padding: 20px; background-color: #4CAF50; color: white; }}
+        table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+        th, td {{ padding: 12px; border: 1px solid #ddd; text-align: left; }}
+        th {{ background-color: #f4f4f4; }}
+        .severity-high {{ color: #D32F2F; font-weight: bold; }}
+        .severity-medium {{ color: #FFA000; font-weight: bold; }}
+       severity-low {{ color: #388E3C; font-weight: bold; }}
+        pre {{ white-space: pre-wrap; }} /* Preserve line breaks */
+    </style>
+</head>
+<body>
+    <h1>Bandit Report Summary</h1>
 
-details.append({
-    'file': 'example.py',
-    'line_numbers': '10-20',
-    'test': 'B101',
-    'issue': 'Use of assert detected',
-    'severity': 'MEDIUM',
-    'confidence': 'HIGH'
-})
+    <h2>Summary of Issues</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Severity</th>
+                <th>File Count</th>
+                <th>Issue Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="severity-high">
+                <td>HIGH</td>
+                <td>{summary['HIGH']['file_count']}</td>
+                <td>{summary['HIGH']['issue_count']}</td>
+            </tr>
+            <tr class="severity-medium">
+                <td>MEDIUM</td>
+                <td>{summary['MEDIUM']['file_count']}</td>
+                <td>{summary['MEDIUM']['issue_count']}</td>
+            </tr>
+            <tr class="severity-low">
+                <td>LOW</td>
+                <td>{summary['LOW']['file_count']}</td>
+                <td>{summary['LOW']['issue_count']}</td>
+            </tr>
+        </tbody>
+    </table>
 
-# Print the summary and details
-print("Summary of Issues")
-print("Severity\tFile Count\tIssue Count")
-for severity, counts in summary.items():
-    print(f"{severity}\t{counts['file_count']}\t{counts['issue_count']}")
+    <h2>Details of Issues</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>File (Line Numbers)</th>
+                <th>Test</th>
+                <th>Issue</th>
+                <th>Severity</th>
+                <th>Confidence</th>
+            </tr>
+        </thead>
+        <tbody>
+"""
 
-print("\nDetails of Issues")
-print("File (Line Numbers)\tTest\tIssue\tSeverity\tConfidence")
 for detail in details:
-    print(f"{detail['file']} ({detail['line_numbers']})\t{detail['test']}\t{detail['issue']}\t{detail['severity']}\t{detail['confidence']}")
+    html_content += f"""
+            <tr class="severity-{detail['severity'].lower()}">
+                <td><pre>{detail['file']}:{detail['line_numbers']}</pre></td>
+                <td>{detail['test']}</td>
+                <td>{detail['issue']}</td>
+                <td>{detail['severity']}</td>
+                <td>{detail['confidence']}</td>
+            </tr>
+    """
+
+html_content += """
+        </tbody>
+    </table>
+</body>
+</html>
+"""
+
+# Write the HTML report
+with open(html_report_path, 'w') as file:
+    file.write(html_content)
