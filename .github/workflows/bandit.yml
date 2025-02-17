@@ -12,9 +12,9 @@ jobs:
   bandit_scan:
     if: github.event.pull_request.draft == false
     permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      contents: read
+      security-events: write
+      actions: read
     name: Bandit Scan
     runs-on: ubuntu-22.04
     timeout-minutes: 15
@@ -29,12 +29,13 @@ jobs:
       - name: Define HTML Report Path
         run: echo "HTML_REPORT_PATH=${{ github.workspace }}/results.html" >> $GITHUB_ENV
     
+      - name: Install Bandit
+        run: pip install bandit
+    
       - name: Perform Bandit Analysis
-        uses: PyCQA/bandit-action@v1
-        with:
-          args: -r . -f html -o ${{ env.HTML_REPORT_PATH }}
-  
-      - name: Upload Bandit SARIF Report as Artifact
+        run: bandit -r . -f html -o ${{ env.HTML_REPORT_PATH }}
+    
+      - name: Upload Bandit HTML Report as Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
