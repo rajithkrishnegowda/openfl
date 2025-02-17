@@ -29,11 +29,15 @@ jobs:
       - name: Define HTML Report Path
         run: echo "HTML_REPORT_PATH=${{ github.workspace }}/results.html" >> $GITHUB_ENV
     
-      - name: Install Bandit
-        run: pip install bandit
+      - name: Install Bandit and BeautifulSoup
+        run: pip install bandit beautifulsoup4
     
       - name: Perform Bandit Analysis
         run: bandit -r . -f html -o ${{ env.HTML_REPORT_PATH }}
+        continue-on-error: true
+    
+      - name: Parse Bandit HTML Report
+        run: python .github/config/parse_bandit_report.py
     
       - name: Upload Bandit HTML Report as Artifact
         if: always()
