@@ -38,6 +38,9 @@ for result in data['results']:
         'confidence': confidence
     })
 
+# Sort details by severity
+details_sorted = sorted(details, key=lambda x: ['HIGH', 'MEDIUM', 'LOW'].index(x['severity']))
+
 # Create HTML report
 html_content = f"""
 <!DOCTYPE html>
@@ -54,7 +57,7 @@ html_content = f"""
         th {{ background-color: #f4f4f4; }}
         .severity-high {{ color: #D32F2F; font-weight: bold; }}
         .severity-medium {{ color: #FFA000; font-weight: bold; }}
-       severity-low {{ color: #388E3C; font-weight: bold; }}
+        .severity-low {{ color: #388E3C; font-weight: bold; }}
         pre {{ white-space: pre-wrap; }} /* Preserve line breaks */
     </style>
 </head>
@@ -103,7 +106,7 @@ html_content = f"""
         <tbody>
 """
 
-for detail in details:
+for detail in details_sorted:
     html_content += f"""
             <tr class="severity-{detail['severity'].lower()}">
                 <td><pre>{detail['file']}:{detail['line_numbers']}</pre></td>
