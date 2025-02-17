@@ -17,10 +17,16 @@ summary = {
 }
 details = []
 
+# Directories to exclude
+exclude_dirs = ['./openfl-tutorials', './openfl-workspace', './tests']
+
 for result in data['results']:
+    file_path = result['filename']
+    if any(file_path.startswith(exclude_dir) for exclude_dir in exclude_dirs):
+        continue
+    
     severity = result['issue_severity']
     confidence = result['issue_confidence']
-    file_path = result['filename']
     line_number = result['line_number']
     test_id = result['test_id']
     issue_text = result['issue_text']
@@ -51,7 +57,7 @@ html_content = f"""
     <title>Bandit Report Summary</title>
     <style>
         body {{ font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; }}
-        h1 {{ text-align: center; padding: 20px; background-color: #4CAF50; color: white; }}
+       : center; padding: 20px; background-color: #4CAF50; color: white; }}
         table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
         th, td {{ padding: 12px; border: 1px solid #ddd; text-align: left; }}
         th {{ background-color: #f4f4f4; }}
