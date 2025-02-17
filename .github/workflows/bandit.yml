@@ -33,10 +33,10 @@ jobs:
         run: pip install bandit beautifulsoup4
     
       - name: Perform Bandit Analysis
-        run: bandit -r . -f html -o ${{ env.HTML_REPORT_PATH }}
+        run: bandit -r . -f json -o bandit_results.json
         continue-on-error: true
     
-      - name: Parse Bandit HTML Report
+      - name: Parse Bandit JSON Report and Generate HTML
         run: python .github/config/parse_bandit_report.py
     
       - name: Upload Bandit HTML Report as Artifact
