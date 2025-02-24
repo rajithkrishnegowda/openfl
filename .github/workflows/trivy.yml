@@ -37,13 +37,17 @@ jobs:
 
       - name: Parse Trivy results and update vulnerable packages
         run: |
-          vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-code-results.json | sort -u)
-          if [ -n "$vulnerable_packages" ]; then
-            for package in $vulnerable_packages; do
-              sudo apt-get install --only-upgrade $package -y || true
-            done
+          if [ -s trivy-code-results.json ]; then
+            vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-code-results.json | sort -u)
+            if [ -n "$vulnerable_packages" ]; then
+              for package in $vulnerable_packages; do
+                sudo apt-get install --only-upgrade $package -y || true
+              done
+            else
+              echo "No vulnerable packages found."
+            fi
           else
-            echo "No vulnerable packages found."
+            echo "Trivy scan results file is empty or not found."
           fi
 
       - name: Verify package versions
@@ -73,12 +77,15 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
-        continue-on-error: true
 
       - name: Display Trivy Scan Results
         run: |
-          echo "Trivy Scan Results:"
-          cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
+          if [ -s trivy-docker-results.json ]; then
+            echo "Trivy Scan Results:"
+            cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
+          else
+            echo "Trivy scan results file is empty or not found."
+          fi
 
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
@@ -116,7 +123,6 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
-        continue-on-error: true
     
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
