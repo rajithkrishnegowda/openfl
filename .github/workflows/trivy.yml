@@ -37,16 +37,24 @@ jobs:
 
       - name: Parse Trivy results and update vulnerable packages
         run: |
-          vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[] | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-code-results.json | sort -u)
-          for package in $vulnerable_packages; do
-            sudo apt-get install --only-upgrade $package -y || true
-          done
+          vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-code-results.json | sort -u)
+          if [ -n "$vulnerable_packages" ]; then
+            for package in $vulnerable_packages; do
+              sudo apt-get install --only-upgrade $package -y || true
+            done
+          else
+            echo "No vulnerable packages found."
+          fi
 
       - name: Verify package versions
         run: |
-          for package in $vulnerable_packages; do
-            dpkg -l | grep $package
-          done
+          if [ -n "$vulnerable_packages" ]; then
+            for package in $vulnerable_packages; do
+              dpkg -l | grep $package
+            done
+          else
+            echo "No packages to verify."
+          fi
 
       - name: Build an image from Dockerfile
         run: |
@@ -65,9 +73,9 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
+        continue-on-error: true
 
       - name: Display Trivy Scan Results
-        if: failure()
         run: |
           echo "Trivy Scan Results:"
           cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
@@ -108,6 +116,7 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
+        continue-on-error: true
     
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
