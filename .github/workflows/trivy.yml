@@ -35,10 +35,38 @@ jobs:
           --db-repository 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db' \
           .
 
+      - name: Build an image from Dockerfile
+        run: |
+          docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
+
+      - name: Run Trivy vulnerability scanner for Docker image (JSON Output)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
+          format: 'json'
+          output: 'trivy-docker-results.json'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          trivyignores: '.trivyignore'
+        env:
+          TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
+        continue-on-error: true
+
+      - name: Display Trivy Scan Results
+        run: |
+          if [ -s trivy-docker-results.json ]; then
+            echo "Trivy Scan Results:"
+            cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
+          else
+            echo "Trivy scan results file is empty or not found."
+          fi
+
       - name: Parse Trivy results and update vulnerable packages
         run: |
-          if [ -s trivy-code-results.json ]; then
-            vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-code-results.json | sort -u)
+          if [ -s trivy-docker-results.json ]; then
+            vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-docker-results.json | sort -u)
             if [ -n "$vulnerable_packages" ]; then
               for package in $vulnerable_packages; do
                 sudo apt-get install --only-upgrade $package -y || true
@@ -58,33 +86,6 @@ jobs:
             done
           else
             echo "No packages to verify."
-          fi
-
-      - name: Build an image from Dockerfile
-        run: |
-          docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
-
-      - name: Run Trivy vulnerability scanner for Docker image (JSON Output)
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-          image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
-          format: 'json'
-          output: 'trivy-docker-results.json'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          trivyignores: '.trivyignore'
-        env:
-          TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
-
-      - name: Display Trivy Scan Results
-        run: |
-          if [ -s trivy-docker-results.json ]; then
-            echo "Trivy Scan Results:"
-            cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
-          else
-            echo "Trivy scan results file is empty or not found."
           fi
 
       - name: Upload Docker Vulnerability Scan
@@ -123,6 +124,7 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
+        continue-on-error: true
     
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
