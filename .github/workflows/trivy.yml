@@ -52,7 +52,6 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
-        continue-on-error: true
 
       - name: Display Trivy Scan Results
         run: |
@@ -64,9 +63,11 @@ jobs:
           fi
 
       - name: Parse Trivy results and update vulnerable packages
+        id: parse_and_update
         run: |
           if [ -s trivy-docker-results.json ]; then
             vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-docker-results.json | sort -u)
+            echo "vulnerable_packages=$vulnerable_packages" >> $GITHUB_ENV
             if [ -n "$vulnerable_packages" ]; then
               for package in $vulnerable_packages; do
                 sudo apt-get install --only-upgrade $package -y || true
@@ -87,6 +88,32 @@ jobs:
           else
             echo "No packages to verify."
           fi
+
+      - name: Run final Trivy scan to verify no vulnerabilities
+        run: |
+          trivy --quiet fs \
+          --format json \
+          --output trivy-final-results.json \
+          --ignore-unfixed \
+          --vuln-type os,library \
+          --severity CRITICAL,HIGH,MEDIUM \
+          --db-repository 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db' \
+          .
+
+      - name: Display final Trivy Scan Results
+        run: |
+          if [ -s trivy-final-results.json ]; then
+            echo "Final Trivy Scan Results:"
+            cat trivy-final-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
+          else
+            echo "Final Trivy scan results file is empty or not found."
+          fi
+
+      - name: Upload final Trivy scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-final-report-json
+          path: trivy-final-results.json
 
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
@@ -124,7 +151,6 @@ jobs:
           trivyignores: '.trivyignore'
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
-        continue-on-error: true
     
       - name: Upload Docker Vulnerability Scan
         uses: actions/upload-artifact@v4
