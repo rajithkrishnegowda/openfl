@@ -100,6 +100,7 @@ jobs:
           docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
 
       - name: Run final Trivy vulnerability scanner for Docker image (JSON Output)
+        if: failure()
         id: final-trivy-scan
         uses: aquasecurity/trivy-action@0.29.0
         with:
