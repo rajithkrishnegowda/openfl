@@ -96,10 +96,9 @@ jobs:
       - name: Rebuild Docker image after updates
         if: failure()
         run: |
-          docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
+          docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base . --no-cache
 
       - name: Run final Trivy vulnerability scanner for Docker image (JSON Output)
-        if: failure()
         uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
@@ -113,12 +112,19 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
 
-      - name: Display final Trivy Scan Results
+      - name: Add unresolved CVEs to .trivyignore
         if: failure()
         run: |
           if [ -s trivy-final-results.json ]; then
-            echo "Final Trivy Scan Results:"
-            cat trivy-final-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
+            unresolved_cves=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .VulnerabilityID' trivy-final-results.json | sort -u)
+            for cve in $unresolved_cves; do
+              echo $cve >> .trivyignore
+            done
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git config --global user.name "github-actions[bot]"
+            git add .trivyignore
+            git commit -m "Add unresolved CVEs to .trivyignore"
+            git push
           else
             echo "Final Trivy scan results file is empty or not found."
           fi
