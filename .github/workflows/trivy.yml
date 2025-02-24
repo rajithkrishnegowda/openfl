@@ -40,6 +40,7 @@ jobs:
           docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
 
       - name: Run Trivy vulnerability scanner for Docker image (JSON Output)
+        id: trivy-scan
         uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
@@ -54,6 +55,7 @@ jobs:
           TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
 
       - name: Display Trivy Scan Results
+        if: failure()
         run: |
           if [ -s trivy-docker-results.json ]; then
             echo "Trivy Scan Results:"
@@ -64,6 +66,7 @@ jobs:
 
       - name: Parse Trivy results and update vulnerable packages
         id: parse_and_update
+        if: failure()
         run: |
           if [ -s trivy-docker-results.json ]; then
             vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-docker-results.json | sort -u)
@@ -80,6 +83,7 @@ jobs:
           fi
 
       - name: Verify package versions
+        if: failure()
         run: |
           if [ -n "$vulnerable_packages" ]; then
             for package in $vulnerable_packages; do
@@ -89,16 +93,25 @@ jobs:
             echo "No packages to verify."
           fi
 
-      - name: Run final Trivy scan to verify no vulnerabilities
+      - name: Rebuild Docker image after updates
+        if: failure()
         run: |
-          trivy --quiet fs \
-          --format json \
-          --output trivy-final-results.json \
-          --ignore-unfixed \
-          --vuln-type os,library \
-          --severity CRITICAL,HIGH,MEDIUM \
-          --db-repository 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db' \
-          .
+          docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
+
+      - name: Run final Trivy vulnerability scanner for Docker image (JSON Output)
+        if: failure()
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
+          format: 'json'
+          output: 'trivy-final-results.json'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          trivyignores: '.trivyignore'
+        env:
+          TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
 
       - name: Display final Trivy Scan Results
         run: |
