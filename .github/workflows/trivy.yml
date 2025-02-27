@@ -2,181 +2,131 @@ name: Trivy Nightly Scan
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # This runs the workflow every night at midnight UTC
+    - cron: '0 0 * * *'  # Runs every night at midnight UTC
 
 jobs:
   build:
     if: github.event.pull_request.draft == false
     permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      contents: read
+      security-events: write
+      actions: read
     runs-on: ubuntu-22.04
     timeout-minutes: 15
-    
-    env:
-      TRIVY_DB_REPOSITORY: 'ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db'
 
     steps:
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Update package list
-        run: sudo apt update
+      # Step 2: Run Trivy filesystem scan on the code
+      - name: Run Trivy code scan
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: 'fs'
+          format: 'json'
+          output: 'trivy-code-results.json'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
-      - name: Install Trivy
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
-
-      - name: Run Trivy code vulnerability scanner (JSON Output)
-        run: |
-          trivy --quiet fs \
-          --format json \
-          --output trivy-code-results.json \
-          --ignore-unfixed \
-          --vuln-type os,library \
-          --severity CRITICAL,HIGH,MEDIUM \
-          .
-
-      - name: Display Trivy Scan Results
-        if: failure() # Ensure this step runs regardless of the previous step's outcome
-        run: |
-          echo "Trivy Scan Results:"
-          cat trivy-code-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
-
-      - name: Upload Code Vulnerability Scan Results
+      # Step 3: Upload Trivy code scan results as an artifact
+      - name: Upload Code Scan Results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-code-report-json
+          name: trivy-code-report
           path: trivy-code-results.json
 
-      - name: Build an image from Dockerfile
+      # Step 4: Build the Docker image with package upgrades
+      - name: Build Docker image with upgrades
         run: |
+          # Append package upgrade command to Dockerfile
+          echo "RUN apt-get update && apt-get upgrade -y" >> openfl-docker/Dockerfile.base
           docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
 
-      - name: Run Trivy vulnerability scanner for Docker image (JSON Output)
-        id: trivy-scan
+      # Step 5: Run Trivy scan on the initial Docker image
+      - name: Run Trivy on Docker image
+        id: trivy-initial-scan
         uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
           format: 'json'
-          output: 'trivy-docker-results.json'
-          exit-code: '1'
+          output: 'trivy-initial-docker-results.json'
+          exit-code: '0'  # Don't fail the build yet
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          trivyignores: '.trivyignore'
 
-      - name: Display Trivy Scan Results
-        if: failure() # Ensure this step runs regardless of the previous step's outcome
+      # Step 6: Check for vulnerabilities in the initial scan results
+      - name: Check for vulnerabilities
+        id: check-vuln
         run: |
-          if [ -s trivy-docker-results.json ]; then
-            echo "Trivy Scan Results:"
-            cat trivy-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
-          else
-            echo "Trivy scan results file is empty or not found."
-          fi
-
-      - name: Parse Trivy results and update vulnerable packages
-        id: parse_and_update
-        if: always() # Ensure this step runs regardless of the previous step's outcome
-        run: |
-          if [ -s trivy-docker-results.json ]; then
-            vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-docker-results.json | sort -u)
-            echo "vulnerable_packages=$vulnerable_packages" >> $GITHUB_ENV
-            if [ -n "$vulnerable_packages" ]; then
-              for package in $vulnerable_packages; do
-                current_version=$(dpkg -s $package | grep Version | awk '{print $2}')
-                latest_version=$(apt-cache policy $package | grep Candidate | awk '{print $2}')
-                if [ "$current_version" != "$latest_version" ]; then
-                  sudo apt-get install --only-upgrade $package -y || true
-                else
-                  echo "$package is already the newest version ($current_version)."
-                fi
-              done
+          if [ -s trivy-initial-docker-results.json ]; then
+            vuln_count=$(jq '[.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM")] | length' trivy-initial-docker-results.json)
+            if [ "$vuln_count" -gt 0 ]; then
+              echo "Vulnerabilities found. Proceeding to rebuild..."
+              echo "rebuild_needed=true" >> $GITHUB_OUTPUT
             else
-              echo "No vulnerable packages found."
+              echo "No vulnerabilities found."
             fi
           else
-            echo "Trivy scan results file is empty or not found."
-          fi
-  
-      - name: Verify package versions
-        if: always() # Ensure this step runs regardless of the previous step's outcome
-        run: |
-          if [ -n "$vulnerable_packages" ]; then
-            for package in $vulnerable_packages; do
-              dpkg -l | grep $package
-            done
-          else
-            echo "No packages to verify."
+            echo "Scan results missing."
           fi
 
-      - name: Rebuild Docker image after updates
-        if: failure() # Ensure this step runs regardless of the previous step's outcome
+      # Step 7: Rebuild the Docker image with no cache if vulnerabilities are found
+      - name: Rebuild Docker image with no cache
+        if: steps.check-vuln.outputs.rebuild_needed == 'true'
         run: |
-          docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base . --no-cache
+          docker build --no-cache --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
 
-      - name: Run final Trivy vulnerability scanner for Docker image (JSON Output)
-        if: failure() # Ensure this step runs regardless of the previous step's outcome
-        id: final-trivy-scan
+      # Step 8: Run Trivy scan on the final Docker image
+      - name: Run Trivy on final Docker image
         uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
           format: 'json'
-          output: 'trivy-final-results.json'
-          exit-code: '1'
+          output: 'trivy-final-docker-results.json'
+          exit-code: '1'  # Fail if vulnerabilities remain
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          trivyignores: '.trivyignore'
 
+      # Step 9: Display Trivy Scan Results
       - name: Display Trivy Scan Results
         if: failure() # Ensure this step runs regardless of the previous step's outcome
         run: |
-          if [ -s trivy-final-results.json ]; then
+          if [ -s trivy-final-docker-results.json ]; then
             echo "Trivy Scan Results:"
-            cat trivy-final-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
+            cat trivy-final-docker-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
           else
             echo "Trivy scan results file is empty or not found."
           fi
 
-      - name: Upload final Trivy Docker Vulnerability Scan
+      # Step 10: Upload final Docker scan results as an artifact
+      - name: Upload Docker Scan Results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-docker-report-json
-          path: trivy-final-results.json
+          name: trivy-docker-report
+          path: trivy-final-docker-results.json
 
-      - name: Run Trivy code vulnerability scanner (SPDX-JSON Output)
-        run: |
-          trivy --quiet fs \
-          --format spdx-json \
-          --output trivy-code-spdx-results.json \
-          --ignore-unfixed \
-          --vuln-type os,library \
-          --severity CRITICAL,HIGH,MEDIUM \
-          .
-
-      - name: Upload Code Vulnerability Scan Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-code-spdx-report-json
-          path: trivy-code-spdx-results.json
-        
-      - name: Run Trivy vulnerability scanner for Docker image (SPDX-JSON Output)
+      # Step 11: Generate SPDX reports for both code and Docker image
+      - name: Generate SPDX reports
         uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: 'docker.io/securefederatedai/openfl:${{ github.sha }}'
+          scan-type: 'fs'
           format: 'spdx-json'
-          output: 'trivy-docker-spdx-results.json'
-          exit-code: '1'
+          output: 'trivy-spdx-reports.json'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM'
-          trivyignores: '.trivyignore'
-    
-      - name: Upload Docker Vulnerability Scan
+
+      # Step 12: Upload SPDX reports as an artifact
+      - name: Upload SPDX Reports
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-docker-spdx-report-json
-          path: trivy-docker-spdx-results.json
+          name: trivy-spdx-reports
+          path: |
+            trivy-spdx-reports.json
+            trivy-code-results.json
+            trivy-final-docker-results.json
