@@ -20,7 +20,11 @@ jobs:
 
       - name: Update package list
         run: sudo apt update
-      
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+
       - name: Run Trivy code vulnerability scanner (JSON Output)
         run: |
           trivy --quiet fs \
@@ -43,10 +47,6 @@ jobs:
         with:
           name: trivy-code-report-json
           path: trivy-code-results.json
-
-      - name: Install Trivy
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
 
       - name: Build an image from Dockerfile
         run: |
