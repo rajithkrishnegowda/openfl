@@ -40,8 +40,6 @@ jobs:
       # Step 4: Build the Docker image with package upgrades
       - name: Build Docker image with upgrades
         run: |
-          # Append package upgrade command to Dockerfile
-          echo "RUN apt-get update && apt-get upgrade -y" >> openfl-docker/Dockerfile.base
           docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base .
 
       # Step 5: Run Trivy scan on the initial Docker image
