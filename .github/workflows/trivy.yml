@@ -39,7 +39,7 @@ jobs:
           .
 
       - name: Display Trivy Scan Results
-        if: always()
+        if: failure() # Ensure this step runs regardless of the previous step's outcome
         run: |
           echo "Trivy Scan Results:"
           cat trivy-code-results.json | jq '.Results[] | select(.Vulnerabilities != null) | .Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity, Description}'
@@ -68,7 +68,7 @@ jobs:
           trivyignores: '.trivyignore'
 
       - name: Display Trivy Scan Results
-        if: always()
+        if: failure() # Ensure this step runs regardless of the previous step's outcome
         run: |
           if [ -s trivy-docker-results.json ]; then
             echo "Trivy Scan Results:"
@@ -79,14 +79,20 @@ jobs:
 
       - name: Parse Trivy results and update vulnerable packages
         id: parse_and_update
-        if: always()
+        if: always() # Ensure this step runs regardless of the previous step's outcome
         run: |
           if [ -s trivy-docker-results.json ]; then
             vulnerable_packages=$(jq -r '.Results[].Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH" or .Severity == "MEDIUM") | .PkgName' trivy-docker-results.json | sort -u)
             echo "vulnerable_packages=$vulnerable_packages" >> $GITHUB_ENV
             if [ -n "$vulnerable_packages" ]; then
               for package in $vulnerable_packages; do
-                sudo apt-get install --only-upgrade $package -y || true
+                current_version=$(dpkg -s $package | grep Version | awk '{print $2}')
+                latest_version=$(apt-cache policy $package | grep Candidate | awk '{print $2}')
+                if [ "$current_version" != "$latest_version" ]; then
+                  sudo apt-get install --only-upgrade $package -y || true
+                else
+                  echo "$package is already the newest version ($current_version)."
+                fi
               done
             else
               echo "No vulnerable packages found."
@@ -94,9 +100,9 @@ jobs:
           else
             echo "Trivy scan results file is empty or not found."
           fi
-
+  
       - name: Verify package versions
-        if: always()
+        if: always() # Ensure this step runs regardless of the previous step's outcome
         run: |
           if [ -n "$vulnerable_packages" ]; then
             for package in $vulnerable_packages; do
@@ -107,12 +113,12 @@ jobs:
           fi
 
       - name: Rebuild Docker image after updates
-        if: always()
+        if: failure() # Ensure this step runs regardless of the previous step's outcome
         run: |
           docker build --pull -t docker.io/securefederatedai/openfl:${{ github.sha }} -f openfl-docker/Dockerfile.base . --no-cache
 
       - name: Run final Trivy vulnerability scanner for Docker image (JSON Output)
-        if: always()
+        if: failure() # Ensure this step runs regardless of the previous step's outcome
         id: final-trivy-scan
         uses: aquasecurity/trivy-action@0.29.0
         with:
@@ -126,7 +132,7 @@ jobs:
           trivyignores: '.trivyignore'
 
       - name: Display Trivy Scan Results
-        if: always()
+        if: failure() # Ensure this step runs regardless of the previous step's outcome
         run: |
           if [ -s trivy-final-results.json ]; then
             echo "Trivy Scan Results:"
