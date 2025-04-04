@@ -4,14 +4,12 @@
 
 """Plan module."""
 
-import os
 import sys
 from logging import getLogger
 from os import makedirs
 from os.path import isfile
 from pathlib import Path
 from shutil import copyfile, rmtree
-from subprocess import check_call  # nosec
 
 from click import Path as ClickPath
 from click import echo, group, option, pass_context
@@ -69,7 +67,7 @@ def plan(context):
     "-a",
     "--aggregator_address",
     required=False,
-    help="The FQDN of the federation agregator",
+    help="The FQDN of the federation aggregator",
 )
 @option(
     "-f",
@@ -93,14 +91,6 @@ def plan(context):
     help="GaNDLF Configuration File Path",
 )
 @option(
-    "-r",
-    "--install_reqs",
-    required=False,
-    help="If set, installs packages listed under 'requirements.txt'.",
-    default=True,
-    show_default=True,
-)
-@option(
     "-i",
     "--init_model_path",
     required=False,
@@ -115,7 +105,6 @@ def initialize(
     aggregator_address,
     input_shape,
     gandlf_config,
-    install_reqs,
     init_model_path,
 ):
     """
@@ -134,10 +123,6 @@ def initialize(
     if gandlf_config is not None:
         gandlf_config = Path(gandlf_config).absolute()
 
-    if install_reqs:
-        requirements_path = Path("requirements.txt").absolute()
-        _handle_requirements_install(requirements_path)
-
     plan = Plan.parse(
         plan_config_path=plan_config,
         cols_config_path=cols_config,
@@ -145,39 +130,45 @@ def initialize(
         gandlf_config_path=gandlf_config,
     )
 
-    init_state_path = plan.config["aggregator"]["settings"]["init_state_path"]
-    # This is needed to bypass data being locally available
-    if input_shape is not None:
-        logger.info(
-            f"Attempting to generate initial model weights with custom input shape {input_shape}"
+    if "connector" in plan.config:
+        logger.info("OpenFL Connector enabled: %s", plan.config["connector"])
+        # Only need to initialize task runner to install apps/packages
+        # that were not installable via requirements.txt
+        plan.get_task_runner(data_loader=None)
+    else:
+        init_state_path = plan.config["aggregator"]["settings"]["init_state_path"]
+        # This is needed to bypass data being locally available
+        if input_shape is not None:
+            logger.info(
+                "Attempting to generate initial model weights with custom input shape "
+                f"{input_shape}"
+            )
+
+        # Initialize tensor dictionary
+        init_tensor_dict, task_runner, round_number = _initialize_tensor_dict(
+            plan, input_shape, init_model_path
         )
 
-    # Initialize tensor dictionary
-    init_tensor_dict, task_runner, round_number = _initialize_tensor_dict(
-        plan, input_shape, init_model_path
-    )
-
-    tensor_dict, holdout_params = split_tensor_dict_for_holdouts(
-        logger,
-        init_tensor_dict,
-        **task_runner.tensor_dict_split_fn_kwargs,
-    )
-
-    logger.warning(
-        f"Following parameters omitted from global initial model, "
-        f"local initialization will determine"
-        f" values: {list(holdout_params.keys())}"
-    )
-
-    # Save the model state
-    try:
-        logger.info(f"Saving model state to {init_state_path}")
-        plan.save_model_to_state_file(
-            tensor_dict=tensor_dict, round_number=round_number, output_path=init_state_path
+        tensor_dict, holdout_params = split_tensor_dict_for_holdouts(
+            init_tensor_dict,
+            **task_runner.tensor_dict_split_fn_kwargs,
         )
-    except Exception as e:
-        logger.error(f"Failed to save model state: {e}")
-        raise
+
+        logger.warning(
+            f"Following parameters omitted from global initial model, "
+            f"local initialization will determine"
+            f" values: {list(holdout_params.keys())}"
+        )
+
+        # Save the model state
+        try:
+            logger.info(f"Saving model state to {init_state_path}")
+            plan.save_model_to_state_file(
+                tensor_dict=tensor_dict, round_number=round_number, output_path=init_state_path
+            )
+        except Exception as e:
+            logger.error(f"Failed to save model state: {e}")
+            raise
 
     plan_origin = Plan.parse(
         plan_config_path=plan_config,
@@ -203,37 +194,6 @@ def initialize(
         context.obj["plans"] = []
     context.obj["plans"].append(f"{plan_config.stem}_{plan_origin.hash[:8]}")
     logger.info(f"{context.obj['plans']}")
-
-
-def _handle_requirements_install(requirements_path):
-    """Handle the installation of requirements and process restart if needed.
-
-    This method checks if a requirements.txt file exists at the provided path.
-    If found, it installs the packages listed in the file using pip. After
-    successful installation, it restarts the current process with the same
-    arguments, but with the --install_reqs flag set to False to avoid
-    re-installing requirements.
-
-    If no requirements.txt file is found, it prints a message indicating that
-    no additional requirements are defined for the workspace and skips the
-    installation.
-
-    Args:
-        requirements_path (str or Path): The path to the requirements.txt file.
-    """
-    if isfile(str(requirements_path)):
-        check_call(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
-            shell=False,
-        )
-        echo(f"Successfully installed packages from {requirements_path}.")
-
-        # Required to restart the process for newly installed packages to be recognized
-        args_restart = [arg for arg in sys.argv if not arg.startswith("--install_reqs")]
-        args_restart.append("--install_reqs=False")
-        os.execv(args_restart[0], args_restart)
-    else:
-        echo("No additional requirements for workspace defined. Skipping...")
 
 
 def _initialize_tensor_dict(plan, input_shape, init_model_path):
@@ -373,7 +333,7 @@ def save_(name):
     makedirs(f"plan/plans/{name}", exist_ok=True)
     copyfile("plan/plan.yaml", f"plan/plans/{name}/plan.yaml")
 
-    switch_plan(name)  # Swtich the context
+    switch_plan(name)  # Switch the context
 
 
 @plan.command(name="remove")
@@ -396,7 +356,7 @@ def remove_(name):
 
         rmtree(f"plan/plans/{name}")
 
-        switch_plan("default")  # Swtich the context back to the default
+        switch_plan("default")  # Switch the context back to the default
 
     else:
         echo("ERROR: Can't remove default plan")

@@ -68,6 +68,13 @@ class ModelOwner():
                 raise_exception=True
             )
 
+            return_code, output, error = fh.run_command(
+                "pip install -r requirements.txt",
+                workspace_path=ws_path,
+                error_msg="Failed to install the requirements",
+                container_id=self.container_id,
+            )
+
         except Exception as e:
             log.error(f"{error_msg}: {e}")
             raise e
@@ -122,7 +129,7 @@ class ModelOwner():
             raise e
         return True
 
-    def modify_plan(self, param_config, plan_path, eval_scope=False):
+    def modify_plan(self, param_config, plan_path):
         """
         Modify the plan to train the model
         Args:
@@ -149,29 +156,21 @@ class ModelOwner():
             data["aggregator"]["settings"]["write_logs"] = True
             data["collaborator"]["settings"]["write_logs"] = True
 
-            data["data_loader"]["settings"]["collaborator_count"] = int(self.num_collaborators)
+            # GaNDLF dataloader neither has collaborator_count nor kwargs to support additional params
+            # Thus skipping below assignment for such scenarios.
+            if "collaborator_count" in data["data_loader"]["settings"]:
+                data["data_loader"]["settings"]["collaborator_count"] = int(self.num_collaborators)
+
             data["network"]["settings"]["require_client_auth"] = param_config.require_client_auth
             data["network"]["settings"]["use_tls"] = param_config.use_tls
-
-            if eval_scope:
-                # Remove all existing task_groups and set num_rounds to 1
-                data["assigner"]["settings"]["task_groups"] = []
-                # Add new task_groups for evaluation scope with task as aggregated_model_validation
-                new_task_group = {
-                    "name": "evaluation",
-                    "percentage": 1.0,
-                    "tasks": ["aggregated_model_validation"]
-                }
-                data["assigner"]["settings"]["task_groups"].append(new_task_group)
-                data["aggregator"]["settings"]["rounds_to_train"] = 1
-
+            if param_config.secure_agg:
+                data["aggregator"]["settings"]["secure_aggregation"] = True
             with open(plan_file, "w+") as write_file:
                 yaml.dump(data, write_file)
             log.info(f"Modified the plan with provided parameters.")
         except Exception as e:
             log.error(f"Failed to modify the plan: {e}")
             raise ex.PlanModificationException(f"Failed to modify the plan: {e}")
-
 
     def modify_straggler_policy(self, straggler_cutoff, plan_path):
         """
@@ -194,18 +193,17 @@ class ModelOwner():
             log.error(f"Failed to modify the plan with straggler cutoff settings: {e}")
             raise ex.PlanModificationException(f"Failed to modify the plan with straggler cutoff settings: {e}")
 
-
-    def initialize_plan(self, agg_domain_name, initial_model_path=None):
+    def initialize_plan(self, agg_domain_name, extra_args=""):
         """
         Initialize the plan
         Args:
             agg_domain_name (str): Aggregator domain name
+            extra_args (str): Extra arguments provided based on conditions
+                This will help remove if/else conditions inside this function
         """
         try:
             log.info("Initializing the plan. It will take some time to complete..")
-            cmd = f"fx plan initialize -a {agg_domain_name}"
-            if initial_model_path:
-                cmd += f" -i {initial_model_path}"
+            cmd = f"fx plan initialize -a {agg_domain_name} {extra_args}"
             error_msg="Failed to initialize the plan"
             return_code, output, error = fh.run_command(
                 cmd,
@@ -305,8 +303,8 @@ class ModelOwner():
 
             doc["collaborators"] = []  # Create empty list
 
-            for i in range(num_collaborators):
-                col_name = "collaborator" + str(i+1)
+            for i in range(1, num_collaborators+1):
+                col_name = "collaborator" + str(i)
                 doc["collaborators"].append(col_name)
                 with open(cols_file, "w", encoding="utf-8") as f:
                     yaml.dump(doc, f)

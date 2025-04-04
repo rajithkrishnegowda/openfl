@@ -12,8 +12,6 @@ import sys
 import tempfile
 from hashlib import sha256
 from pathlib import Path
-from subprocess import check_call  # nosec
-from sys import executable
 from typing import Union
 
 from click import Choice, echo, group, option, pass_context
@@ -23,7 +21,7 @@ from cryptography.hazmat.primitives import serialization
 from openfl.cryptography.ca import generate_root_cert, generate_signing_csr, sign_certificate
 from openfl.federated.plan import Plan
 from openfl.interface import plan
-from openfl.interface.cli_helper import CERT_DIR, OPENFL_USERDIR, SITEPACKS, WORKSPACE, print_tree
+from openfl.interface.cli_helper import CERT_DIR, SITEPACKS, WORKSPACE, print_tree
 
 
 @group()
@@ -129,39 +127,10 @@ def create(prefix, template):
         prefix: The prefix for the directories to be created.
         template: The template to use for creating the workspace.
     """
-
-    if not OPENFL_USERDIR.exists():
-        OPENFL_USERDIR.mkdir()
-
     prefix = Path(prefix).absolute()
 
     create_dirs(prefix)
     create_temp(prefix, template)
-
-    requirements_filename = "requirements.txt"
-
-    if os.path.isfile(f"{str(prefix)}/{requirements_filename}"):
-        check_call(
-            [
-                executable,
-                "-m",
-                "pip",
-                "install",
-                "-r",
-                f"{prefix}/requirements.txt",
-            ],
-            shell=False,
-        )
-        echo(f"Successfully installed packages from {prefix}/requirements.txt.")
-    else:
-        echo("No additional requirements for workspace defined. Skipping...")
-    prefix_hash = _get_dir_hash(str(prefix.absolute()))
-    with open(
-        OPENFL_USERDIR / f"requirements.{prefix_hash}.txt",
-        "w",
-        encoding="utf-8",
-    ) as f:
-        check_call([executable, "-m", "pip", "freeze"], shell=False, stdout=f)
 
     apply_template_plan(prefix, template)
 
@@ -435,7 +404,7 @@ def dockerize_(context, save: bool, rebuild: bool, enclave_key: str, base_image:
     options = " ".join(options)
     logging.info(f"Using base image: {base_image}")
     if enclave_key is None:
-        _execute("openssl genrsa -out key.pem -3 3072")
+        _execute(["openssl", "genrsa", "-out", "key.pem", "-3", "3072"])
         enclave_key = os.path.abspath("key.pem")
         logging.info(f"Generated new enclave key: {enclave_key}")
     else:
@@ -445,28 +414,27 @@ def dockerize_(context, save: bool, rebuild: bool, enclave_key: str, base_image:
         logging.info(f"Using enclave key: {enclave_key}")
 
     logging.info("Building workspace image")
-    ws_image_build_cmd = (
-        "DOCKER_BUILDKIT=1 docker build {options} "
-        "--build-arg WORKSPACE_NAME={workspace_name} "
-        "--secret id=signer-key,src={enclave_key} "
-        "-t {image_name} "
-        "-f {dockerfile} "
-        "{build_context}"
-    ).format(
-        options=options,
-        image_name=workspace_name,
-        workspace_name=workspace_name,
-        enclave_key=enclave_key,
-        dockerfile=os.path.join(SITEPACKS, "openfl-docker", "Dockerfile.workspace"),
-        build_context=".",
-    )
-    _execute(ws_image_build_cmd)
+    ws_image_build_cmd = [
+        "docker",
+        "build",
+        *options.split(),
+        "--build-arg",
+        f"WORKSPACE_NAME={workspace_name}",
+        "--secret",
+        f"id=signer-key,src={enclave_key}",
+        "-t",
+        workspace_name,
+        "-f",
+        os.path.join(SITEPACKS, "openfl-docker", "Dockerfile.workspace"),
+        ".",
+    ]
+    _execute(ws_image_build_cmd, env_var={"DOCKER_BUILDKIT": "1"})
 
     # Export workspace as tarball (optional)
     if save:
         logging.info("Saving workspace docker image...")
-        save_image_cmd = "docker save {image_name} -o {image_name}.tar"
-        _execute(save_image_cmd.format(image_name=workspace_name))
+        save_image_cmd = ["docker", "save", workspace_name, "-o", f"{workspace_name}.tar"]
+        _execute(save_image_cmd)
         logging.info(f"Docker image saved to file: {workspace_name}.tar")
 
 
@@ -486,7 +454,7 @@ def apply_template_plan(prefix, template):
     Plan.dump(prefix / "plan" / "plan.yaml", template_plan.config)
 
 
-def _execute(cmd: str, verbose=True) -> None:
+def _execute(cmd: str, env_var: dict = {}, verbose=True) -> None:
     """Executes `cmd` as a subprocess
 
     Args:
@@ -499,7 +467,7 @@ def _execute(cmd: str, verbose=True) -> None:
         `stdout` of the command as list of messages
     """
     logging.info(f"Executing: {cmd}")
-    process = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    process = subprocess.Popen(cmd, env=env_var, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     stdout_log = []
     for line in process.stdout:
         msg = line.rstrip().decode("utf-8")

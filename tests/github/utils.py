@@ -50,6 +50,7 @@ def create_certified_workspace(path, template, fqdn, rounds_to_train):
     shutil.rmtree(path, ignore_errors=True)
     check_call(['fx', 'workspace', 'create', '--prefix', path, '--template', template])
     os.chdir(path)
+    check_call(['pip', 'install', '-r', 'requirements.txt'])
 
     # Initialize FL plan
     check_call(['fx', 'plan', 'initialize', '-a', fqdn])
@@ -82,7 +83,7 @@ def certify_aggregator(fqdn):
 
 def create_signed_cert_for_collaborator(col, data_path):
     '''
-    We do certs exchage for all participants in a single workspace to speed up this test run.
+    We do certs exchange for all participants in a single workspace to speed up this test run.
     Do not do this in real experiments in untrusted environments
     '''
     print(f'Certifying collaborator {col} with data path {data_path}...')
